@@ -1,6 +1,7 @@
 import requests
 import sys
 import json
+import re
 from argparse import ArgumentParser
 from threading import Thread, Event
 from queue import Queue
@@ -8,6 +9,7 @@ from prettytable import PrettyTable
 
 LIST_FORMAT = "http://{0}:{1}/{2}/{3}"
 COMMAND_FORMAT = "http://{0}:{1}/services/{2}/{3}/"
+SHUTDOWN = "http://{0}:{1}/shutdown"
 
 class NIORequest(Thread):
     
@@ -76,6 +78,9 @@ class Action(object):
             rows.append([data[k].get(j) for j in keys])
         return rows
 
+
+    # TODO: refactor these next two methods, most of the code is repeated
+    # use your fp skillz, player
     def _gen_command_list(self, data):
         header = ['command']
         rows = [header]
@@ -86,6 +91,18 @@ class Action(object):
                         for p in params])
 
         max_len = max([len(r) for r in rows])
+        rows[0] += list(range(max_len-1))
+        rows = [r + [''] * (max_len - len(r)) for r in rows]
+        return rows
+
+    def _gen_execution_list(self, data):
+        header = ['Output Block']
+        rows = [header]
+        for frm in data:
+            rows.append([frm] + data[frm])
+
+        max_len = max([len(r) for r in rows])
+        rows[0] += list(range(max_len-1))
         rows = [r + [''] * (max_len - len(r)) for r in rows]
         return rows
 
@@ -149,19 +166,27 @@ class CommandAction(Action):
         self.fields = ['title', 'params']
 
     def _create_url(self):
+        result = []
         url = COMMAND_FORMAT.format(self.args.host, self.args.port,
                                     self.args.service, self.args.block)
 
-        url += self.args.command
-        return [url]
+        if self.args.command == 'restart':
+            result.append(url + 'stop')
+            result.append(url + 'start')
+        else:
+            result.append(url + self.args.command)
+        return result
 
     def make_request(self):
-        data = {}
-        for a in self.args.args:
-            param, arg = a
-            data[param] = arg
+        if self.args.command == 'shutdown':
+            requests.get(SHUTDOWN, auth=self.auth)
+        else:
+            data = {}
+            for a in self.args.args:
+                param, arg = a
+                data[param] = arg
 
-        super().make_request(json.dumps(data))
+            super().make_request(json.dumps(data))
 
     def _process_rsp(self, rsp):
         data = rsp.json()
@@ -185,35 +210,109 @@ class ConfigAction(Action):
         data = {}
 
         # TODO: boldly unsafe
-        block = requests.get(self.urls[0], auth=self.auth).json()
-        block_type = block['type']
+        resource = requests.get(self.urls[0], auth=self.auth).json()
+        resource_type = resource['type']
         type_url = self._create_types_url()
-        all_blocks = requests.get(type_url, auth=self.auth).json()
-        block_props = all_blocks[block_type].get('properties', {})
-        for prop in [b for b in block_props if b not in excl]:
-            detail = block_props[prop]
+        all_resources = requests.get(type_url, auth=self.auth).json()
+        resource_props = all_resources[resource_type].get('properties', {})
+        for prop in [b for b in resource_props if b not in excl]:
+            detail = resource_props[prop]
             if not detail.get('readonly', False):
                 val = input("%s (%s): " % (prop, detail['type']))
-                if detail['type'] == 'int':
+                if val == '':
+                    val = resource[prop]
+                elif detail['type'] == 'int':
                     val = int(val)
-                data[prop] = val or block[prop]
+                elif detail['type'] == 'bool':
+                    val = True if re.match(r'[tT]', val) else False
+                data[prop] = val
 
         super().make_request(json.dumps(data))
-        
-        pass
 
+
+class LinkAction(Action):
+
+    class Execution(object):
+        def __init__(self, execution):
+            self.links = {
+                e['name']: e['receivers'] for e in execution
+            }
+        
+        def add_link(self, frm, to):
+            frm_curr = self.links.get(frm, [])
+            if to not in frm_curr:
+                frm_curr.append(to)
+            self.links[frm] = frm_curr
+            
+        def rm_link(self, frm, to):
+            frm_curr = self.links.get(frm, [])
+            frm_curr = [t for t in frm_curr if t != to]
+            self.links[frm] = frm_curr
+
+        def pack(self):
+            return [{
+                'name': e, 'receivers': self.links[e]
+            } for e in self.links]
+    
+    def __init__(self, args):
+        super().__init__(args, 'PUT')
+
+    def _create_url(self):
+        return [LIST_FORMAT.format(self.args.host, self.args.port,
+                                   'services', self.args.name)]
+    def make_request(self):
+        service = requests.get(self.urls[0], auth=self.auth).json()
+        service_exec = self.Execution(service['execution'])
+        if len(self.args.links) == 0:
+            rows = self._gen_execution_list(service_exec.links)
+            print(self._get_table(rows))
+            return
+
+        print(self.args.links)
+        for l in self.args.links:
+            frm, to = l
+            if self.args.rm:
+                service_exec.rm_link(frm, to)
+            else:
+                service_exec.add_link(frm, to)
+        service['execution'] = service_exec.pack()
+        super().make_request(json.dumps(service))
+
+def try_int(arg):
+    result = arg
+    try:
+        result = int(arg)
+    except:
+        pass
+    return result
+
+def try_bool(arg):
+    result = arg
+    if re.match(r'[fF]', arg):
+        result = False
+    elif re.match(r'[tT]', arg):
+        result = True
+    print(type(result))
+    return result
 
 def argument(s):
     try:
         terms = s.split('=')
-        try:
-            terms[1] = int(terms[1])
-        except:
-            pass
-        return terms
+        terms[1] = try_int(terms[1])
+        terms[1] = try_bool(terms[1])
     except:
-        raise ArgumentTypeError("Command arguments must be of form 'foo=bar'")
-        
+        raise ArgumentTypeError(
+            "Command arguments must be of form 'foo=bar'"
+        )
+    return terms
+
+def link(s):
+    try:
+        return s.split('=>')
+    except:
+        raise ArgumentTypeError(
+            "Link arguments must be of the form 'foo=>bar'"
+        )
         
 def nio_instance_main():
     
@@ -245,6 +344,13 @@ def nio_instance_main():
     config_parser.set_defaults(action=ConfigAction)
     config_parser.add_argument('resource', type=str)
     config_parser.add_argument('name')
+    
+    link_parser = subparsers.add_parser('link', aliases=['cxn'])
+    link_parser.set_defaults(action=LinkAction)
+    link_parser.add_argument('name', type=str)
+    link_parser.add_argument('links', nargs='*', type=link)
+    link_parser.add_argument('-i', action='store_true')
+    link_parser.add_argument('-rm', action='store_true')
 
     args = argparser.parse_args()
 

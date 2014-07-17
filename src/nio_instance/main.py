@@ -35,7 +35,7 @@ def nio_instance_main():
     config_parser.add_argument('resource', type=str)
     config_parser.add_argument('name')
     
-    link_parser = subparsers.add_parser('link', aliases=['cxn'])
+    link_parser = subparsers.add_parser('link', aliases=['ln'])
     link_parser.set_defaults(action=LinkAction)
     link_parser.add_argument('name', type=str)
     link_parser.add_argument('links', nargs='*', type=link)

@@ -23,14 +23,15 @@ def try_bool(arg):
         result = False
     elif re.match(r'[tT]', arg):
         result = True
-    print(type(result))
     return result
 
 def argument(s):
     try:
         terms = s.split('=')
         terms[1] = try_int(terms[1])
-        terms[1] = try_bool(terms[1])
+        
+        # # there's no boolean command param right now
+        # terms[1] = try_bool(terms[1])
     except:
         raise ArgumentTypeError(
             "Command arguments must be of form 'foo=bar'"

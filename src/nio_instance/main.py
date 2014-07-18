@@ -28,6 +28,7 @@ def nio_instance_main():
     cmd_parser.add_argument('command', type=str)
     cmd_parser.add_argument('service', type=str)
     cmd_parser.add_argument('block', nargs='?', default='')
+    cmd_parser.add_argument('--interactive', '-i', action='store_true')
     cmd_parser.add_argument('--args', type=argument, nargs='*', default=[])
 
     config_parser = subparsers.add_parser('config', aliases=['cfg'])
@@ -38,8 +39,10 @@ def nio_instance_main():
     link_parser = subparsers.add_parser('link', aliases=['ln'])
     link_parser.set_defaults(action=LinkAction)
     link_parser.add_argument('name', type=str)
-    link_parser.add_argument('links', nargs='*', type=link)
-    link_parser.add_argument('-i', action='store_true')
+    if sys.stdin.isatty():
+        link_parser.set_defaults(interactive=True)
+    else:
+        link_parser.add_argument('links', nargs='*', type=link)
     link_parser.add_argument('-rm', action='store_true')
 
     args = argparser.parse_args()

@@ -66,3 +66,20 @@ class ListAction(Action):
         for k in data.keys():
             rows.append([data[k].get(j) for j in keys])
         return rows
+
+    # TODO: refactor these next two methods, most of the code is repeated
+    # use your fp skillz, player
+    def _gen_command_list(self, data):
+        header = ['command']
+        align = [(header[0], 'l')]
+        rows = [align, header]
+        for cmd in data:
+            params = data[cmd]['params']
+            r = [cmd]
+            rows.append([cmd] + ["{0}: ({1})".format(p, params[p]['type']) \
+                                 for p in params])
+
+        max_len = max([len(r) for r in rows])
+        rows[1] += list(range(max_len-1))
+        rows[1:] = [r + [''] * (max_len - len(r)) for r in rows[1:]]
+        return rows

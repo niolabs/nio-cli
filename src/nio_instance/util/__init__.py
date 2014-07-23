@@ -2,6 +2,8 @@
 
 """
 import re
+from .config_property import ConfigProperty
+from .execution import Execution
 
 
 LIST_FORMAT = "http://{0}:{1}/{2}/{3}"
@@ -38,9 +40,11 @@ def argument(s):
         )
     return terms
 
-def link(s):
+def edge(s):
     try:
-        return s.split('=>')
+        frm, to = s.split('=>')
+        to = to or None
+        return [frm, to]
     except:
         raise ArgumentTypeError(
             "Link arguments must be of the form 'foo=>bar'"

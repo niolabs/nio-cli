@@ -44,6 +44,7 @@ class CommandAction(Action):
         ) + '/commands'
         commands = requests.get(url, auth=self.auth).json()
         command_template = commands.get(self.args.command, {})['params']
+
         for name in command_template:
             _type = command_template[name]['type']
             result = input(prompt.format(name, _type))

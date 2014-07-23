@@ -52,7 +52,8 @@ class ListAction(Action):
             if isinstance(val, dict):
                 rows.append([k, ''])
                 for kp in val:
-                    rows.append(["+-> %s" % kp, val[kp] or "NULL"])
+                    rows.append(["+-> %s" % kp, val[kp] if val[kp] != '' \
+                                 else 'NULL'])
             else:
                 rows.append([k, data[k] or "NULL"])
                 

@@ -1,7 +1,7 @@
 import sys
 from argparse import ArgumentParser
-from actions import ListAction, CommandAction, ConfigAction, LinkAction
-from util import argument, link
+from actions import ListAction, CommandAction, ConfigAction, BuildAction
+from util import argument, edge
 
         
 def nio_instance_main():
@@ -36,52 +36,26 @@ def nio_instance_main():
     config_parser.add_argument('resource', type=str)
     config_parser.add_argument('name')
     
-    link_parser = subparsers.add_parser('link', aliases=['ln'])
-    link_parser.set_defaults(action=LinkAction)
-    link_parser.add_argument('name', type=str)
+    build_parser = subparsers.add_parser('build', aliases=['ln'])
+    build_parser.set_defaults(action=BuildAction)
+    build_parser.add_argument('name', type=str)
     if sys.stdin.isatty():
-        link_parser.set_defaults(interactive=True)
-    else:
-        link_parser.add_argument('links', nargs='*', type=link)
-    link_parser.add_argument('-rm', action='store_true')
+        build_parser.set_defaults(interactive=True)
+    build_parser.add_argument('edges', nargs='*', type=edge)
+    build_parser.add_argument('-rm', action='store_true')
 
     args = argparser.parse_args()
 
     action = args.action(args)
-    action.perform()
+    try:
+        action.perform()
+    except Exception as e:
+        # from traceback import format_exc
+        # print(format_exc())
+        print("Error while executing nio action {0}".format(
+            type(action).__name__), file=sys.stderr)
+        print(type(e).__name__, e, file=sys.stderr)
 
 if __name__ == '__main__':
     nio_instance_main()
     sys.exit(0)
-
-
-# class NIORequest(Thread):
-    
-#     def __init__(self, cmd='GET', 
-#                  url='https://localhost:8181/nio', 
-#                  resp_queue=None):
-#         super().__init__(target=self.request, args=(cmd, url))
-#         self._queue = resp_queue
-
-#     def request(self, cmd, url):
-#         try:
-#             rsp = requests.request(cmd, url, auth=('Admin', 'Admin'))
-#             self._queue.put(rsp)
-#         except Exception as e:
-#             print(type(e), e, file=sys.stderr)
-
-# class Consumer(Thread):
-    
-#     def __init__(self, resp_queue):
-#         super().__init__(target=self.consume, daemon=True)
-#         self._queue = resp_queue
-#         self._stop = Event()
-
-#     def consume(self):
-#         while(not self._stop.is_set()):
-#             rsp = self._queue.get()
-#             print(rsp.json())
-
-#     def stop(self):
-#         self._stop.set()
-

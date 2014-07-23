@@ -14,19 +14,26 @@ class Action(object):
     def perform(self, data=None):
         data = json.dumps(data) if data is not None else data
         for url in self.urls:
-            try:
-                rsp = requests.request(self.cmd, url, auth=self.auth, data=data)
-            except Exception as e:
-                print(type(e), e, file=sys.stderr)
-                sys.exit(1)
+            rsp = self._make_request(url, data)
             status = rsp.status_code
-            if status == 200:
-                if rsp.text:
-                    self._process_rsp(rsp)
-                else:
-                    print('`%s`' % rsp.request.url, "was processed successfully")
+            if status != 200:
+                print("NIO request returned status %d" % status, 
+                      file=sys.stderr)
+            elif rsp.text:
+                self._process_rsp(rsp)
             else:
-                print("NIO request returned status %d" % status, file=sys.stderr)
+                print('`%s`' % rsp.request.url, 
+                      "was processed successfully")
+
+
+    # TODO: this exception handling is maybe unnecessary
+    def _make_request(self, url, data):
+        try:
+            return requests.request(self.cmd, url, 
+                                    auth=self.auth, data=data)
+        except Exception as e:
+            print(type(e), e, file=sys.stderr)
+            sys.exit(1)
 
     def _process_rsp(self, rsp):
         pass

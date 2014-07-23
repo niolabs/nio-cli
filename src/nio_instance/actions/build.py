@@ -1,37 +1,33 @@
 import sys
 import requests
 from .base import Action
-from util import LIST_FORMAT, Execution
+from util import LIST_FORMAT, Execution, NIOClient
 
 
 class BuildAction(Action):
     
-    def __init__(self, args):
-        super().__init__(args, 'PUT')
-
     def _create_url(self):
         return [LIST_FORMAT.format(self.args.host, self.args.port,
                                    'services', self.args.name)]
     def perform(self):
-        service = requests.get(self.urls[0], auth=self.auth).json()
+        service = NIOClient.list('services', self.args.name).json()
         service_exec = Execution(service['execution'])
 
-        if len(self.args.edges) > 0:
-            for l in self.args.edges:
-                frm, to = l
-                if self.args.rm:
-                    service_exec.rm_edge(frm, to)
-                else:
-                    service_exec.add_edge(frm, to)
-            service['execution'] = service_exec.pack()
-            super().perform(service)
-            
+        for l in self.args.edges:
+            frm, to = l
+            if self.args.rm:
+                service_exec.rm_edge(frm, to)
+            else:
+                service_exec.add_edge(frm, to)
+
+        service['execution'] = service_exec.pack()
+        NIOClient.build(self.args.name, service)
+
+        self.generate_output(service_exec)
+
+    def generate_output(self, service_exec):
         rows = self._gen_execution_list(service_exec.edges)
-        if sys.stdout.isatty():
-            print(self._get_table(rows))
-        else:
-            for r in rows:
-                print(self._format_line(r))
+        super().generate_output(rows)
 
     def _gen_execution_list(self, data):
         header = ['Output Block']

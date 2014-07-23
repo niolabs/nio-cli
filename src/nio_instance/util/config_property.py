@@ -66,7 +66,7 @@ class ConfigProperty(object):
                 if isinstance(default, dict):
                     default = default.get(key)
                 sub_prop = ConfigProperty(key, detail, default)
-                sub_prop.process()
+                sub_prop.process("+-> {0}".format(prompt[1:]))
                 result[key] = sub_prop.value
 
         return result

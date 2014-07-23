@@ -1,7 +1,7 @@
 import sys
 from argparse import ArgumentParser
 from actions import ListAction, CommandAction, ConfigAction, BuildAction
-from util import argument, edge
+from util import argument, edge, creds, NIOClient
 
         
 def nio_instance_main():
@@ -13,6 +13,7 @@ def nio_instance_main():
 
     argparser.add_argument('--host', default='localhost')
     argparser.add_argument('-p', '--port', default='8181')
+    argparser.add_argument('-u', '--user', type=creds, default='Admin:Admin')
 
     subparsers = argparser.add_subparsers(help='sub-command help')
 
@@ -20,7 +21,7 @@ def nio_instance_main():
     list_parser = subparsers.add_parser('list', aliases=['ls'])
     list_parser.set_defaults(action=ListAction)
     list_parser.add_argument('resource', type=str)
-    list_parser.add_argument('name', nargs='*', default='')
+    list_parser.add_argument('names', nargs='*', default=[''])
     list_parser.add_argument('--cmd', action='store_true')
 
     cmd_parser = subparsers.add_parser('command', aliases=['co'])
@@ -41,17 +42,20 @@ def nio_instance_main():
     build_parser.add_argument('name', type=str)
     if sys.stdin.isatty():
         build_parser.set_defaults(interactive=True)
-    build_parser.add_argument('edges', nargs='*', type=edge)
+    build_parser.add_argument('edges', nargs='*', type=edge, default=[])
     build_parser.add_argument('-rm', action='store_true')
 
     args = argparser.parse_args()
+
+    # configure the API client
+    NIOClient.initialize(args.host, args.port, args.user)
 
     action = args.action(args)
     try:
         action.perform()
     except Exception as e:
-        # from traceback import format_exc
-        # print(format_exc())
+        from traceback import format_exc
+        print(format_exc())
         print("Error while executing nio action {0}".format(
             type(action).__name__), file=sys.stderr)
         print(type(e).__name__, e, file=sys.stderr)

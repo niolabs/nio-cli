@@ -1,39 +1,36 @@
 import requests
 from .base import Action
-from util import LIST_FORMAT, ConfigProperty
+from util import LIST_FORMAT, ConfigProperty, NIOClient
+
+
+EXCLUDE = ['name', 'sys_metadata', 'mappings', 'execution']
 
 
 class ConfigAction(Action):
 
-    def __init__(self, args):
-        super().__init__(args, 'PUT')
-
-    def _create_url(self):
-        return [LIST_FORMAT.format(self.args.host, self.args.port,
-                                   self.args.resource, self.args.name)]
-
-    def _create_types_url(self):
-        return LIST_FORMAT.format(self.args.host, self.args.port,
-                                  "%s_types" % self.args.resource, '')
-        
-    def perform(self, data=None):
-        exclude = ['name', 'sys_metadata', 'mappings', 'execution']
+    def perform(self):
         data = {}
 
         # TODO: boldly unsafe - mostly the json deser
-        resource = requests.get(self.urls[0], auth=self.auth).json()
+        resource = NIOClient.list(self.args.resource, self.args.name).json()
         properties = self._get_resource_props(resource)
 
-        for prop in [b for b in properties if b not in exclude]:
+        for prop in [b for b in properties if b not in EXCLUDE]:
             cfg_prop = ConfigProperty(prop, properties[prop], resource[prop])
             if not cfg_prop._detail.get('readonly', False):
                 cfg_prop.process()
             data[prop] = cfg_prop.value
 
-        super().perform(data)
+        rsp = NIOClient.config(self.args.resource, self.args.name, data)
+        self.generate_output(self.process(rsp))
+            
+    def generate_output(self, data):
+        rows = self._gen_spec(data)
+        super().generate_output(rows)
 
     def _get_resource_props(self, resource):
-        resource_type = resource['type']
-        type_url = self._create_types_url()
-        all_resources = requests.get(type_url, auth=self.auth).json()
-        return all_resources[resource_type].get('properties', {})
+        endpoint = "{0}_types".format(self.args.resource)
+        all_resources = NIOClient.list(endpoint).json()
+        specific_type = resource['type']
+        resource_template = all_resources[specific_type]
+        return resource_template.get('properties', {})

@@ -4,6 +4,7 @@
 import re
 from .config_property import ConfigProperty
 from .execution import Execution
+from .nio_api import NIOClient
 
 
 LIST_FORMAT = "http://{0}:{1}/{2}/{3}"
@@ -36,9 +37,21 @@ def argument(s):
         # terms[1] = try_bool(terms[1])
     except:
         raise ArgumentTypeError(
-            "Command arguments must be of form 'foo=bar'"
+            "Command arguments must be of the form 'foo=bar'"
         )
     return terms
+
+def creds(s):
+    try:
+        uname, password = s.split(':')
+        if isinstance(uname, str) and isinstance(password, str):
+            return (uname, password)
+        else:
+            raise Exception
+    except:
+        raise ArgumentTypeError(
+            "Credentials must be of the form 'username:password'"
+        )
 
 def edge(s):
     try:

@@ -1,58 +1,49 @@
 import requests
 from .base import Action
-from util import COMMAND_FORMAT, SHUTDOWN, LIST_FORMAT
+from util import COMMAND_FORMAT, NIOClient, LIST_FORMAT
 
 
 class CommandAction(Action):
 
     def __init__(self, args):
-        super().__init__(args, 'POST')
-        self.fields = ['title', 'params']
+        super().__init__(args)
+        self.resource = 'blocks' if args.block else 'services'
+        self.name = args.block or args.service
 
-    def _create_url(self):
-        result = []
-        url = COMMAND_FORMAT.format(self.args.host, self.args.port,
-                                    self.args.service, self.args.block)
-
-        if self.args.command == 'restart':
-            result.append(url + 'stop')
-            result.append(url + 'start')
+    @property
+    def params(self):
+        if self.args.interactive:
+            return self._collect_params()
         else:
-            result.append(url + self.args.command)
-        return result
+            return {a[0]: a[1] for a in self.args.args}
 
     def perform(self):
         if self.args.command == 'shutdown':
-            requests.get(SHUTDOWN, auth=self.auth)
+            NIOClient.shutdown()
+        elif self.args.command == 'restart':
+            NIOClient.command('stop', self.args.service)
+            NIOClient.command('start', self.args.service)
         else:
-            data = {}
-            if self.args.interactive:
-                data = self._collect_params(data)
-            else:
-                for a in self.args.args:
-                    param, arg = a
-                    data[param] = arg
+            rsp = NIOClient.command(self.args.command,
+                                    self.args.service,
+                                    self.args.block,
+                                    self.params)
+            print(self.process(rsp))
 
-            super().perform(data)
-
-    def _collect_params(self, data):
+    def _collect_params(self):
+        data = {}
         prompt="{0} ({1}): "
-        url = LIST_FORMAT.format(
-            self.args.host, self.args.port,
-            'blocks' if self.args.block else 'services',
-            self.args.block if self.args.block else self.args.service
-        ) + '/commands'
-        commands = requests.get(url, auth=self.auth).json()
-        command_template = commands.get(self.args.command, {})['params']
+        commands = NIOClient.list(self.resource, self.name, True).json()
+        command_template = commands.get(self.args.command, {}).get('params')
 
         for name in command_template:
             _type = command_template[name]['type']
             result = input(prompt.format(name, _type))
+
+            # we currently only have integer and string params for commands
             if _type == 'int':
                 result = int(result)
+
             data[name] = result
+
         return data
-            
-    def _process_rsp(self, rsp):
-        data = rsp.json()
-        print(data)

@@ -1,23 +1,43 @@
 import sys
+from os.path import expanduser, isfile
 from argparse import ArgumentParser
+from configparser import ConfigParser
 from actions import ListAction, CommandAction, ConfigAction, BuildAction
 from util import argument, edge, creds, NIOClient
 
 # TODO: 
-### Configuration by file.
 ### Protect some of the json ser/deser.
 
+def nio_instance_configure(conf_file):
+    conf_file = expanduser(conf_file)
+    if isfile(conf_file):
+        config = ConfigParser()
+        config.read(conf_file)
+
+        inst = config['DEFAULT']
+        if 'nio-instance' in config:
+            inst = config['nio-instance']
+
+        # initialize the NIOClient
+        host = inst.get('host')
+        port = inst.getint('port')
+        creds = (inst.get('username'), inst.get('password'))
+        NIOClient.initialize(host, port, creds)
+    else:
+        print("No such file or directory: {0}".format(conf_file),
+              file=sys.stderr)
+        sys.exit(1)
         
 def nio_instance_main():
-    
+
+
     argparser = ArgumentParser(
         description=('''Interact with a running NIO instance. '''
                      '''Requires the v1.x.x API.''')
     )
 
-    argparser.add_argument('--host', default='localhost')
-    argparser.add_argument('-p', '--port', default='8181')
-    argparser.add_argument('-u', '--user', type=creds, default='Admin:Admin')
+    # path to nio-instance config file
+    argparser.add_argument('-f', '--init', default='~/.config/nio-cli.ini')
 
     subparsers = argparser.add_subparsers(help='sub-command help')
 
@@ -51,8 +71,8 @@ def nio_instance_main():
 
     args = argparser.parse_args()
 
-    # configure the API client
-    NIOClient.initialize(args.host, args.port, args.user)
+    # initialization
+    nio_instance_configure(args.init)
 
     action = args.action(args)
     try:
@@ -63,7 +83,8 @@ def nio_instance_main():
         print("Error while executing nio action {0}".format(
             type(action).__name__), file=sys.stderr)
         print(type(e).__name__, e, file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == '__main__':
-    nio_instance_main()
+    status = nio_instance_main()
     sys.exit(0)

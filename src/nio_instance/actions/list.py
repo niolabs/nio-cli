@@ -1,5 +1,5 @@
 from .base import Action
-from util import LIST_FORMAT, NIOClient
+from util import NIOClient
 
 
 FIELDS = [

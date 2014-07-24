@@ -1,5 +1,5 @@
 from .base import Action
-from util import LIST_FORMAT, ConfigProperty, NIOClient
+from util import ConfigProperty, NIOClient
 
 
 EXCLUDE = ['name', 'sys_metadata', 'mappings', 'execution']

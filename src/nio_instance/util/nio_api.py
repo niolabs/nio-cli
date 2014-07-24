@@ -64,6 +64,7 @@ class NIOClient(object):
         url = cls.base_url.format(endpoint)
         rsp = requests.request(method, url, data=data, auth=cls.auth)
         status = rsp.status_code
+
         if status != 200:
             print("NIOClient: NIO returned status %d" % status, 
                   file=sys.stderr)

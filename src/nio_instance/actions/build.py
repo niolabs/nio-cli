@@ -1,5 +1,5 @@
 from .base import Action
-from util import LIST_FORMAT, Execution, NIOClient
+from util import Execution, NIOClient
 
 
 class BuildAction(Action):

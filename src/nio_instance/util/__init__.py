@@ -1,15 +1,10 @@
-""" Some utility functions and constants for the instance CLI
+""" Utility functions, argument formatters, and imports.
 
 """
 import re
 from .config_property import ConfigProperty
 from .execution import Execution
 from .nio_api import NIOClient
-
-
-LIST_FORMAT = "http://{0}:{1}/{2}/{3}"
-COMMAND_FORMAT = "http://{0}:{1}/services/{2}/{3}/"
-SHUTDOWN = "http://{0}:{1}/shutdown"
 
 
 def try_int(arg):

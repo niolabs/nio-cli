@@ -15,7 +15,9 @@ class BuildAction(Action):
             else:
                 service_exec.add_edge(frm, to)
 
-        service['execution'] = service_exec.pack()
-        NIOClient.build(self.args.name, service)
+        # only make the PUT request if something is changing
+        if len(self.args.edges) > 0:
+            service['execution'] = service_exec.pack()
+            NIOClient.build(self.args.name, service)
 
         self.generate_output(service_exec.to_rows())

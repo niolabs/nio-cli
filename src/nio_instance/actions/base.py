@@ -3,6 +3,15 @@ import requests
 import sys
 from prettytable import PrettyTable
 
+FIELDS = [
+    'name',
+    'type',
+    'log_level',
+    'auto_start',
+    'sys_metadata',
+    'mappings'
+]
+
 
 class Action(object):
     def __init__(self, args):

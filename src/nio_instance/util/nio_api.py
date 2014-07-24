@@ -10,9 +10,9 @@ class NIOClient(object):
 
     @classmethod
     def initialize(cls, host, port, auth):
-        cls.host = host
-        cls.port = port
-        cls.auth = auth
+        cls.host = host or cls.host
+        cls.port = port or cls.port
+        cls.auth = auth or cls.auth
         cls.base_url = "http://{0}:{1}/{2}".format(host, port, '{0}')
 
     ## Methods for interacting with the NIO API
@@ -65,8 +65,12 @@ class NIOClient(object):
         rsp = requests.request(method, url, data=data, auth=cls.auth)
         status = rsp.status_code
 
-        if status != 200:
-            print("NIOClient: NIO returned status %d" % status, 
+        if status == 401:
+            print("NIOCLient: Insufficient Permissions "
+                  "(username: {0})".format(cls.auth[0]),
+                  file=sys.stderr)
+        elif status != 200:
+            print("NIOClient: NIO returned status {0}".format(status), 
                   file=sys.stderr)
             return None
         elif not rsp.text:

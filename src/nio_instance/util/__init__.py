@@ -25,7 +25,7 @@ def try_bool(arg):
 
 def argument(s):
     try:
-        terms = s.split('=')
+        terms = s.split('=', 1)
         terms[1] = try_int(terms[1])
         
         # # there's no boolean command param right now

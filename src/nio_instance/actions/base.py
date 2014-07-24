@@ -22,7 +22,7 @@ class Action(object):
             table = self._get_table(rows)
             print(table)
         else:
-            [self._format_line(r) for r in rows]
+            [print(self._format_line(r)) for r in rows]
 
     #########################################################
     ### Abandon all hope, ye who enter here. -\('_')/-    ###

@@ -1,4 +1,3 @@
-import requests
 from .base import Action
 from util import LIST_FORMAT, ConfigProperty, NIOClient
 
@@ -22,11 +21,9 @@ class ConfigAction(Action):
             data[prop] = cfg_prop.value
 
         rsp = NIOClient.config(self.args.resource, self.args.name, data)
-        self.generate_output(self.process(rsp))
-            
-    def generate_output(self, data):
-        rows = self._gen_spec(data)
-        super().generate_output(rows)
+        new_data = self.process(rsp)
+        rows = self._gen_spec(new_data)
+        self.generate_output(rows)
 
     def _get_resource_props(self, resource):
         endpoint = "{0}_types".format(self.args.resource)

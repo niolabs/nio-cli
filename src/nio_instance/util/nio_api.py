@@ -72,6 +72,7 @@ class NIOClient(object):
             print('`%s`' % rsp.request.url, 
                   "was processed successfully")
         return rsp
+
     @staticmethod
     def _construct_endpoint(**kwargs):
         ''' Build the endpoint for a NIO api call. In general, NIO endpoints

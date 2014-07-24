@@ -1,4 +1,3 @@
-import sys
 from .base import Action
 from util import LIST_FORMAT, NIOClient
 
@@ -24,14 +23,10 @@ class ListAction(Action):
 
     def process(self, rsp, ls_all):
         data = rsp.json()
-        if ls_all:
-            [self.generate_output(data[n]) for n in data]
-        else:
-            self.generate_output(data)
-
-    def generate_output(self, data):
-        rows = self._get_rows(data)
-        super().generate_output(rows)
+        all_resources = [data[n] for n in data] if ls_all else [data]
+        all_rows = [self._get_rows(r) for r in all_resources]
+        for rows in all_rows:
+            self.generate_output(rows)
 
     def _get_rows(self, data):
         ''' Decide which type of table we want based on

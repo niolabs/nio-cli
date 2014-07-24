@@ -3,6 +3,10 @@ from argparse import ArgumentParser
 from actions import ListAction, CommandAction, ConfigAction, BuildAction
 from util import argument, edge, creds, NIOClient
 
+# TODO: 
+### Configuration by file.
+### Protect some of the json ser/deser.
+
         
 def nio_instance_main():
     

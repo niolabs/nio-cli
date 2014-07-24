@@ -1,5 +1,5 @@
 from .base import Action
-from util import NIOClient
+from ..util import NIOClient
 
 
 FIELDS = [

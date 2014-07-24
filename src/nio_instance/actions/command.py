@@ -1,6 +1,6 @@
 import requests
 from .base import Action
-from util import NIOClient
+from ..util import NIOClient
 
 
 class CommandAction(Action):

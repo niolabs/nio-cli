@@ -2,13 +2,13 @@ import sys
 from os.path import expanduser, isfile
 from argparse import ArgumentParser
 from configparser import ConfigParser
-from actions import ListAction, CommandAction, ConfigAction, BuildAction
-from util import argument, edge, creds, NIOClient
+from .actions import ListAction, CommandAction, ConfigAction, BuildAction
+from .util import argument, edge, creds, NIOClient
 
 # TODO: 
 ### Protect some of the json ser/deser.
 
-def nio_instance_configure(conf_file):
+def _nio_instance_configure(conf_file):
     conf_file = expanduser(conf_file)
     if isfile(conf_file):
         config = ConfigParser()
@@ -28,7 +28,7 @@ def nio_instance_configure(conf_file):
               file=sys.stderr)
         sys.exit(1)
         
-def nio_instance_main():
+def _nio_instance_main():
 
 
     argparser = ArgumentParser(
@@ -72,7 +72,7 @@ def nio_instance_main():
     args = argparser.parse_args()
 
     # initialization
-    nio_instance_configure(args.init)
+    _nio_instance_configure(args.init)
 
     action = args.action(args)
     try:
@@ -86,5 +86,5 @@ def nio_instance_main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    status = nio_instance_main()
+    status = _nio_instance_main()
     sys.exit(0)

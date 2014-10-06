@@ -36,7 +36,7 @@ class ConfigProperty(object):
 
         # handle a list property by looking at the template
         if self._type == 'list':
-            result = self._current
+            result = self._current or []
             obj = self._process_object(None, prompt)
             while obj is not None:
                 result.append(obj)

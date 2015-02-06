@@ -6,6 +6,10 @@ setup(
         where='src'
     ),
     package_dir = {'': 'src'},
+    install_requires = [
+        'prettytable',
+        'requests'
+    ],
 
     entry_points={
         'console_scripts': [

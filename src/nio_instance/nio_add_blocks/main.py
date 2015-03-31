@@ -1,0 +1,156 @@
+import subprocess
+import os
+from os import path
+from argparse import ArgumentParser
+from configparser import ConfigParser
+from ..util import NIOClient, Execution
+
+
+CLONE = "git clone git@github.com:{0}/{1}.git {2}"
+CLONE_HTTPS = "git clone https://github.com/{0}/{1}.git {2}"
+SUBMODULE_ADD = "git submodule add git@github.com:{0}/{1}.git ./{2}/{1}"
+SUBMODULE_HTTPS_ADD = "git submodule add https://github.com/{0}/{1}.git ./{2}/{1}"
+INIT_ONE = "cd ./{}/{} && git submodule update --init --recursive"
+INIT_RECURSIVE = "git submodule update --init --recursive"
+UPDATE_ONE = "cd ./{}/{} && git pull --ff-only --recurse-submodules --all"
+GIT_ADD_BLOCK = '''git add ./{}/{}'''
+COMMIT_BLOCKS = '''git commit -m "[NIO-UPDATE-BLOCKS] updated blocks {}"'''
+GIT_CHECKOUT_BLOCK = "cd ./{}/{} && git checkout {}"
+
+
+class BlockAdder(object):
+
+    user_org = 'nio-blocks'
+    target = "blocks"
+
+    @classmethod
+    def config(cls, conf_file='~/.config/nio-add-blocks.ini'):
+        conf_file = path.expanduser(conf_file)
+        if path.isfile(conf_file):
+            config = ConfigParser()
+            config.read(conf_file)
+
+            if 'add-blocks' in config:
+                cls.user_org = config['add-blocks'].get('user_org',
+                                                        cls.user_org)
+                cls.target = config['add-blocks'].get('target_dir',
+                                                    cls.target)
+
+    @classmethod
+    def add(cls, repo_name, project=False, https=False):
+        clone, sm_add = [
+            CLONE_HTTPS if https else CLONE,
+            SUBMODULE_HTTPS_ADD if https else SUBMODULE_ADD
+        ]
+        if project:
+            subprocess.call(
+                clone.format(cls.user_org,
+                             'project_template',
+                             repo_name),
+                shell=True
+            )
+        else:
+            subprocess.call(
+                sm_add.format(cls.user_org,
+                              repo_name,
+                              cls.target),
+                shell=True
+            )
+
+    @classmethod
+    def initialize(cls, block=None):
+        if block is not None:
+            subprocess.call(INIT_ONE.format(cls.target, block), shell=True)
+        else:
+            subprocess.call(INIT_RECURSIVE, shell=True)
+
+
+class BlockUpdater(BlockAdder):
+
+    @classmethod
+    def update(cls, block):
+        subprocess.call(UPDATE_ONE.format(cls.target, block), shell=True)
+
+
+    @classmethod
+    def git_add(cls, block):
+        subprocess.call(GIT_ADD_BLOCK.format(cls.target, block), shell=True)
+
+    @classmethod
+    def checkout(cls, block, branch):
+        subprocess.call(GIT_CHECKOUT_BLOCK.format(cls.target, block, branch),
+                        shell=True)
+
+    @classmethod
+    def commit(cls, blocks):
+        subprocess.call(COMMIT_BLOCKS.format(blocks), shell=True)
+
+class AddBlocksAction:
+
+    def __init__(self, args):
+        self.args = args
+
+    def perform(self):
+        BlockAdder.config(self.args.init) \
+            if self.args.init else BlockAdder.config()
+
+        if self.args.repos:
+            for r in self.args.repos:
+                BlockAdder.add(r, https=self.args.https)
+                BlockAdder.initialize(r)
+        elif self.args.update:
+            BlockAdder.initialize()
+
+class AddProjectAction:
+
+    def __init__(self, args):
+        self.args = args
+
+    def perform(self):
+        BlockAdder.add(self.args.project_name, True, self.args.https)
+
+class PullBlocksAction:
+
+    def __init__(self, args):
+        self.args = args
+
+    def perform(self):
+        BlockUpdater.config(self.args.init) \
+            if self.args.init else BlockUpdater.config()
+
+        # do pull of submodules
+        blocks = []
+        if self.args.blocks:
+            for b in self.args.blocks:
+                self.process_block(self.args.nc, b)
+                blocks.append(b)
+        else:
+            for b in os.listdir(BlockUpdater.target):
+                if path.isdir(path.join(BlockUpdater.target, b)):
+                    if b in {"__pycache__", ".git"}:
+                        continue
+                    self.process_block(self.args.nc, b)
+            blocks = "all"
+
+        # commit changes
+        if blocks:
+            BlockUpdater.commit(blocks)
+
+        # submodule update
+        if self.args.blocks:
+            for r in self.args.blocks:
+                BlockUpdater.initialize(r)
+        else:
+            BlockUpdater.initialize()
+
+    def process_block(no_checkout, b, branch='master'):
+        print("#" * 3, "Updating Block:", b, "#" * 3)
+        if not no_checkout:
+            print("Checking out", b, branch)
+            BlockUpdater.checkout(b, branch)
+        BlockUpdater.update(b)
+        BlockUpdater.git_add(b)
+
+if __name__ == '__main__':
+    # TODO: This was removed when merging nio-add-blocks with nio-cli
+    pass

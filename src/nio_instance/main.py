@@ -5,8 +5,10 @@ from configparser import ConfigParser
 from .actions import ListAction, CommandAction,\
     ConfigAction, BuildAction, UpdateAction
 from .util import argument, creds, NIOClient
+from .nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
+    PullBlocksAction
 
-# TODO: 
+# TODO:
 ### Protect some of the json ser/deser.
 
 def _nio_instance_configure(conf_file):
@@ -28,7 +30,7 @@ def _nio_instance_configure(conf_file):
         print("No such file or directory: {0}".format(conf_file),
               file=sys.stderr)
         sys.exit(1)
-        
+
 def _nio_instance_main():
 
     argparser = ArgumentParser(
@@ -62,7 +64,7 @@ def _nio_instance_main():
     config_parser.set_defaults(action=ConfigAction)
     config_parser.add_argument('resource', type=str)
     config_parser.add_argument('name')
-    
+
     build_parser = subparsers.add_parser('build', aliases=['ln'])
     build_parser.set_defaults(action=BuildAction)
     build_parser.add_argument('-rm', action='store_true')
@@ -73,6 +75,28 @@ def _nio_instance_main():
     update_parser = subparsers.add_parser('update')
     update_parser.set_defaults(action=UpdateAction)
     update_parser.add_argument('block_types', type=str, nargs='+')
+
+    # Add Blocks from GitHub
+    add_parser = subparsers.add_parser('add')
+    add_parser.set_defaults(action=AddBlocksAction)
+    add_parser.add_argument('-f', '--init', default='')
+    add_parser.add_argument('repos', type=str, nargs='*')
+    add_parser.add_argument('-u', '--update', action='store_true')
+    add_parser.add_argument('--https', action='store_true')
+
+    # Create a new nio project from project template on GitHub
+    new_parser = subparsers.add_parser('new')
+    new_parser.set_defaults(action=AddProjectAction)
+    new_parser.add_argument('project_name', default='project_template')
+    new_parser.add_argument('--https', action='store_true')
+
+    # Pull blocks from GitHub
+    pull_parser = subparsers.add_parser('pull')
+    pull_parser.set_defaults(action=PullBlocksAction)
+    pull_parser.add_argument('-f', '--init', default='')
+    pull_parser.add_argument('--nc', action="store_true",
+        help="Do not do any 'git checkout' during update")
+    pull_parser.add_argument('blocks', type=str, nargs='*')
 
     args = argparser.parse_args()
 

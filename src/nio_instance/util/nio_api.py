@@ -61,7 +61,7 @@ class NIOClient(object):
 
     @classmethod
     def update(cls, block_type):
-        cls.config('blocks_types', block_type, {}) 
+        cls.config('blocks_types', block_type, {})
 
     @classmethod
     def _request(cls, method, req_info, data=None):
@@ -76,11 +76,11 @@ class NIOClient(object):
                   file=sys.stderr)
         elif status >= 300:
             print(rsp.text)
-            print("NIOClient: NIO returned status {0}".format(status), 
+            print("NIOClient: NIO returned status {0}".format(status),
                   file=sys.stderr)
             return None
         elif not rsp.text:
-            print('`%s`' % rsp.request.url, 
+            print('`%s`' % rsp.request.url,
                   "was processed successfully")
         return rsp
 
@@ -88,9 +88,9 @@ class NIOClient(object):
     def _construct_endpoint(cls, **kwargs):
         ''' Build the endpoint for a NIO api call. In general, NIO endpoints
         take the form <resource>/<name>/<sub_name>.
-        
+
         '''
-        
+
         result = '{0}/{1}/'.format(kwargs.get('resource'), kwargs.get('name'))
 
         sub_name = kwargs.get('sub_name')
@@ -103,7 +103,7 @@ class NIOClient(object):
 
         result = result.rstrip('/')
         result += cls._param_string(kwargs.get('params') or [])
- 
+
         return result
 
     @classmethod
@@ -112,4 +112,4 @@ class NIOClient(object):
         for p in params:
             result += "{0}&".format(p)
         return result.rstrip('&').rstrip('?')
-        
+

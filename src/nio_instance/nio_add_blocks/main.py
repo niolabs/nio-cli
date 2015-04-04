@@ -2,7 +2,6 @@ import subprocess
 import os
 from os import path
 from argparse import ArgumentParser
-from configparser import ConfigParser
 from ..util import NIOClient, Execution
 
 
@@ -24,17 +23,9 @@ class BlockAdder(object):
     target = "blocks"
 
     @classmethod
-    def config(cls, conf_file='~/.config/nio-add-blocks.ini'):
-        conf_file = path.expanduser(conf_file)
-        if path.isfile(conf_file):
-            config = ConfigParser()
-            config.read(conf_file)
-
-            if 'add-blocks' in config:
-                cls.user_org = config['add-blocks'].get('user_org',
-                                                        cls.user_org)
-                cls.target = config['add-blocks'].get('target_dir',
-                                                    cls.target)
+    def config(cls):
+        cls.user_org = 'nio-blocks'
+        cls.target = './blocks'
 
     @classmethod
     def add(cls, repo_name, project=False, https=False):
@@ -91,8 +82,7 @@ class AddBlocksAction:
         self.args = args
 
     def perform(self):
-        BlockAdder.config(self.args.init) \
-            if self.args.init else BlockAdder.config()
+        BlockAdder.config()
 
         if self.args.repos:
             for r in self.args.repos:
@@ -115,8 +105,7 @@ class PullBlocksAction:
         self.args = args
 
     def perform(self):
-        BlockUpdater.config(self.args.init) \
-            if self.args.init else BlockUpdater.config()
+        BlockUpdater.config()
 
         # do pull of submodules
         blocks = []

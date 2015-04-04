@@ -1,7 +1,6 @@
 import sys
 from os.path import expanduser, isfile
 from argparse import ArgumentParser
-from configparser import ConfigParser
 from .actions import ListAction, CommandAction,\
     ConfigAction, BuildAction, UpdateAction
 from .util import argument, creds, NIOClient
@@ -11,25 +10,14 @@ from .nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
 # TODO:
 ### Protect some of the json ser/deser.
 
-def _nio_instance_configure(conf_file):
-    conf_file = expanduser(conf_file)
-    if isfile(conf_file):
-        config = ConfigParser()
-        config.read(conf_file)
-
-        inst = config['DEFAULT']
-        if 'nio-instance' in config:
-            inst = config['nio-instance']
-
-        # initialize the NIOClient
-        host = inst.get('host')
-        port = inst.getint('port')
-        creds = (inst.get('username'), inst.get('password'))
-        NIOClient.initialize(host, port, creds)
-    else:
-        print("No such file or directory: {0}".format(conf_file),
-              file=sys.stderr)
-        sys.exit(1)
+def _nio_instance_configure(args):
+    # TODO: read from system env variables
+    # TODO: replace with pynio
+    # initialize the NIOClient
+    host = args.ip
+    port = args.port
+    creds = (args.basicauth[0], args.basicauth[1])
+    NIOClient.initialize(host, port, creds)
 
 def _nio_instance_main():
 
@@ -39,7 +27,10 @@ def _nio_instance_main():
     )
 
     # path to nio-instance config file
-    argparser.add_argument('-f', '--init', default='~/.config/nio-cli.ini')
+    argparser.add_argument('-i', '--ip', default='localhost')
+    argparser.add_argument('-p', '--port', default='8181')
+    argparser.add_argument('-b', '--basicauth', nargs=2,
+                           default=['Admin', 'Admin'])
 
     subparsers = argparser.add_subparsers(help='sub-command help')
 
@@ -93,7 +84,6 @@ def _nio_instance_main():
     # Pull blocks from GitHub
     pull_parser = subparsers.add_parser('pull')
     pull_parser.set_defaults(action=PullBlocksAction)
-    pull_parser.add_argument('-f', '--init', default='')
     pull_parser.add_argument('--nc', action="store_true",
         help="Do not do any 'git checkout' during update")
     pull_parser.add_argument('blocks', type=str, nargs='*')
@@ -101,7 +91,7 @@ def _nio_instance_main():
     args = argparser.parse_args()
 
     # initialization
-    _nio_instance_configure(args.init)
+    _nio_instance_configure(args)
 
     action = args.action(args)
     try:

@@ -1,3 +1,4 @@
+import pip
 import subprocess
 import os
 from os import path
@@ -55,6 +56,21 @@ class BlockAdder(object):
         else:
             subprocess.call(INIT_RECURSIVE, shell=True)
 
+    @classmethod
+    def install(cls, block=None):
+        if block is not None:
+            # install requirements.txt for the one block
+            reqs = '/'.join([cls.target, block, 'requirements.txt'])
+            if os.path.isfile(reqs):
+                pip.main(['install', '-r', reqs])
+        else:
+            # install requirements.txt for all blocks and project
+            for root, dirs, files in os.walk('.'):
+                for file in files:
+                    if file == 'requirements.txt':
+                        reqs = os.path.join(root, file)
+                        pip.main(['install', '-r', reqs])
+
 
 class BlockUpdater(BlockAdder):
 
@@ -88,8 +104,10 @@ class AddBlocksAction:
             for r in self.args.repos:
                 BlockAdder.add(r, https=self.args.https)
                 BlockAdder.initialize(r)
+                BlockAdder.install(r)
         elif self.args.update:
             BlockAdder.initialize()
+            BlockAdder.install()
 
 class AddProjectAction:
 

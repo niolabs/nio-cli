@@ -150,7 +150,7 @@ class PullBlocksAction:
         else:
             BlockUpdater.initialize()
 
-    def process_block(no_checkout, b, branch='master'):
+    def process_block(self, no_checkout, b, branch='master'):
         print("#" * 3, "Updating Block:", b, "#" * 3)
         if not no_checkout:
             print("Checking out", b, branch)

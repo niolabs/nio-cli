@@ -1,4 +1,5 @@
 import sys
+import os
 from os.path import expanduser, isfile
 from argparse import ArgumentParser
 from .actions import ListAction, CommandAction,\
@@ -11,11 +12,10 @@ from .nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
 ### Protect some of the json ser/deser.
 
 def _nio_instance_configure(args):
-    # TODO: read from system env variables
     # TODO: replace with pynio
     # initialize the NIOClient
-    host = args.ip
-    port = args.port
+    host = args.ip or os.environ.get('NIOHOST') or 'localhost'
+    port = args.port or os.environ.get('NIOPORT') or 8181
     creds = (args.basicauth[0], args.basicauth[1])
     NIOClient.initialize(host, port, creds)
 
@@ -27,8 +27,8 @@ def _nio_instance_main():
     )
 
     # path to nio-instance config file
-    argparser.add_argument('-i', '--ip', default='localhost')
-    argparser.add_argument('-p', '--port', default='8181')
+    argparser.add_argument('-i', '--ip', default=None)
+    argparser.add_argument('-p', '--port', default=None)
     argparser.add_argument('-b', '--basicauth', nargs=2,
                            default=['Admin', 'Admin'])
 

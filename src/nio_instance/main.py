@@ -3,7 +3,7 @@ import os
 from os.path import expanduser, isfile
 from argparse import ArgumentParser
 from .actions import ListAction, CommandAction,\
-    ConfigAction, BuildAction, UpdateAction
+    ConfigAction, BuildAction, UpdateAction, ServerAction
 from .util import argument, creds, NIOClient
 from .nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
     PullBlocksAction
@@ -35,6 +35,10 @@ def _nio_instance_main():
     subparsers = argparser.add_subparsers(help='sub-command help')
 
     # subcommand for listing blocks, services
+    server_parser = subparsers.add_parser('server')
+    server_parser.set_defaults(action=ServerAction)
+    server_parser.add_argument('-e', '--exec', default='run_nio')
+
     list_parser = subparsers.add_parser('list', aliases=['ls'])
     list_parser.set_defaults(action=ListAction)
     list_parser.add_argument('resource', type=str)

@@ -60,16 +60,18 @@ class BlockAdder(object):
     def install(cls, block=None):
         if block is not None:
             # install requirements.txt for the one block
-            reqs = '/'.join([cls.target, block, 'requirements.txt'])
-            if os.path.isfile(reqs):
-                pip.main(['install', '-r', reqs])
+            block_path = '/'.join([cls.target, block])
+            cls._recursive_install(block_path)
         else:
             # install requirements.txt for all blocks and project
-            for root, dirs, files in os.walk('.'):
-                for file in files:
-                    if file == 'requirements.txt':
-                        reqs = os.path.join(root, file)
-                        pip.main(['install', '-r', reqs])
+            cls._recursive_install()
+
+    def _recursive_install(cls, path='.'):
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                if file == 'requirements.txt':
+                    reqs = os.path.join(root, file)
+                    pip.main(['install', '-r', reqs])
 
 
 class BlockUpdater(BlockAdder):

@@ -1,6 +1,6 @@
 import subprocess
-from .base import Action
-from ..util import NIOClient, try_int
+from nio_cli.actions.base import Action
+from nio_cli.util import NIOClient, try_int
 
 class ServerAction(Action):
 

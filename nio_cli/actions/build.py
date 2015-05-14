@@ -1,6 +1,6 @@
 from sys import stderr
-from .base import Action
-from ..util import Execution, NIOClient
+from nio_cli.actions.base import Action
+from nio_cli.util import Execution, NIOClient
 
 
 class BuildAction(Action):
@@ -14,7 +14,7 @@ class BuildAction(Action):
             print("Invalid service: {0}".format(self.args.name), file=stderr)
         else:
             self._exec = Execution(service['execution'])
-        
+
             if len(self.args.froms):
                 self._process_edges()
             else:

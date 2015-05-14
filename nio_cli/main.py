@@ -2,10 +2,10 @@ import sys
 import os
 from os.path import expanduser, isfile
 from argparse import ArgumentParser
-from .actions import ListAction, CommandAction,\
+from nio_cli.actions import ListAction, CommandAction,\
     ConfigAction, BuildAction, UpdateAction, ServerAction
-from .util import argument, creds, NIOClient
-from .nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
+from nio_cli.util import argument, creds, NIOClient
+from nio_cli.nio_add_blocks.main import AddBlocksAction, AddProjectAction, \
     PullBlocksAction
 
 # TODO:

@@ -1,5 +1,5 @@
-from .base import Action
-from ..util import ConfigProperty, NIOClient
+from nio_cli.actions.base import Action
+from nio_cli.util import ConfigProperty, NIOClient
 
 EXCLUDE = ['name', 'sys_metadata', 'mappings', 'execution']
 TYPE_DETAIL = {'type': 'str'}

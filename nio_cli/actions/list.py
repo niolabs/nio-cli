@@ -1,12 +1,12 @@
-from .base import Action
-from ..util import NIOClient, Execution
+from nio_cli.actions.base import Action
+from nio_cli.util import NIOClient, Execution
 
 
 class ListAction(Action):
 
     def perform(self):
         for name in self.args.names:
-            rsp = NIOClient.list(self.args.resource, name, 
+            rsp = NIOClient.list(self.args.resource, name,
                                  self.args.cmd, self.args.filter)
             if rsp is not None and rsp.text:
                 ls_all = not bool(self.args.names[0])

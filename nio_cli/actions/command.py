@@ -1,6 +1,6 @@
 import requests
-from .base import Action
-from ..util import NIOClient, try_int
+from nio_cli.actions.base import Action
+from nio_cli.util import NIOClient, try_int
 
 
 class CommandAction(Action):
@@ -13,7 +13,7 @@ class CommandAction(Action):
     @property
     def params(self):
         if self.args.auto:
-            return {a[0]: a[1] for a in self.args.args}            
+            return {a[0]: a[1] for a in self.args.args}
         else:
             return self._collect_params()
 

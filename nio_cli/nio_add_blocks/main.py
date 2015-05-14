@@ -3,7 +3,7 @@ import subprocess
 import os
 from os import path
 from argparse import ArgumentParser
-from ..util import NIOClient, Execution
+from nio_cli.util import NIOClient, Execution
 
 
 CLONE = "git clone git@github.com:{0}/{1}.git {2}"

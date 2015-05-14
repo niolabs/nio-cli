@@ -1,11 +1,19 @@
 from setuptools import setup, find_packages
+
 setup(
     name='nio-cli',
-    version="0.1",
-    packages=find_packages(
-        where='src'
-    ),
-    package_dir = {'': 'src'},
+
+    version='0.1.12',
+
+    description='Command line tools for n.io',
+
+    url='https://github.com/neutralio/nio-cli',
+
+    author='n.io',
+    author_email='info@n.io',
+
+    packages=find_packages(exclude=["tests", "tests.*"]),
+
     install_requires = [
         'prettytable',
         'requests'
@@ -13,12 +21,9 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'nio=nio_instance.main:_nio_instance_main'
+            'nio=nio_cli.main:_nio_instance_main'
         ]
     },
-    author="Oren Leiman",
-    author_email="oren@neutral.io",
-    description="Command line tools for NIO",
-    license="Apache",
-    url="docs.n.io/en/latest/nio_cli.html"
+
+    keywords=['nio']
 )

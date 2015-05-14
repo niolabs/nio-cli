@@ -38,6 +38,7 @@ def _nio_instance_main():
     server_parser = subparsers.add_parser('server')
     server_parser.set_defaults(action=ServerAction)
     server_parser.add_argument('-e', '--exec', default='run_nio')
+    server_parser.add_argument('-bg', '--background', action='store_true')
 
     list_parser = subparsers.add_parser('list', aliases=['ls'])
     list_parser.set_defaults(action=ListAction)

@@ -38,6 +38,7 @@ def _nio_instance_main():
     server_parser = subparsers.add_parser('server')
     server_parser.set_defaults(action=ServerAction)
     server_parser.add_argument('-e', '--exec', default='run_nio')
+    server_parser.add_argument('-bg', '--background', action='store_true')
 
     list_parser = subparsers.add_parser('list', aliases=['ls'])
     list_parser.set_defaults(action=ListAction)
@@ -50,7 +51,7 @@ def _nio_instance_main():
     cmd_parser = subparsers.add_parser('command', aliases=['co'])
     cmd_parser.set_defaults(action=CommandAction)
     cmd_parser.add_argument('command', type=str)
-    cmd_parser.add_argument('service', type=str)
+    cmd_parser.add_argument('service', type=str, nargs='?', default=None)
     cmd_parser.add_argument('block', nargs='?', default='')
     cmd_parser.add_argument('--auto', '-a', action='store_true')
     cmd_parser.add_argument('--args', type=argument, nargs='*', default=[])

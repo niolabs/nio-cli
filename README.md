@@ -1,4 +1,4 @@
-nio-cli
+n.io CLI
 =======
 
 A suite of command line tools for the [n.io](http://n.io) platform.

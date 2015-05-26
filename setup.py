@@ -1,9 +1,18 @@
 from setuptools import setup, find_packages
+import re
+
+version = ''
+# Auto detect the version from the __init__.py file
+with open('nio_cli/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+if not version:
+    raise RuntimeError('Cannot find version information')
 
 setup(
     name='nio-cli',
 
-    version='0.1.12',
+    version=version,
 
     description='Command line tools for n.io',
 
@@ -14,7 +23,7 @@ setup(
 
     packages=find_packages(exclude=["tests", "tests.*"]),
 
-    install_requires = [
+    install_requires=[
         'prettytable',
         'requests'
     ],

@@ -66,6 +66,7 @@ class BlockAdder(object):
             # install requirements.txt for all blocks and project
             cls._recursive_install()
 
+    @classmethod
     def _recursive_install(cls, path='.'):
         for root, dirs, files in os.walk(path):
             for file in files:

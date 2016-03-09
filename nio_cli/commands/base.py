@@ -8,6 +8,8 @@ class Base(object):
         self.options = options
         self.args = args
         self.kwargs = kwargs
+        self._base_url = "http://{}:{}/".format(self.options['--ip'],
+                                                self.options['--port'])
 
     def run(self):
         print('Running base')

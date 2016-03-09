@@ -3,7 +3,7 @@ nio
 
 Usage:
   nio new <project-name>
-  nio server [(--silent | -s)]
+  nio server [(--daemon | -d)]
   nio [options] add <block-repo>...
   nio [options] (list | ls) services [<service-name> [--cmd | --exec]]
   nio [options] (list | ls) blocks [<block-name> [--cmd]]
@@ -17,8 +17,8 @@ Usage:
   nio --version
 
 Options:
-  -p PORT --port=PORT               Specify n.io port.
-  -i IP --ip=IP                     Specify n.io ip address.
+  -p PORT --port=PORT               Specify n.io port [default: 8181].
+  -i IP --ip=IP                     Specify n.io ip address [default: 0.0.0.0].
   -h --help                         Show this screen.
   --version                         Show version.
 
@@ -36,8 +36,8 @@ Help:
 
 from inspect import getmembers, isclass
 from docopt import docopt
-from . import __version__ as VERSION
-from . import commands
+from nio_cli import __version__ as VERSION
+from nio_cli import commands
 
 
 def main():

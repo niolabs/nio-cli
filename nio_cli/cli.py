@@ -42,7 +42,7 @@ from nio_cli import commands
 
 def main():
     """Main CLI entrypoint."""
-    options = docopt(__doc__, version=VERSION, options_first=True)
+    options = docopt(__doc__, version=VERSION)
     for k, v in options.items():
         if v and hasattr(commands, k):
             module = getattr(commands, k)

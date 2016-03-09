@@ -10,3 +10,4 @@ from .cfg import *
 from .update import *
 from .build import *
 from .ln import *
+from .shutdown import *

@@ -1,8 +1,4 @@
-"""The base command."""
-
-
 class Base(object):
-    """A base command."""
 
     def __init__(self, options, *args, **kwargs):
         self.options = options
@@ -12,6 +8,4 @@ class Base(object):
                                                 self.options['--port'])
 
     def run(self):
-        print('Running base')
-        raise NotImplementedError(
-            'You must implement the run() method yourself!')
+        raise NotImplementedError('Implement run() in the command.')

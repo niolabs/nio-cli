@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
 import nio_cli.cli as cli
-from nio_cli.commands.base import Base
 
 
 class TestCLI(unittest.TestCase):
@@ -10,7 +9,7 @@ class TestCLI(unittest.TestCase):
         """The specified command should be 'run'"""
         with patch('nio_cli.cli.docopt') as docopt:
             docopt.return_value = {
-                '--ip': '0.0.0.0',
+                '--ip': '127.0.0.1',
                 '--port': '8181',
                 'new': True,
                 '<project-name>': 'project-name',
@@ -26,7 +25,7 @@ class TestCLI(unittest.TestCase):
             '--daemon': False,
             '--exec': False,
             '--help': False,
-            '--ip': '0.0.0.0',
+            '--ip': '127.0.0.1',
             '--port': '8181',
             '--upgrade': False,
             '--version': False,

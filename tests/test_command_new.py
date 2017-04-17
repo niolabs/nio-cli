@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
 from nio_cli.commands import New as command
-from nio_cli.commands.base import Base
 
 
 class TestCommandNew(unittest.TestCase):
@@ -18,6 +17,6 @@ class TestCommandNew(unittest.TestCase):
                 ' project-name')
 
     def _run_command_with_options(self, options):
-        options['--ip'] = '0.0.0.0'
+        options['--ip'] = '127.0.0.1'
         options['--port'] = 8181
         command(options).run()

@@ -11,7 +11,7 @@ class TestCommandServer(unittest.TestCase):
             options = {}
             options['--daemon'] = False
             options['-d'] = False
-            options['--ip'] = '0.0.0.0'
+            options['--ip'] = '127.0.0.1'
             options['--port'] = 8181
             Server(options).run()
             self.assertEqual(Popen.call_args[0][0], ['nio_full'])

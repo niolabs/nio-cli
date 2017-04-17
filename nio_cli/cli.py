@@ -18,7 +18,7 @@ Usage:
 
 Options:
   -p PORT --port=PORT               Specify n.io port [default: 8181].
-  -i IP --ip=IP                     Specify n.io ip address [default: 0.0.0.0].
+  -i IP --ip=IP                     Specify n.io ip address [default: 127.0.0.1].
   -h --help                         Show this screen.
   --version                         Show version.
 
@@ -47,6 +47,6 @@ def main():
         if v and hasattr(commands, k):
             module = getattr(commands, k)
             members = getmembers(module, isclass)
-            command = [command[1] for command in members \
+            command = [command[1] for command in members
                        if command[0] != 'Base'][0]
             command(options).run()

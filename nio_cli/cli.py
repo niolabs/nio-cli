@@ -3,7 +3,7 @@ nio
 
 Usage:
   nio new <project-name>
-  nio server [(--daemon | -d)] [--run | --full]
+  nio server [(--daemon | -d)]
   nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services [<service-name> [--cmd | --exec]]
   nio [options] (list | ls) blocks [<block-name> [--cmd]]

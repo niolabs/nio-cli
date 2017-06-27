@@ -11,3 +11,4 @@ from .update import *
 from .build import *
 from .ln import *
 from .shutdown import *
+from .clone import *

@@ -19,9 +19,6 @@ class Config(Base):
             auth=self._auth)
         try:
             config = response.json()
-            print(requests.get(
-                self._base_url.format(self._resource),
-                json=config,
-                auth=self._auth).json())
+            print(config)
         except Exception as e:
             print(e)

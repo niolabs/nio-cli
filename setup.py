@@ -40,7 +40,7 @@ setup(
     keywords=['nio'],
     packages=find_packages(exclude=['docs', 'tests', 'tests.*']),
     install_requires=['prettytable', 'requests', 'docopts'],
-    tests_require=['pytest', 'pytest-cov'],
+    tests_require=['pytest', 'pytest-cov', 'responses'],
     cmdclass={'test': PyTest},
     entry_points={
         'console_scripts': [

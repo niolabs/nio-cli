@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import mock_open, patch, ANY
 from docopt import docopt, DocoptExit
 import responses
 import nio_cli.cli as cli
@@ -89,6 +89,54 @@ class TestCLI(unittest.TestCase):
             '<block-name>': 'block',
         })
         self.assertEqual(len(responses.calls), 1)
+
+    def test_buildspec_command(self):
+        """Create spec.json file from block class"""
+
+        from nio.block.base import Block
+        from nio.properties import StringProperty, VersionProperty
+        #from nio.commands import
+
+        class SampleBlock1(Block):
+            version = VersionProperty('0.1.0')
+            str_prop = StringProperty(
+                title='String Prop',
+                default='default string',
+            )
+            another = StringProperty(
+                title='Another Prop',
+            )
+
+        class SampleBlock2(Block):
+            pass
+
+        discover_path = 'nio_cli.commands.buildspec.Discover.discover_classes'
+        json_dump_path = 'nio_cli.commands.buildspec.json.dump'
+        with patch(discover_path) as discover_classes, \
+                patch('builtins.open', mock_open()) as mock_file, \
+                patch(json_dump_path) as mock_json_dump:
+            discover_classes.return_value = [SampleBlock1, SampleBlock2]
+            self._main('buildspec', **{'<repo-name>': 'myblocks'})
+            discover_classes.assert_called_once_with(
+                'blocks.myblocks', ANY, ANY)
+            mock_file.assert_called_once_with('blocks/myblocks/spec.json', 'w')
+            mock_json_dump.assert_called_once_with(ANY, mock_file())
+            self.assertDictEqual(mock_json_dump.call_args[0][0], {
+                "nio/SampleBlock1": {
+                    "Version": "0.1.0",
+                    "Properties": {
+                        "String Prop": {
+                            "default": "default string",
+                        },
+                        "Another Prop": {},
+                    },
+                },
+                "nio/SampleBlock2": {
+                    "Version": "0.0.0",
+                    "Properties": {
+                    },
+                },
+            })
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

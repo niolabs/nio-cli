@@ -1,4 +1,5 @@
 import json, os, sys
+from nio.block.base import Block
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
 from .base import Base
@@ -16,7 +17,6 @@ class BuildSpec(Base):
 
     def run(self):
         spec = {}
-        from nio.block.base import Block
         sys.path.insert(0, os.getcwd())
         blocks = Discover.discover_classes(
             'blocks.{}'.format(self._repo), Block, is_class_discoverable)

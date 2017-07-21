@@ -140,10 +140,14 @@ class TestCLI(unittest.TestCase):
                         "String Prop": {
                             "default": "this will be overridden",
                             "description": "this description will stay",
+                            "additional thing": "this will remain",
                         },
                     },
                     "Commands": {
-                        "commandit": {"description": "loaded from previous"},
+                        "commandit": {
+                            "description": "loaded from previous",
+                            "additional thing": "this will remain",
+                        },
                     },
                 },
             }
@@ -172,11 +176,15 @@ class TestCLI(unittest.TestCase):
                         "String Prop": {
                             "default": "default string",
                             "description": "this description will stay",
+                            "additional thing": "this will remain",
                         },
                         "Another Prop": {"description": ""},
                     },
                     "Commands": {
-                        "commandit": {"description": "loaded from previous"},
+                        "commandit": {
+                            "description": "loaded from previous",
+                            "additional thing": "this will remain",
+                        },
                         "commander": {"description": ""},
                     },
                 },

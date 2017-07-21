@@ -51,10 +51,18 @@ class BuildSpec(Base):
                 spec[block]["Properties"][property]["description"] = \
                     previous_spec.get(block, {}).get("Properties", {}).\
                     get(property, {}).get("description", "")
+                for attr, value in previous_spec.get(block, {}).\
+                        get("Properties", {}).get(property, {}).items():
+                    if attr not in spec[block]["Properties"][property]:
+                        spec[block]["Properties"][property][attr] = value
             for command in spec[block]["Commands"]:
                 spec[block]["Commands"][command]["description"] = \
                     previous_spec.get(block, {}).get("Commands", {}).\
                     get(command, {}).get("description", "")
+                for attr, value in previous_spec.get(block, {}).\
+                        get("Commands", {}).get(command, {}).items():
+                    if attr not in spec[block]["Commands"][command]:
+                        spec[block]["Commands"][command][attr] = value
         return spec
 
     def _build_spec_for_block(self, block):

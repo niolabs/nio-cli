@@ -25,7 +25,7 @@ class BuildSpec(Base):
             spec[k] = v
         file_path = 'blocks/{}/spec.json'.format(self._repo)
         previous_spec = self._read_spec(file_path)
-        merged_spec = self._merge_previous_and_new_spec(previous_spec, spec)
+        merged_spec = self._merge_previous_into_new_spec(previous_spec, spec)
         with open(file_path, 'w') as f:
             json.dump(merged_spec, f, sort_keys=True, indent=2)
 
@@ -36,33 +36,22 @@ class BuildSpec(Base):
         else:
             return {}
 
-    def _merge_previous_and_new_spec(self, previous_spec, spec):
-        # Merge in manually entered parts of previous spec
+    def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            spec[block]["Description"] = \
-                previous_spec.get(block, {}).get("Description", "")
-            spec[block]["Output"] = \
-                previous_spec.get(block, {}).get("Output", "")
-            spec[block]["Input"] = \
-                previous_spec.get(block, {}).get("Input", "")
-            spec[block]["Dependencies"] = \
-                previous_spec.get(block, {}).get("Dependencies", [])
-            for property in spec[block]["Properties"]:
-                spec[block]["Properties"][property]["description"] = \
-                    previous_spec.get(block, {}).get("Properties", {}).\
-                    get(property, {}).get("description", "")
-                for attr, value in previous_spec.get(block, {}).\
-                        get("Properties", {}).get(property, {}).items():
-                    if attr not in spec[block]["Properties"][property]:
-                        spec[block]["Properties"][property][attr] = value
-            for command in spec[block]["Commands"]:
-                spec[block]["Commands"][command]["description"] = \
-                    previous_spec.get(block, {}).get("Commands", {}).\
-                    get(command, {}).get("description", "")
-                for attr, value in previous_spec.get(block, {}).\
-                        get("Commands", {}).get(command, {}).items():
-                    if attr not in spec[block]["Commands"][command]:
-                        spec[block]["Commands"][command][attr] = value
+            manual_fields = [("Description", ""), ("Output", ""),
+                             ("Input", ""), ("Dependencies", [])]
+            for field in manual_fields:
+                spec[block][field[0]] = \
+                    previous_spec.get(block, {}).get(field[0], field[1])
+            for field in ["Properties", "Commands"]:
+                for name in spec[block][field]:
+                    spec[block][field][name]["description"] = \
+                        previous_spec.get(block, {}).get(field, {}).\
+                        get(name, {}).get("description", "")
+                    for attr, value in previous_spec.get(block, {}).\
+                            get(field, {}).get(name, {}).items():
+                        if attr not in spec[block][field][name]:
+                            spec[block][field][name][attr] = value
         return spec
 
     def _build_spec_for_block(self, block):

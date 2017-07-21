@@ -102,8 +102,9 @@ class TestCLI(unittest.TestCase):
 
         from nio.block.base import Block
         from nio.properties import StringProperty, VersionProperty
-        #from nio.commands import
+        from nio.command import command
 
+        @command('commandit')
         class SampleBlock1(Block):
             version = VersionProperty('0.1.0')
             str_prop = StringProperty(
@@ -127,7 +128,9 @@ class TestCLI(unittest.TestCase):
             discover_classes.assert_called_once_with(
                 'blocks.myblocks', ANY, ANY)
             mock_file.assert_called_once_with('blocks/myblocks/spec.json', 'w')
-            mock_json_dump.assert_called_once_with(ANY, mock_file())
+            mock_json_dump.assert_called_once_with(
+                ANY, mock_file(), sort_keys=True, indent=2)
+            self.maxDiff = None
             self.assertDictEqual(mock_json_dump.call_args[0][0], {
                 "nio/SampleBlock1": {
                     "Version": "0.1.0",
@@ -137,11 +140,15 @@ class TestCLI(unittest.TestCase):
                         },
                         "Another Prop": {},
                     },
+                    "Commands": {
+                        "commandit": {
+                        },
+                    },
                 },
                 "nio/SampleBlock2": {
                     "Version": "0.0.0",
-                    "Properties": {
-                    },
+                    "Properties": {},
+                    "Commands": {},
                 },
             })
 

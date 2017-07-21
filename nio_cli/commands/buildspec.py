@@ -23,8 +23,39 @@ class BuildSpec(Base):
         for block in blocks:
             k, v = self._build_spec_for_block(block)
             spec[k] = v
-        with open('blocks/{}/spec.json'.format(self._repo), 'w') as f:
-            json.dump(spec, f, sort_keys=True, indent=2)
+        file_path = 'blocks/{}/spec.json'.format(self._repo)
+        previous_spec = self._read_spec(file_path)
+        merged_spec = self._merge_previous_and_new_spec(previous_spec, spec)
+        with open(file_path, 'w') as f:
+            json.dump(merged_spec, f, sort_keys=True, indent=2)
+
+    def _read_spec(self, file_path):
+        if os.path.exists(file_path):
+            with open(file_path) as f:
+                return json.load(f)
+        else:
+            return {}
+
+    def _merge_previous_and_new_spec(self, previous_spec, spec):
+        # Merge in manually entered parts of previous spec
+        for block in spec:
+            spec[block]["Description"] = \
+                previous_spec.get(block, {}).get("Description", "")
+            spec[block]["Output"] = \
+                previous_spec.get(block, {}).get("Output", "")
+            spec[block]["Input"] = \
+                previous_spec.get(block, {}).get("Input", "")
+            spec[block]["Dependencies"] = \
+                previous_spec.get(block, {}).get("Dependencies", [])
+            for property in spec[block]["Properties"]:
+                spec[block]["Properties"][property]["description"] = \
+                    previous_spec.get(block, {}).get("Properties", {}).\
+                    get(property, {}).get("description", "")
+            for command in spec[block]["Commands"]:
+                spec[block]["Commands"][command]["description"] = \
+                    previous_spec.get(block, {}).get("Commands", {}).\
+                    get(command, {}).get("description", "")
+        return spec
 
     def _build_spec_for_block(self, block):
         block_spec = {}

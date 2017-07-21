@@ -29,6 +29,13 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(args['--daemon'], False)
         self.assertEqual(args['-d'], True)
 
+    def test_buildpsec_arguments(self):
+        """'buildspec' requires a repo-name"""
+        args = self.parse_args('buildspec repo')
+        self.assertEqual(args['<repo-name>'], 'repo')
+        with self.assertRaises(DocoptExit):
+            self.parse_args('buildspec')
+
     def test_new_command(self):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:

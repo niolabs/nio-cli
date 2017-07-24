@@ -13,6 +13,7 @@ Usage:
   nio [options] clone services <service-name> <new-name>
   nio [options] update <block-type>
   nio [options] (build | ln) <source-block-name>... [<sink-block-name>]
+  nio [options] buildspec <repo-name>
   nio [options] shutdown
   nio -h | --help
   nio --version
@@ -48,6 +49,8 @@ def main():
         if v and hasattr(commands, k):
             module = getattr(commands, k)
             members = getmembers(module, isclass)
-            command = [command[1] for command in members
-                       if command[0] != 'Base'][0]
+            command = [command[1] for command in members if \
+                       command[1] != commands.base.Base and \
+                       issubclass(command[1], commands.base.Base)
+                       ][0]
             command(options).run()

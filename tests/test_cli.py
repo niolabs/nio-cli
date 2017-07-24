@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import mock_open, patch, ANY
 from docopt import docopt, DocoptExit
 import responses
 import nio_cli.cli as cli
@@ -28,6 +28,13 @@ class TestCLI(unittest.TestCase):
         args = self.parse_args('server -d')
         self.assertEqual(args['--daemon'], False)
         self.assertEqual(args['-d'], True)
+
+    def test_buildpsec_arguments(self):
+        """'buildspec' requires a repo-name"""
+        args = self.parse_args('buildspec repo')
+        self.assertEqual(args['<repo-name>'], 'repo')
+        with self.assertRaises(DocoptExit):
+            self.parse_args('buildspec')
 
     def test_new_command(self):
         """Clone the project template from GitHub"""
@@ -89,6 +96,108 @@ class TestCLI(unittest.TestCase):
             '<block-name>': 'block',
         })
         self.assertEqual(len(responses.calls), 1)
+
+    def test_buildspec_command(self):
+        """Create spec.json file from block class"""
+
+        from nio.block.base import Block
+        from nio.properties import StringProperty, VersionProperty
+        from nio.command import command
+
+        @command('commandit')
+        @command('commander')
+        class SampleBlock1(Block):
+            version = VersionProperty('0.1.0')
+            str_prop = StringProperty(
+                title='String Prop',
+                default='default string',
+            )
+            another = StringProperty(
+                title='Another Prop',
+            )
+
+        class SampleBlock2(Block):
+            pass
+
+        discover_path = 'nio_cli.commands.buildspec.Discover.discover_classes'
+        json_dump_path = 'nio_cli.commands.buildspec.json.dump'
+        json_load_path = 'nio_cli.commands.buildspec.json.load'
+        file_exists_path = 'nio_cli.commands.buildspec.os.path.exists'
+        with patch(discover_path) as discover_classes, \
+                patch('builtins.open', mock_open()) as mock_file, \
+                patch(file_exists_path) as mock_file_exists, \
+                patch(json_dump_path) as mock_json_dump, \
+                patch(json_load_path) as mock_json_load:
+            # mocks to load existing spec.json and to discover blocks
+            mock_file_exists.return_value = True
+            mock_json_load.return_value = {
+                "nio/SampleBlock1": {
+                    "Description": "This is the description",
+                    "Output": "The output",
+                    "Input": "The input",
+                    "Dependencies": ["requirements"],
+                    "Properties": {
+                        "String Prop": {
+                            "default": "this will be overridden",
+                            "description": "this description will stay",
+                            "additional thing": "this will remain",
+                        },
+                    },
+                    "Commands": {
+                        "commandit": {
+                            "description": "loaded from previous",
+                            "additional thing": "this will remain",
+                        },
+                    },
+                },
+            }
+            discover_classes.return_value = [SampleBlock1, SampleBlock2]
+            # Exectute on repo 'myblocks'
+            self._main('buildspec', **{'<repo-name>': 'myblocks'})
+            discover_classes.assert_called_once_with(
+                'blocks.myblocks', ANY, ANY)
+            # File is opened for reading and then for writting
+            self.assertEqual(mock_file.call_args_list[0][0],
+                             ('blocks/myblocks/spec.json',))
+            self.assertEqual(mock_file.call_args_list[1][0],
+                             ('blocks/myblocks/spec.json', 'w'))
+            # json dump to file with formatting
+            mock_json_dump.assert_called_once_with(
+                ANY, mock_file(), sort_keys=True, indent=2)
+            self.maxDiff = None
+            self.assertDictEqual(mock_json_dump.call_args[0][0], {
+                "nio/SampleBlock1": {
+                    "Version": "0.1.0",
+                    "Description": "This is the description",
+                    "Output": "The output",
+                    "Input": "The input",
+                    "Dependencies": ["requirements"],
+                    "Properties": {
+                        "String Prop": {
+                            "default": "default string",
+                            "description": "this description will stay",
+                            "additional thing": "this will remain",
+                        },
+                        "Another Prop": {"description": ""},
+                    },
+                    "Commands": {
+                        "commandit": {
+                            "description": "loaded from previous",
+                            "additional thing": "this will remain",
+                        },
+                        "commander": {"description": ""},
+                    },
+                },
+                "nio/SampleBlock2": {
+                    "Version": "0.0.0",
+                    "Description": "",
+                    "Output": "",
+                    "Input": "",
+                    "Dependencies": [],
+                    "Properties": {},
+                    "Commands": {},
+                },
+            })
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

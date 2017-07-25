@@ -1,4 +1,4 @@
-import json, re
+import json, os, re
 from collections import defaultdict
 from .base import Base
 
@@ -6,11 +6,14 @@ from .base import Base
 class BuildReadme(Base):
 
     def run(self):
-        with open('README.md') as f:
-            lines = [l.rstrip() for l in f.readlines()]
+        if os.path.exists('README.md'):
+            with open('README.md') as f:
+                lines = [l.rstrip() for l in f.readlines()]
+            old_readme = self._read_readme(lines)
+        else:
+            old_readme = {}
         with open('spec.json') as f:
             spec = json.load(f)
-        old_readme = self._read_readme(lines)
         new_readme = self._write_readme(old_readme, spec)
         with open("{}".format('README.md'), 'w') as f:
             [f.write("{}\n".format(line)) for line in new_readme]
@@ -67,7 +70,7 @@ class BuildReadme(Base):
                 else:
                     writelines.append(spec[block][section])
                 writelines.append("")
-            for section in sorted(old_readme[block_name]):
+            for section in sorted(old_readme.get(block_name, {})):
                 if section not in required_sections:
                     writelines.append(section)
                     writelines.append(len(section) * "-")

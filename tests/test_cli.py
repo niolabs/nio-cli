@@ -46,10 +46,19 @@ class TestCLI(unittest.TestCase):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:
             self._main('new', **{'<project-name>': 'project'})
-            self.assertEqual(call.call_args[0][0], (
-                'git clone '
+            self.assertEqual(call.call_args_list[0][0][0], (
+                'git clone --depth=1 '
                 'git@github.com:nioinnovation/project_template.git project'
             ))
+            self.assertEqual(call.call_args_list[1][0][0],
+                'cd ./project '
+                '&& git submodule update --init --recursive'
+            )
+            self.assertEqual(call.call_args_list[2][0][0],
+                'cd ./project '
+                '&& git remote remove origin '
+                '&& git commit --amend --reset-author -m "Initial commit"'
+            )
 
     def test_server_command(self):
         """Execute nio_run as a subprocess"""

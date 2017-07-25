@@ -14,6 +14,7 @@ Usage:
   nio [options] update <block-type>
   nio [options] (build | ln) <source-block-name>... [<sink-block-name>]
   nio [options] buildspec <repo-name>
+  nio [options] buildreadme
   nio [options] shutdown
   nio -h | --help
   nio --version

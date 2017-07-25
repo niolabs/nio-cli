@@ -36,6 +36,12 @@ class TestCLI(unittest.TestCase):
         with self.assertRaises(DocoptExit):
             self.parse_args('buildspec')
 
+    def test_buildreadme_arguments(self):
+        """'buildreadme' take no args"""
+        args = self.parse_args('buildreadme')
+        with self.assertRaises(DocoptExit):
+            self.parse_args('buildreadme some-args')
+
     def test_new_command(self):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:
@@ -198,6 +204,102 @@ class TestCLI(unittest.TestCase):
                     "Commands": {},
                 },
             })
+
+    def test_readme_command(self):
+        """Create README.md from json.spec"""
+
+        json_load_path = 'nio_cli.commands.buildspec.json.load'
+        with patch('builtins.open', mock_open()) as mock_file, \
+                patch(json_load_path) as mock_json_load:
+            # mocks to load existing spec.json and to discover blocks
+            mock_json_load.return_value = {
+                "nio/SampleBlock1": {
+                    "Description": "This is the description",
+                    "Output": "The output",
+                    "Input": "The input",
+                    "Dependencies": ["requirements"],
+                    "Properties": {
+                        "String Prop": {
+                            "default": "",
+                            "description": "this description",
+                        },
+                    },
+                    "Commands": {
+                        "commandit": {
+                            "description": "a command",
+                        },
+                    },
+                },
+                "nio/SampleBlock2": {
+                    "Version": "0.0.0",
+                    "Description": "",
+                    "Output": "",
+                    "Input": "",
+                    "Dependencies": [],
+                    "Properties": {},
+                    "Commands": {},
+                },
+            }
+            self._main('buildreadme')
+            # README and spec are opened
+            self.assertEqual(mock_file.call_args_list[0][0],
+                             ('README.md',))
+            self.assertEqual(mock_file.call_args_list[1][0],
+                             ('spec.json',))
+            self.assertEqual(mock_file.call_args_list[2][0],
+                             ('README.md', 'w'))
+            written = ""
+            for call in mock_file.return_value.write.call_args_list:
+                written += call[0][0]
+            self.maxDiff = None
+            self.assertEqual(
+                written,
+                "SampleBlock1\n"
+                "============\n"
+                "This is the description\n"
+                "\n"
+                "Properties\n"
+                "----------\n"
+                "- **String Prop**: this description\n"
+                "\n"
+                "Commands\n"
+                "--------\n"
+                "- **commandit**: a command\n"
+                "\n"
+                "Dependencies\n"
+                "------------\n"
+                "- requirements\n"
+                "\n"
+                "Input\n"
+                "-----\n"
+                "The input\n"
+                "\n"
+                "Output\n"
+                "------\n"
+                "The output\n"
+                "\n"
+                "SampleBlock2\n"
+                "============\n"
+                "\n"
+                "\n"
+                "Properties\n"
+                "----------\n"
+                "\n"
+                "Commands\n"
+                "--------\n"
+                "\n"
+                "Dependencies\n"
+                "------------\n"
+                "\n"
+                "Input\n"
+                "-----\n"
+                "\n"
+                "\n"
+                "Output\n"
+                "------\n"
+                "\n"
+                "\n"
+            )
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

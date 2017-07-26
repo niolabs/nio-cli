@@ -17,7 +17,7 @@ class NewBlock(Base):
             "cd ./{} && mv example_block.py {}_block.py"
         ).format(self._block, self._block)
         rename_test_file = (
-            "cd ./{} && mv test_example_block.py test_{}_block.py"
+            "cd ./tests && mv test_example_block.py test_{}_block.py"
         ).format(self._block, self._block)
         rename_readme = (
             "cd ./{} && mv BLOCK_README.md README.md"
@@ -39,7 +39,8 @@ class NewBlock(Base):
 
         subprocess.call(reinit_repo, shell=True)
 
-    def rename_block_class(self, block):
+    @staticmethod
+    def rename_block_class(block):
         camel_block_name = block
         if '_' in block:
             camel_block_name = ''
@@ -57,7 +58,8 @@ class NewBlock(Base):
         with open('{}_block.py'.format(block), 'w') as f:
             f.write(file_string)
 
-    def rename_test_class(self, block):
+    @staticmethod
+    def rename_test_class(block):
         camel_block_name = block
         if '_' in block:
             camel_block_name = ''
@@ -76,7 +78,8 @@ class NewBlock(Base):
         with open('tests/test_{}_block.py'.format(block), 'w') as f:
             f.write(file_string)
 
-    def rename_test_import(self, block):
+    @staticmethod
+    def rename_test_import(block):
         camel_block_name = block
         if '_' in block:
             camel_block_name = ''
@@ -91,19 +94,11 @@ class NewBlock(Base):
             file_string = f.read()
         file_string = re.sub('Example', camel_block_name, file_string)
         file_string = re.sub(
-            '..example_block.py', '{}_block.py'.format(block), file_string)
+            '..example_block', '..{}_block'.format(block), file_string)
 
         with open('tests/test_{}_block.py'.format(block), 'w') as f:
             f.write(file_string)
 
-
-        # TODO:
-        # rename imports in test file
-        # AFTER RENAMING FILES, CLASSES, AND IMPORTS
-        # `git remote remove origin`
-        # `git add -A`
-        # git commit --amend --reset-author -m "Initial commit"
-
-    # TODO: REFACTOR RENAME METHODS TO NOT HAVE SO MUCH DUPLICATE CODE
-        # Add filename, what-to-replace as parameters?
-        # Make seperate fxns for camel_block_name & replace_in_file?
+# TODO: REFACTOR RENAME METHODS TO NOT HAVE SO MUCH DUPLICATE CODE
+    # Add filename, what-to-replace as parameters?
+    # Make seperate fxns for camel_block_name & replace_in_file?

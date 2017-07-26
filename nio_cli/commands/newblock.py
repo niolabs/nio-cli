@@ -8,6 +8,8 @@ class NewBlock(Base):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self._block = self.options['<block-name>']
+        # How does self.options know what '<block-name>' is?
+        # The only place it's referenced is in the cli.py docstring
 
     def run(self):
         clone = (
@@ -79,7 +81,7 @@ class NewBlock(Base):
             f.write(file_string)
 
     @staticmethod
-    def rename_test_import(block):
+    def rename_test_imports(block):
         camel_block_name = block
         if '_' in block:
             camel_block_name = ''

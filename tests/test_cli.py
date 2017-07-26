@@ -310,6 +310,9 @@ class TestCLI(unittest.TestCase):
                 "\n"
             )
 
+    def test_newblock_command(self):
+        pass
+
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {
             '--ip': ip,

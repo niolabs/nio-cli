@@ -313,7 +313,7 @@ class TestCLI(unittest.TestCase):
     def test_newblock_command(self):
         """Clone the block template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call, \
-                patch('builtins.open', mock_open()) as mock_file:
+                patch('builtins.open', mock_open(read_data='Example ..example_block TestExample')) as mock_file:
             # need to patch open
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
@@ -332,6 +332,20 @@ class TestCLI(unittest.TestCase):
                 'cd ./yaba_daba && mv BLOCK_README.md README.md'
             )
             # PASSING UP TO THIS POINT
+            # TODO: TEST OPEN/MODIFY FILES
+            self.assertEqual(mock_file.call_args_list[0][0],
+                             ('yaba_daba_block.py',))
+            self.assertEqual(
+                mock_file.return_value.write.call_args_list[0][0][0],
+                'YabaDaba ..example_block TestYabaDaba')
+            self.assertEqual(
+                mock_file.return_value.write.call_args_list[1][0][0],
+                'Example ..example_block TestYabaDaba')
+            self.assertEqual(
+                mock_file.return_value.write.call_args_list[2][0][0],
+                'YabaDaba ..yaba_daba_block TestYabaDaba')
+
+
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

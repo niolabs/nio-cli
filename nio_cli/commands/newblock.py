@@ -50,8 +50,7 @@ class NewBlock(Base):
             f.write(file_string)
 
     def rename_test_class(self, block):
-        camel_block_name = self.camelize_block_name(block)
-        camel_block_name = 'Test' + camel_block_name
+        camel_block_name = 'Test' + self.camelize_block_name(block)
 
         with open('./{0}/tests/test_{0}_block.py'.format(block)) as f:
             file_string = f.read()

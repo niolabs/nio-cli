@@ -329,14 +329,14 @@ class TestCLI(unittest.TestCase):
                 '&& mv example_block.py yaba_daba_block.py'
             )
             self.assertEqual(call.call_args_list[2][0][0],
-                'cd ./tests '
+                'cd ./yaba_daba/tests '
                 '&& mv test_example_block.py test_yaba_daba_block.py'
             )
             self.assertEqual(call.call_args_list[3][0][0],
                 'cd ./yaba_daba && mv BLOCK_README.md README.md'
             )
             self.assertEqual(mock_file.call_args_list[0][0],
-                             ('yaba_daba_block.py',))
+                             ('./yaba_daba/yaba_daba_block.py',))
             self.assertEqual(
                 mock_file.return_value.write.call_args_list[0][0][0],
                 'YabaDaba ..example_block TestYabaDaba')

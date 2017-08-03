@@ -150,7 +150,6 @@ class TestCLI(unittest.TestCase):
                     "Description": "This is the description",
                     "Output": "The output",
                     "Input": "The input",
-                    "Dependencies": ["requirements"],
                     "Properties": {
                         "String Prop": {
                             "default": "this will be overridden",
@@ -186,7 +185,6 @@ class TestCLI(unittest.TestCase):
                     "description": "",
                     "outputs": "",
                     "inputs": "",
-                    "dependencies": [],
                     "properties": {
                         "str_prop": {
                             "title": "String Prop",
@@ -208,7 +206,6 @@ class TestCLI(unittest.TestCase):
                     "description": "",
                     "outputs": "",
                     "inputs": "",
-                    "dependencies": [],
                     "properties": {},
                     "commands": {},
                 },

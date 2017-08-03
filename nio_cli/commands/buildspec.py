@@ -48,9 +48,6 @@ class BuildSpec(Base):
                     spec[block][field][name]["description"] = \
                         previous_spec.get(block, {}).get(field, {}).\
                         get(name, {}).get("description", "")
-
-                    # spec[block][field][name]["title"] = "yoyoyo"
-
                     for attr, value in previous_spec.get(block, {}).\
                             get(field, {}).get(name, {}).items():
                         if attr not in spec[block][field][name]:

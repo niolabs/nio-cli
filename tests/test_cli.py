@@ -182,35 +182,35 @@ class TestCLI(unittest.TestCase):
             self.maxDiff = None
             self.assertDictEqual(mock_json_dump.call_args[0][0], {
                 "nio/SampleBlock1": {
-                    "Version": "0.1.0",
-                    "Description": "This is the description",
-                    "Output": "The output",
-                    "Input": "The input",
-                    "Dependencies": ["requirements"],
-                    "Properties": {
-                        "String Prop": {
+                    "version": "0.1.0",
+                    "description": "",
+                    "outputs": "",
+                    "inputs": "",
+                    "dependencies": [],
+                    "properties": {
+                        "str_prop": {
+                            "title": "String Prop",
                             "default": "default string",
-                            "description": "this description will stay",
-                            "additional thing": "this will remain",
+                            "description": "",
                         },
-                        "Another Prop": {"description": ""},
+                        "another": {
+                            "description": "",
+                            "title": "Another Prop"
+                        },
                     },
-                    "Commands": {
-                        "commandit": {
-                            "description": "loaded from previous",
-                            "additional thing": "this will remain",
-                        },
+                    "commands": {
+                        "commandit": {"description": ""},
                         "commander": {"description": ""},
                     },
                 },
                 "nio/SampleBlock2": {
-                    "Version": "0.0.0",
-                    "Description": "",
-                    "Output": "",
-                    "Input": "",
-                    "Dependencies": [],
-                    "Properties": {},
-                    "Commands": {},
+                    "version": "0.0.0",
+                    "description": "",
+                    "outputs": "",
+                    "inputs": "",
+                    "dependencies": [],
+                    "properties": {},
+                    "commands": {},
                 },
             })
 

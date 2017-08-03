@@ -178,7 +178,7 @@ class TestCLI(unittest.TestCase):
                              ('blocks/myblocks/spec.json', 'w'))
             # json dump to file with formatting
             mock_json_dump.assert_called_once_with(
-                ANY, mock_file(), sort_keys=True, indent=2)
+                ANY, mock_file(), indent=2)
             self.maxDiff = None
             self.assertDictEqual(mock_json_dump.call_args[0][0], {
                 "nio/SampleBlock1": {

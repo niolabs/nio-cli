@@ -1,4 +1,5 @@
 import json, os, sys
+from collections import OrderedDict
 from nio.block.base import Block
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
@@ -27,7 +28,7 @@ class BuildSpec(Base):
         previous_spec = self._read_spec(file_path)
         merged_spec = self._merge_previous_into_new_spec(previous_spec, spec)
         with open(file_path, 'w') as f:
-            json.dump(merged_spec, f, sort_keys=True, indent=2)
+            json.dump(merged_spec, f, indent=2)
 
     def _read_spec(self, file_path):
         if os.path.exists(file_path):
@@ -52,6 +53,9 @@ class BuildSpec(Base):
                             get(field, {}).get(name, {}).items():
                         if attr not in spec[block][field][name]:
                             spec[block][field][name][attr] = value
+            keyorder = ['version', 'description', 'dependencies', 'properties', 'inputs', 'outputs', 'commands']
+            spec[block] = OrderedDict(sorted(spec[block].items(), key=lambda i:keyorder.index(i[0])))
+            print('$$$$$$$$$', spec[block])
         return spec
 
     def _build_spec_for_block(self, block):

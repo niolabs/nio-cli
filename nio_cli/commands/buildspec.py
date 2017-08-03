@@ -38,16 +38,19 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("Description", ""), ("Output", ""),
-                             ("Input", ""), ("Dependencies", [])]
+            manual_fields = [("description", ""), ("outputs", ""),
+                             ("inputs", ""), ("dependencies", [])]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
-            for field in ["Properties", "Commands"]:
+            for field in ["properties", "commands"]:
                 for name in spec[block][field]:
                     spec[block][field][name]["description"] = \
                         previous_spec.get(block, {}).get(field, {}).\
                         get(name, {}).get("description", "")
+
+                    # spec[block][field][name]["title"] = "yoyoyo"
+
                     for attr, value in previous_spec.get(block, {}).\
                             get(field, {}).get(name, {}).items():
                         if attr not in spec[block][field][name]:
@@ -57,9 +60,9 @@ class BuildSpec(Base):
     def _build_spec_for_block(self, block):
         block_spec = {}
         properties = block.get_description()["properties"]
-        block_spec["Version"] = properties["version"]["default"]
-        block_spec["Properties"] = self._build_properties_spec(block)
-        block_spec["Commands"] = self._build_commands_spec(block)
+        block_spec["version"] = properties["version"]["default"]
+        block_spec["properties"] = self._build_properties_spec(block)
+        block_spec["commands"] = self._build_commands_spec(block)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -71,7 +74,9 @@ class BuildSpec(Base):
             property_spec = {}
             if property["default"]:
                 property_spec["default"] = property["default"]
-            properties_spec[property["title"]] = property_spec
+            properties_spec[k] = property_spec
+            properties_spec[k]["title"] = properties[k]['title']
+
         return properties_spec
 
     def _build_commands_spec(self, block):

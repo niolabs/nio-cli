@@ -86,7 +86,6 @@ class BuildSpec(Base):
                     dict["properties"][prop_key].items(),
                     key=lambda i: keyorder.index(i[0])
                 ))
-        print('##########', dict)
         return dict
 
     def _build_spec_for_block(self, block):

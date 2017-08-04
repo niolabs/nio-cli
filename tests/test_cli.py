@@ -183,18 +183,18 @@ class TestCLI(unittest.TestCase):
                 "nio/SampleBlock1": {
                     "version": "0.1.0",
                     "description": "",
-                    "outputs": "",
-                    "inputs": "",
+                    "outputs": {},
+                    "inputs": {},
                     "properties": {
-                        "str_prop": {
-                            "title": "String Prop",
-                            "default": "default string",
-                            "description": "",
-                        },
                         "another": {
                             "description": "",
                             "title": "Another Prop"
                         },
+                        "str_prop": {
+                            "title": "String Prop",
+                            "default": "default string",
+                            "description": "",
+                        }
                     },
                     "commands": {
                         "commandit": {"description": ""},
@@ -204,8 +204,8 @@ class TestCLI(unittest.TestCase):
                 "nio/SampleBlock2": {
                     "version": "0.0.0",
                     "description": "",
-                    "outputs": "",
-                    "inputs": "",
+                    "outputs": {},
+                    "inputs": {},
                     "properties": {},
                     "commands": {},
                 },

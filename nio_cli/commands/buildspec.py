@@ -39,8 +39,8 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("description", ""), ("outputs", ""),
-                             ("inputs", "")]
+            manual_fields = [("description", ""), ("outputs", {}),
+                             ("inputs", {})]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
@@ -55,6 +55,14 @@ class BuildSpec(Base):
                             spec[block][field][name][attr] = value
             keyorder = ['version', 'description', 'properties', 'inputs', 'outputs', 'commands']
             spec[block] = OrderedDict(sorted(spec[block].items(), key=lambda i:keyorder.index(i[0])))
+            spec[block]['properties'] = OrderedDict(sorted(
+                spec[block]['properties'].items(), key=lambda i: i[0]))
+            spec[block]['inputs'] = OrderedDict(sorted(
+                spec[block]['inputs'].items(), key=lambda i: i[0]))
+            spec[block]['outputs'] = OrderedDict(sorted(
+                spec[block]['outputs'].items(), key=lambda i: i[0]))
+            spec[block]['commands'] = OrderedDict(sorted(
+                spec[block]['commands'].items(), key=lambda i: i[0]))
         return spec
 
     def _build_spec_for_block(self, block):

@@ -53,8 +53,16 @@ class BuildSpec(Base):
                             get(field, {}).get(name, {}).items():
                         if attr not in spec[block][field][name]:
                             spec[block][field][name][attr] = value
-            keyorder = ['version', 'description', 'properties', 'inputs', 'outputs', 'commands']
-            spec[block] = OrderedDict(sorted(spec[block].items(), key=lambda i:keyorder.index(i[0])))
+            keyorder = [
+                'version',
+                'description',
+                'properties',
+                'inputs',
+                'outputs',
+                'commands'
+            ]
+            spec[block] = OrderedDict(
+                sorted(spec[block].items(), key=lambda i:keyorder.index(i[0])))
             spec[block]['properties'] = OrderedDict(sorted(
                 spec[block]['properties'].items(), key=lambda i: i[0]))
             spec[block]['inputs'] = OrderedDict(sorted(
@@ -80,11 +88,10 @@ class BuildSpec(Base):
             if k in ['type', 'name', 'version', 'log_level']:
                 continue
             property_spec = {}
+            property_spec["title"] = property['title']
             if property["default"]:
                 property_spec["default"] = property["default"]
             properties_spec[k] = property_spec
-            properties_spec[k]["title"] = properties[k]['title']
-
         return properties_spec
 
     def _build_commands_spec(self, block):

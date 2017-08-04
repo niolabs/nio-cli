@@ -150,7 +150,6 @@ class TestCLI(unittest.TestCase):
                     "Description": "This is the description",
                     "Output": "The output",
                     "Input": "The input",
-                    "Dependencies": ["requirements"],
                     "Properties": {
                         "String Prop": {
                             "default": "this will be overridden",
@@ -178,39 +177,38 @@ class TestCLI(unittest.TestCase):
                              ('blocks/myblocks/spec.json', 'w'))
             # json dump to file with formatting
             mock_json_dump.assert_called_once_with(
-                ANY, mock_file(), sort_keys=True, indent=2)
+                ANY, mock_file(), indent=2)
             self.maxDiff = None
             self.assertDictEqual(mock_json_dump.call_args[0][0], {
                 "nio/SampleBlock1": {
-                    "Version": "0.1.0",
-                    "Description": "This is the description",
-                    "Output": "The output",
-                    "Input": "The input",
-                    "Dependencies": ["requirements"],
-                    "Properties": {
-                        "String Prop": {
+                    "version": "0.1.0",
+                    "description": "",
+                    "outputs": {},
+                    "inputs": {},
+                    "properties": {
+                        "another": {
+                            "description": "",
+                            "title": "Another Prop",
+                            "default": None
+                        },
+                        "str_prop": {
+                            "title": "String Prop",
                             "default": "default string",
-                            "description": "this description will stay",
-                            "additional thing": "this will remain",
-                        },
-                        "Another Prop": {"description": ""},
+                            "description": "",
+                        }
                     },
-                    "Commands": {
-                        "commandit": {
-                            "description": "loaded from previous",
-                            "additional thing": "this will remain",
-                        },
+                    "commands": {
+                        "commandit": {"description": ""},
                         "commander": {"description": ""},
                     },
                 },
                 "nio/SampleBlock2": {
-                    "Version": "0.0.0",
-                    "Description": "",
-                    "Output": "",
-                    "Input": "",
-                    "Dependencies": [],
-                    "Properties": {},
-                    "Commands": {},
+                    "version": "0.0.0",
+                    "description": "",
+                    "outputs": {},
+                    "inputs": {},
+                    "properties": {},
+                    "commands": {},
                 },
             })
 

@@ -1,4 +1,5 @@
 import json, os, sys
+from collections import OrderedDict
 from nio.block.base import Block
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
@@ -26,8 +27,9 @@ class BuildSpec(Base):
         file_path = 'blocks/{}/spec.json'.format(self._repo)
         previous_spec = self._read_spec(file_path)
         merged_spec = self._merge_previous_into_new_spec(previous_spec, spec)
+        sorted_spec = self._order_dict(merged_spec)
         with open(file_path, 'w') as f:
-            json.dump(merged_spec, f, sort_keys=True, indent=2)
+            json.dump(sorted_spec, f, indent=2)
 
     def _read_spec(self, file_path):
         if os.path.exists(file_path):
@@ -38,12 +40,12 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("Description", ""), ("Output", ""),
-                             ("Input", ""), ("Dependencies", [])]
+            manual_fields = [("description", ""), ("outputs", {}),
+                             ("inputs", {})]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
-            for field in ["Properties", "Commands"]:
+            for field in ["properties", "commands"]:
                 for name in spec[block][field]:
                     spec[block][field][name]["description"] = \
                         previous_spec.get(block, {}).get(field, {}).\
@@ -54,12 +56,44 @@ class BuildSpec(Base):
                             spec[block][field][name][attr] = value
         return spec
 
+    def _order_dict(self, spec):
+        keyorder = [
+            'version',
+            'description',
+            'properties',
+            'inputs',
+            'outputs',
+            'commands'
+        ]
+        for block in spec:
+            spec[block] = OrderedDict(
+                sorted(
+                    spec[block].items(),
+                    key=lambda i: keyorder.index(i[0])
+                ))
+            self._alphabetical_order_dict(spec[block])
+        return spec
+
+    @staticmethod
+    def _alphabetical_order_dict(dict):
+        for key in ['properties', 'inputs', 'outputs', 'commands']:
+            dict[key] = OrderedDict(
+                sorted(dict[key].items(), key=lambda  i: i[0]))
+        for prop_key in dict["properties"]:
+            keyorder = ["title", "description", "default"]
+            dict["properties"][prop_key] = OrderedDict(
+                sorted(
+                    dict["properties"][prop_key].items(),
+                    key=lambda i: keyorder.index(i[0])
+                ))
+        return dict
+
     def _build_spec_for_block(self, block):
         block_spec = {}
         properties = block.get_description()["properties"]
-        block_spec["Version"] = properties["version"]["default"]
-        block_spec["Properties"] = self._build_properties_spec(block)
-        block_spec["Commands"] = self._build_commands_spec(block)
+        block_spec["version"] = properties["version"]["default"]
+        block_spec["properties"] = self._build_properties_spec(block)
+        block_spec["commands"] = self._build_commands_spec(block)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -69,9 +103,10 @@ class BuildSpec(Base):
             if k in ['type', 'name', 'version', 'log_level']:
                 continue
             property_spec = {}
-            if property["default"]:
+            property_spec["title"] = property['title']
+            if "default" in property:
                 property_spec["default"] = property["default"]
-            properties_spec[property["title"]] = property_spec
+            properties_spec[k] = property_spec
         return properties_spec
 
     def _build_commands_spec(self, block):

@@ -27,8 +27,9 @@ class BuildSpec(Base):
         file_path = 'blocks/{}/spec.json'.format(self._repo)
         previous_spec = self._read_spec(file_path)
         merged_spec = self._merge_previous_into_new_spec(previous_spec, spec)
+        sorted_spec = self._order_dict(merged_spec)
         with open(file_path, 'w') as f:
-            json.dump(merged_spec, f, indent=2)
+            json.dump(sorted_spec, f, indent=2)
 
     def _read_spec(self, file_path):
         if os.path.exists(file_path):
@@ -53,25 +54,28 @@ class BuildSpec(Base):
                             get(field, {}).get(name, {}).items():
                         if attr not in spec[block][field][name]:
                             spec[block][field][name][attr] = value
-            keyorder = [
-                'version',
-                'description',
-                'properties',
-                'inputs',
-                'outputs',
-                'commands'
-            ]
-            spec[block] = OrderedDict(
-                sorted(spec[block].items(), key=lambda i:keyorder.index(i[0])))
-            spec[block]['properties'] = OrderedDict(sorted(
-                spec[block]['properties'].items(), key=lambda i: i[0]))
-            spec[block]['inputs'] = OrderedDict(sorted(
-                spec[block]['inputs'].items(), key=lambda i: i[0]))
-            spec[block]['outputs'] = OrderedDict(sorted(
-                spec[block]['outputs'].items(), key=lambda i: i[0]))
-            spec[block]['commands'] = OrderedDict(sorted(
-                spec[block]['commands'].items(), key=lambda i: i[0]))
         return spec
+
+    def _order_dict(self, spec):
+        keyorder = [
+            'version',
+            'description',
+            'properties',
+            'inputs',
+            'outputs',
+            'commands'
+        ]
+        for block in spec:
+            spec[block] = OrderedDict(
+                sorted(spec[block].items(), key=lambda i: keyorder.index(i[0])))
+            self._alphabetical_order_dict(spec[block])
+        return spec
+
+    @staticmethod
+    def _alphabetical_order_dict(dict):
+        for key in ['properties', 'inputs', 'outputs', 'commands']:
+            dict[key] = OrderedDict(sorted(dict[key].items(), key=lambda  i: i[0]))
+        return dict
 
     def _build_spec_for_block(self, block):
         block_spec = {}

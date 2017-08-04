@@ -67,14 +67,26 @@ class BuildSpec(Base):
         ]
         for block in spec:
             spec[block] = OrderedDict(
-                sorted(spec[block].items(), key=lambda i: keyorder.index(i[0])))
+                sorted(
+                    spec[block].items(),
+                    key=lambda i: keyorder.index(i[0])
+                ))
             self._alphabetical_order_dict(spec[block])
         return spec
 
     @staticmethod
     def _alphabetical_order_dict(dict):
         for key in ['properties', 'inputs', 'outputs', 'commands']:
-            dict[key] = OrderedDict(sorted(dict[key].items(), key=lambda  i: i[0]))
+            dict[key] = OrderedDict(
+                sorted(dict[key].items(), key=lambda  i: i[0]))
+        for prop_key in dict["properties"]:
+            keyorder = ["title", "description", "default"]
+            dict["properties"][prop_key] = OrderedDict(
+                sorted(
+                    dict["properties"][prop_key].items(),
+                    key=lambda i: keyorder.index(i[0])
+                ))
+        print('##########', dict)
         return dict
 
     def _build_spec_for_block(self, block):
@@ -93,7 +105,7 @@ class BuildSpec(Base):
                 continue
             property_spec = {}
             property_spec["title"] = property['title']
-            if property["default"]:
+            if "default" in property:
                 property_spec["default"] = property["default"]
             properties_spec[k] = property_spec
         return properties_spec

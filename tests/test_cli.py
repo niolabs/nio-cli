@@ -212,6 +212,60 @@ class TestCLI(unittest.TestCase):
                 },
             })
 
+    def test_buildrelease_command(self):
+        """create release.json from block class"""
+
+        from nio.block.base import Block
+        from nio.properties import StringProperty, VersionProperty
+        from nio.command import command
+
+        @command('commandit')
+        @command('commander')
+        class SampleBlock1(Block):
+            version = VersionProperty('0.1.0')
+            str_prop = StringProperty(
+                title='String Prop',
+                default='default string',
+            )
+            another = StringProperty(
+                title='Another Prop',
+            )
+
+        class SampleBlock2(Block):
+            pass
+
+        discover_path = 'nio_cli.commands.buildrelease.Discover.discover_classes'
+        json_dump_path = 'nio_cli.commands.buildrelease.json.dump'
+        file_exists_path = 'nio_cli.commands.buildrelease.os.path.exists'
+        subprocess_call_path = 'nio_cli.commands.buildrelease.subprocess.check_output'
+        with patch(discover_path) as discover_classes, \
+                patch('builtins.open', mock_open()) as mock_file, \
+                patch(file_exists_path) as mock_file_exists, \
+                patch(json_dump_path) as mock_json_dump, \
+                patch(subprocess_call_path) as check_output:
+            # mocks to load existing spec.json and to discover blocks
+            mock_file_exists.return_value = True
+            discover_classes.return_value = [SampleBlock1, SampleBlock2]
+            check_output.return_value = b'origin git@github.com:nioinnovation/myblocks.git (fetch)'
+            # Exectute on repo 'myblocks'
+            self._main('buildrelease', **{'<repo-name>': 'myblocks'})
+            discover_classes.assert_called_once_with(
+                'blocks.myblocks', ANY, ANY)
+            # json dump to file with formatting
+            mock_json_dump.assert_called_once_with(
+                {
+                    'nio/SampleBlock2': {
+                        'version': '0.0.0', 'language': 'Python',
+                        'reference': 'git@github.com:nioinnovation/myblocks.git@v0.0.0'
+                    },
+                    'nio/SampleBlock1': {
+                        'version': '0.1.0', 'language': 'Python',
+                        'reference': 'git@github.com:nioinnovation/myblocks.git@v0.1.0'}
+                },
+                mock_file(),
+                indent=2,
+                sort_keys=True)
+
     def test_readme_command(self):
         """Create README.md from json.spec"""
 

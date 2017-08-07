@@ -196,11 +196,13 @@ class TestCLI(unittest.TestCase):
                     "properties": {
                         "another": {
                             "description": "",
+                            "type": "StringType",
                             "title": "Another Prop",
                             "default": None
                         },
                         "str_prop": {
                             "title": "String Prop",
+                            "type": "StringType",
                             "default": "default string",
                             "description": "",
                         }

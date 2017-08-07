@@ -208,8 +208,14 @@ class TestCLI(unittest.TestCase):
                         }
                     },
                     "commands": {
-                        "commandit": {"description": ""},
-                        "commander": {"description": ""},
+                        "commandit": {
+                            "description": "",
+                            "params": {}
+                        },
+                        "commander": {
+                            "description": "",
+                            "params": {}
+                        },
                     },
                 },
                 "nio/SampleBlock2": {

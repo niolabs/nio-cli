@@ -118,5 +118,6 @@ class BuildSpec(Base):
             if k in ['properties']:
                 continue
             command_spec = {}
+            command_spec["params"] = command["params"]
             commands_spec[command["title"]] = command_spec
         return commands_spec

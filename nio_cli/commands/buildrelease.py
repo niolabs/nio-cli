@@ -47,7 +47,10 @@ class BuildRelease(Base):
 
     def _create_block_release(self, block_object, url):
         block_name = block_object.__name__
-        block_version = block_object.get_description()["properties"]["version"]["default"]
+        try:
+            block_version = block_object.get_description()["properties"]["version"]["default"]
+        except:
+            block_version = "0.1.0"
         block_release = {
             "nio/{}".format(block_name): {
                 "language": "Python",

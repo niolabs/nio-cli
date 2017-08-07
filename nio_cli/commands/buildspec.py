@@ -29,7 +29,7 @@ class BuildSpec(Base):
         merged_spec = self._merge_previous_into_new_spec(previous_spec, spec)
         sorted_spec = self._order_dict(merged_spec)
         with open(file_path, 'w') as f:
-            json.dump(sorted_spec, f, indent=2)
+            json.dump(sorted_spec, f, indent=2, sort_keys=True)
 
     def _read_spec(self, file_path):
         if os.path.exists(file_path):
@@ -73,7 +73,7 @@ class BuildSpec(Base):
                     key=lambda i: keyorder.index(i[0])
                 ))
             self._alphabetical_order_dict(spec[block])
-        return OrderedDict(sorted(spec.items(), key=lambda i: i[0]))
+        return spec
 
     @staticmethod
     def _alphabetical_order_dict(dict):

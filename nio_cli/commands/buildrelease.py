@@ -28,8 +28,7 @@ class BuildRelease(Base):
 
         sys.path.insert(0, os.getcwd())
         blocks = Discover.discover_classes(
-            'blocks.{}'.format(self._repo), Block, _is_class_discoverable)
-        print(blocks)
+            'blocks.{}'.format(self._repo), Block, is_class_discoverable)
         for block in blocks:
             self._create_block_release(block, repo_url)
 
@@ -42,12 +41,13 @@ class BuildRelease(Base):
         file_path = "blocks/{}/release.json".format(self._repo)
         # create file if it does not exist with 'w+' mode
         with open(file_path, "w+") as release_file:
-            # sort alphabetically by key
-            json.dump(sorted(self._block_releases), release_file)
+            # sort keys alphabetically
+            json.dump(self._block_releases, release_file, indent=2,
+                      sort_keys=True)
 
     def _create_block_release(self, block_object, url):
-        block_name = block_object.name
-        block_version = block_object.version
+        block_name = block_object.__name__
+        block_version = block_object.get_description()["properties"]["version"]["default"]
         block_release = {
             "nio/{}".format(block_name): {
                 "language": "Python",

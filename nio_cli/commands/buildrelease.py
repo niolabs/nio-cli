@@ -1,5 +1,7 @@
 import subprocess
 import json
+import sys
+import os
 
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from nio.block.base import Block
@@ -20,13 +22,16 @@ class BuildRelease(Base):
         self._block_releases = {}
 
     def run(self):
-        get_repo_url = "git remote -v"
+        get_repo_url = "cd blocks/{} && git remote -v".format(self._repo)
         git_result = subprocess.check_output(get_repo_url, shell=True)
+        repo_url = git_result.split()[1].decode()
 
+        sys.path.insert(0, os.getcwd())
         blocks = Discover.discover_classes(
             'blocks.{}'.format(self._repo), Block, _is_class_discoverable)
+        print(blocks)
         for block in blocks:
-            self._create_block_release(block, git_result.split(' ')[1])
+            self._create_block_release(block, repo_url)
 
         self._write_repo_release()
 
@@ -37,7 +42,8 @@ class BuildRelease(Base):
         file_path = "blocks/{}/release.json".format(self._repo)
         # create file if it does not exist with 'w+' mode
         with open(file_path, "w+") as release_file:
-            json.dump(self._block_releases, release_file)
+            # sort alphabetically by key
+            json.dump(sorted(self._block_releases), release_file)
 
     def _create_block_release(self, block_object, url):
         block_name = block_object.name

@@ -72,7 +72,7 @@ class BuildSpec(Base):
                     key=lambda i: keyorder.index(i[0])
                 ))
             self._alphabetical_order_dict(spec[block])
-        return spec
+        return OrderedDict(sorted(spec.items(), key=lambda i: i[0]))
 
     @staticmethod
     def _alphabetical_order_dict(dict):

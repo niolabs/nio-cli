@@ -40,8 +40,9 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("description", ""), ("outputs", {}),
-                             ("inputs", {})]
+            manual_fields = [("description", ""),
+                             ("outputs", {"default": {"description": ""}}),
+                             ("inputs", {"default": {"description": ""}})]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
@@ -72,7 +73,7 @@ class BuildSpec(Base):
                     key=lambda i: keyorder.index(i[0])
                 ))
             self._alphabetical_order_dict(spec[block])
-        return spec
+        return OrderedDict(sorted(spec.items(), key=lambda i: i[0]))
 
     @staticmethod
     def _alphabetical_order_dict(dict):
@@ -80,7 +81,7 @@ class BuildSpec(Base):
             dict[key] = OrderedDict(
                 sorted(dict[key].items(), key=lambda  i: i[0]))
         for prop_key in dict["properties"]:
-            keyorder = ["title", "description", "default"]
+            keyorder = ["title", "type", "description", "default"]
             dict["properties"][prop_key] = OrderedDict(
                 sorted(
                     dict["properties"][prop_key].items(),
@@ -100,10 +101,11 @@ class BuildSpec(Base):
         properties_spec = {}
         properties = block.get_description()["properties"]
         for k, property in properties.items():
-            if k in ['type', 'name', 'version', 'log_level']:
+            if k in ["type", "name", "version", "log_level"]:
                 continue
             property_spec = {}
-            property_spec["title"] = property['title']
+            property_spec["title"] = property["title"]
+            property_spec["type"] = property["type"]
             if "default" in property:
                 property_spec["default"] = property["default"]
             properties_spec[k] = property_spec

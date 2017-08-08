@@ -48,30 +48,27 @@ class BuildReadme(Base):
 
     def _write_readme(self, old_readme, spec):
         writelines = []
-        required_sections = ["Description", "Properties", "Commands",
-                            "Dependencies", "Input", "Output"]
+        required_sections = \
+            ["description", "properties", "inputs", "outputs", "commands"]
         for block in sorted(spec):
             block_name = block.split("/")[1]
             writelines.append(block_name)
             writelines.append(len(block_name) * "=")
             for section in required_sections:
-                if section != "Description":
-                    writelines.append(section)
+                if section != "description":
+                    writelines.append(section.title())
                     writelines.append(len(section) * "-")
-                if section in ["Properties", "Commands"]:
+                if section in ["properties", "commands", "inputs", "outputs"]:
                     for property in sorted(spec[block][section]):
-                        description = \
-                            spec[block][section][property]["description"]
-                        writelines.append("- **{}**: {}".format(
-                            property, description or "TODO"))
-                elif section in ["Dependencies"]:
-                    for requirement in spec[block][section]:
-                        writelines.append("- {}".format(requirement))
+                        description = spec[block][section][property].get(
+                            "description", "")
+                        writelines.append(
+                            "- **{}**: {}".format(property, description))
                 else:
                     writelines.append(spec[block][section])
                 writelines.append("")
             for section in sorted(old_readme.get(block_name, {})):
-                if section not in required_sections:
+                if section.lower() not in required_sections:
                     writelines.append(section)
                     writelines.append(len(section) * "-")
                     [writelines.append(line)

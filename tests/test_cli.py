@@ -299,30 +299,32 @@ class TestCLI(unittest.TestCase):
             # mocks to load existing spec.json and to discover blocks
             mock_json_load.return_value = {
                 "nio/SampleBlock1": {
-                    "Description": "This is the description",
-                    "Output": "The output",
-                    "Input": "The input",
-                    "Dependencies": ["requirements"],
-                    "Properties": {
+                    "description": "This is the description",
+                    "properties": {
                         "String Prop": {
                             "default": "",
                             "description": "this description",
                         },
                     },
-                    "Commands": {
+                    "outputs": {"default": {}},
+                    "inputs": {
+                        "default": {
+                            "description": "The input",
+                        },
+                    },
+                    "commands": {
                         "commandit": {
                             "description": "a command",
                         },
                     },
                 },
                 "nio/SampleBlock2": {
-                    "Version": "0.0.0",
-                    "Description": "",
-                    "Output": "",
-                    "Input": "",
-                    "Dependencies": [],
-                    "Properties": {},
-                    "Commands": {},
+                    "version": "0.0.0",
+                    "description": "",
+                    "inputs": {},
+                    "outputs": {},
+                    "properties": {},
+                    "commands": {},
                 },
             }
             self._main('buildreadme')
@@ -347,21 +349,17 @@ class TestCLI(unittest.TestCase):
                 "----------\n"
                 "- **String Prop**: this description\n"
                 "\n"
+                "Inputs\n"
+                "------\n"
+                "- **default**: The input\n"
+                "\n"
+                "Outputs\n"
+                "-------\n"
+                "- **default**: \n"
+                "\n"
                 "Commands\n"
                 "--------\n"
                 "- **commandit**: a command\n"
-                "\n"
-                "Dependencies\n"
-                "------------\n"
-                "- requirements\n"
-                "\n"
-                "Input\n"
-                "-----\n"
-                "The input\n"
-                "\n"
-                "Output\n"
-                "------\n"
-                "The output\n"
                 "\n"
                 "SampleBlock2\n"
                 "============\n"
@@ -370,19 +368,14 @@ class TestCLI(unittest.TestCase):
                 "Properties\n"
                 "----------\n"
                 "\n"
-                "Commands\n"
-                "--------\n"
-                "\n"
-                "Dependencies\n"
-                "------------\n"
-                "\n"
-                "Input\n"
-                "-----\n"
-                "\n"
-                "\n"
-                "Output\n"
+                "Inputs\n"
                 "------\n"
                 "\n"
+                "Outputs\n"
+                "-------\n"
+                "\n"
+                "Commands\n"
+                "--------\n"
                 "\n"
             )
 

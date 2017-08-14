@@ -280,11 +280,11 @@ class TestCLI(unittest.TestCase):
                 {
                     'nio/SampleBlock2': {
                         'version': '0.0.0', 'language': 'Python',
-                        'reference': 'git@github.com:nioinnovation/myblocks.git@v0.0.0'
+                        'url': 'git://github.com/nioinnovation/myblocks.git'
                     },
                     'nio/SampleBlock1': {
                         'version': '0.1.0', 'language': 'Python',
-                        'reference': 'git@github.com:nioinnovation/myblocks.git@v0.1.0'}
+                        'url': 'git://github.com/nioinnovation/myblocks.git'}
                 },
                 mock_file(),
                 indent=2,

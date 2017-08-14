@@ -55,7 +55,7 @@ class BuildRelease(Base):
             "nio/{}".format(block_name): {
                 "language": "Python",
                 "version": block_version,
-                "reference": "https://{}"
+                "url": "https://{}"
                     .format(url.split("@")[1].replace(":", "/"))
             }
         }

@@ -256,6 +256,8 @@ class TestCLI(unittest.TestCase):
             )
 
         class SampleBlock2(Block):
+            # if a block has no configured version prop, the version is 0.0.0
+            # by default
             pass
 
         discover_path = 'nio_cli.commands.buildrelease.Discover.discover_classes'

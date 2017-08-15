@@ -89,7 +89,6 @@ class BlockCheck(Base):
         print('')
 
     def check_readme(self):
-        # TODO: Readme has everything for each block
 
         if os.path.exists('README.md'):
             with open('README.md') as f:
@@ -97,9 +96,10 @@ class BlockCheck(Base):
             for block in self.blocks_in_spec:
                 if block not in lines:
                     print('Please add the {} block to the README')
+                block_index = lines.index(block)
             for key in ['Properties', 'Inputs', 'Outputs', 'Commands', 'Dependencies']:
-                if key not in lines:
-                    print('Please add a {} section to the README'.format(key))
+                if key not in lines[block_index:]:
+                    print('Please add "{}" to the {} block'.format(key, block))
         else:
             print('Please run `nio buildreadme` as long as the spec.json file is complete')
         print('')

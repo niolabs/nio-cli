@@ -17,18 +17,11 @@ class BlockCheck(Base):
         self.all_contents = os.listdir('.')
         self.block_files = [f for f in self.all_contents if 'block.py' in f and 'base' not in f]
         self.blocks_in_spec = []
-        self.keys = [
-            'version',
-            'description',
-            'properties',
-            'inputs',
-            'outputs',
-            'commands'
-        ]
 
     def run(self):
         # OK to assume each block has a corresponding file and each file only has one block?
         # OK that everything uses `print` statements?
+        # Checks built off spec (self.blocks_in_spec)
 
         self.print_check('PEP8')
         self.check_pep8()
@@ -43,9 +36,8 @@ class BlockCheck(Base):
         self.check_release()
 
         self.print_check('version')
-        # TODO: version should match other versions (set as global var?)
         # check that all versions sync'd; block, release, spec
-        # should this be done along the way? (ie read version from block file, set and check along way?)
+        # this should
 
         self.print_check('class and file name')
         # check classes for camel case, blocks for snake case
@@ -71,8 +63,9 @@ class BlockCheck(Base):
                 print('Not all blocks are in the spec file')
 
             for block in self.blocks_in_spec:
-
-                for key in self.keys:
+                keys = ['version', 'description', 'properties', 'inputs',
+                        'outputs', 'commands']
+                for key in keys:
                     if key not in [k for k in spec_dict['nio/' + block]]:
                         print('{} block is missing {}'.format(block, key))
 
@@ -93,21 +86,23 @@ class BlockCheck(Base):
         if os.path.exists('README.md'):
             with open('README.md') as f:
                 lines = [l.rstrip() for l in f.readlines()]
+            block_indices = []
             for block in self.blocks_in_spec:
                 if block not in lines:
                     print('Please add the {} block to the README')
-                block_index = lines.index(block)
-            for key in ['Properties', 'Inputs', 'Outputs', 'Commands', 'Dependencies']:
-                if key not in lines[block_index:]:
-                    print('Please add "{}" to the {} block'.format(key, block))
+                block_indices.append(lines.index(block))
+            block_indices.sort()
+
+            # for key in ['Properties', 'Inputs', 'Outputs', 'Commands', 'Dependencies']:
+            #     if key not in lines[block_index:]:
+            #         pass
+            #         print('Please add "{}" to the {} block'.format(key, block))
+            # prev_block_index = block_index
         else:
             print('Please run `nio buildreadme` as long as the spec.json file is complete')
         print('')
 
     def check_release(self):
-        # TODO
-            # Release has language, url, version
-            # for each block
         if os.path.exists('release.json'):
             with open('release.json') as f:
                 release_dict = json.load(f)
@@ -118,8 +113,13 @@ class BlockCheck(Base):
             for key in ['url', 'version', 'language']:
                 if key not in release_dict['nio/' + block] or release_dict['nio/' + block][key] == '':
                     print('Please add a {} to the {} block'.format(key, block))
-
         print('')
+
+    def check_version(self):
+        pass
+
+    def check_naming(self):
+        pass
 
     def print_check(self, check):
         print('Checking {} formatting ...'.format(check))

@@ -28,11 +28,14 @@ class BlockCheck(Base):
             # How can I test this?
                 # Switch to having check_x methods return a string, then print that string?
         # Ok that all checks are built off the spec (self.blocks_in_spec)?
+            # Would it be better to base checks off the block file(s)?
 
         self.print_check('PEP8')
         self.check_pep8()
 
         self.print_check('spec.json')
+        # use `sys.exit()` for "failures" in check_spec() because
+        # the checks after check_spec all use self.blocks_in_spec
         self.check_spec()
 
         self.print_check('README.md')

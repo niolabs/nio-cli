@@ -1,10 +1,9 @@
-import json, os, re
+import json
+import os
+import sys
 import subprocess
-from collections import defaultdict
 
 from .base import Base
-
-
 
 
 class BlockCheck(Base):
@@ -15,13 +14,20 @@ class BlockCheck(Base):
         super().__init__(options, *args, **kwargs)
         self._block = os.getcwd().split('/')[-1]
         self.all_contents = os.listdir('.')
-        self.block_files = [f for f in self.all_contents if 'block.py' in f and 'base' not in f]
+        self.block_files = [
+            f for f in self.all_contents if 'block.py' in f and 'base' not in f
+        ]
         self.blocks_in_spec = []
+        self.spec_versions_dict = {}
+        self.release_versions_dict = {}
 
     def run(self):
+        # Questions;
         # OK to assume each block has a corresponding file and each file only has one block?
         # OK that everything uses `print` statements?
-        # Checks built off spec (self.blocks_in_spec)
+            # How can I test this?
+                # Switch to having check_x methods return a string, then print that string?
+        # Ok that all checks are built off the spec (self.blocks_in_spec)?
 
         self.print_check('PEP8')
         self.check_pep8()
@@ -35,32 +41,36 @@ class BlockCheck(Base):
         self.print_check('release.json')
         self.check_release()
 
+        # TODO: Check that block file version is the same as spec/release
         self.print_check('version')
-        # check that all versions sync'd; block, release, spec
-        # this should
+        self.check_version()
 
+        # What should I check for in regards to naming specifications?
         self.print_check('class and file name')
-        # check classes for camel case, blocks for snake case
+        self.check_naming()
 
     def check_pep8(self):
 
         shell_pep8 = 'pep8 .'
         subprocess.call(shell_pep8, shell=True)
         print('')
-        # TODO: control output of pep8 command
-            # would be nice to know if no issues was present
+        # Any way to grab pep8 output?
 
     def check_spec(self):
 
         if os.path.exists('spec.json'):
             with open('spec.json') as f:
                 spec_dict = json.load(f)
-                self.blocks_in_spec = [k.split('/')[1] for k,v in spec_dict.items()]
+                self.blocks_in_spec = [
+                    k.split('/')[1] for k, v in spec_dict.items()
+                ]
 
             if len(self.blocks_in_spec) > len(self.block_files):
                 print('There\'s extra blocks in the spec file')
+                sys.exit()
             if len(self.blocks_in_spec) < len(self.block_files):
                 print('Not all blocks are in the spec file')
+                sys.exit()
 
             for block in self.blocks_in_spec:
                 keys = ['version', 'description', 'properties', 'inputs',
@@ -68,17 +78,31 @@ class BlockCheck(Base):
                 for key in keys:
                     if key not in [k for k in spec_dict['nio/' + block]]:
                         print('{} block is missing {}'.format(block, key))
+                        sys.exit()
+                self.spec_versions_dict[block] = \
+                    spec_dict['nio/' + block]['version']
 
-                for key in ['version', 'description', 'properties']:
-                    if not spec_dict['nio/' + block][key] or spec_dict['nio/' + block][key] == '':
-                        print('Please fill in the {}'.format(key))
+            for key in ['version', 'description', 'properties']:
+                if not spec_dict['nio/' + block][key] \
+                        or spec_dict['nio/' + block][key] == '':
+                    print('Please fill in the {} of the {} block'.format(
+                        key, block))
+                    sys.exit()
 
-                for prop,val in spec_dict['nio/' + block]['properties'].items():
+                for prop, val in \
+                        spec_dict['nio/' + block]['properties'].items():
                     if val['description'] == '':
-                        print('Please fill in the description for the "{}" property in the {} block'.format(prop, block))
-
+                        print(
+                            'Please fill in the description for the '
+                            '"{}" property in the {} block'.format(prop, block)
+                        )
+                        sys.exit()
         else:
-            print('Please run `nio buildspec {}` from the project directory'.format(self._block))
+            print(
+                'Please run `nio buildspec {}` '
+                'from the project directory'.format(self._block)
+            )
+            sys.exit()
         print('')
 
     def check_readme(self):
@@ -93,13 +117,23 @@ class BlockCheck(Base):
                 block_indices.append(lines.index(block))
             block_indices.sort()
 
-            # for key in ['Properties', 'Inputs', 'Outputs', 'Commands', 'Dependencies']:
-            #     if key not in lines[block_index:]:
-            #         pass
-            #         print('Please add "{}" to the {} block'.format(key, block))
-            # prev_block_index = block_index
+            for i in range(len(block_indices)):
+                # TODO: better way to handle `i+1` IndexError?
+                    for key in ['Properties', 'Inputs', 'Outputs',
+                                'Commands', 'Dependencies']:
+                        try:
+                            if key not in lines[block_indices[i]:block_indices[i+1]]:
+                                print('Please add "{}" to the {} block'.format(
+                                    key, lines[block_indices[i]]))
+                        except IndexError:
+                            if key not in lines[block_indices[i]:]:
+                                print('Please add "{}" to the {} block'.format(
+                                    key, lines[block_indices[i]]))
         else:
-            print('Please run `nio buildreadme` as long as the spec.json file is complete')
+            print(
+                'Please run `nio buildreadme` '
+                'as long as the spec.json file is complete'
+            )
         print('')
 
     def check_release(self):
@@ -111,15 +145,31 @@ class BlockCheck(Base):
             if 'nio/' + block not in release_dict:
                 print('Please add {} block to release.json'.format(block))
             for key in ['url', 'version', 'language']:
-                if key not in release_dict['nio/' + block] or release_dict['nio/' + block][key] == '':
+                if key not in release_dict['nio/' + block] \
+                        or release_dict['nio/' + block][key] == '':
                     print('Please add a {} to the {} block'.format(key, block))
+            self.release_versions_dict[block] = release_dict['nio/' + block]['version']
         print('')
 
     def check_version(self):
-        pass
+        # TODO: also check version inside block file
+        for block in self.blocks_in_spec:
+            if self.release_versions_dict[block] != self.spec_versions_dict[block]:
+                print('Versions do not match for {} block'.format(block))
+        print('')
 
     def check_naming(self):
-        pass
+        # TODO: also check class name inside block file
+        for block in self.blocks_in_spec:
+            if '_' in block:
+                print('{} class name should be camel-cased format'.format(block))
+
+        for block in self.block_files:
+            if '_block.py' not in block:
+                print('Please add _block.py to the end of the {} block filename'.format(block))
+            if not block.islower():
+                print('{} file name should be lowercased and kebab formatted'.format(block))
+        print('')
 
     def print_check(self, check):
         print('Checking {} formatting ...'.format(check))

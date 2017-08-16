@@ -21,6 +21,11 @@ class BlockCheck(Base):
         self.spec_versions_dict = {}
         self.release_versions_dict = {}
 
+    def get_versions_and_class_names(self):
+        for block in self.block_files:
+            with open(block) as f:
+                pass
+
     def run(self):
         # Questions;
         # OK to assume each block has a corresponding file and each file only has one block?
@@ -48,7 +53,7 @@ class BlockCheck(Base):
         self.print_check('version')
         self.check_version()
 
-        # What should I check for in regards to naming specifications?
+        # TODO: Check that block file class name is the same as spec/release
         self.print_check('class and file name')
         self.check_naming()
 
@@ -70,9 +75,17 @@ class BlockCheck(Base):
 
             if len(self.blocks_in_spec) > len(self.block_files):
                 print('There\'s extra blocks in the spec file')
+                print(
+                    'Run `nio buildspec {}` from the project directory '
+                    'and re-run this check'.format(self._block)
+                )
                 sys.exit()
             if len(self.blocks_in_spec) < len(self.block_files):
                 print('Not all blocks are in the spec file')
+                print(
+                    'Run `nio buildspec {}` from the project directory '
+                    'and re-run this check'.format(self._block)
+                )
                 sys.exit()
 
             for block in self.blocks_in_spec:
@@ -88,7 +101,7 @@ class BlockCheck(Base):
             for key in ['version', 'description', 'properties']:
                 if not spec_dict['nio/' + block][key] \
                         or spec_dict['nio/' + block][key] == '':
-                    print('Please fill in the {} of the {} block'.format(
+                    print('Fill in the {} of the {} block'.format(
                         key, block))
                     sys.exit()
 
@@ -96,14 +109,14 @@ class BlockCheck(Base):
                         spec_dict['nio/' + block]['properties'].items():
                     if val['description'] == '':
                         print(
-                            'Please fill in the description for the '
+                            'Fill in the description for the '
                             '"{}" property in the {} block'.format(prop, block)
                         )
                         sys.exit()
         else:
             print(
-                'Please run `nio buildspec {}` '
-                'from the project directory'.format(self._block)
+                'Run `nio buildspec {}` from the project directory '
+                'and re-run this check'.format(self._block)
             )
             sys.exit()
         print('')
@@ -116,7 +129,7 @@ class BlockCheck(Base):
             block_indices = []
             for block in self.blocks_in_spec:
                 if block not in lines:
-                    print('Please add the {} block to the README')
+                    print('Add the {} block to the README')
                 block_indices.append(lines.index(block))
             block_indices.sort()
 
@@ -126,15 +139,15 @@ class BlockCheck(Base):
                                 'Commands', 'Dependencies']:
                         try:
                             if key not in lines[block_indices[i]:block_indices[i+1]]:
-                                print('Please add "{}" to the {} block'.format(
+                                print('Add "{}" to the {} block'.format(
                                     key, lines[block_indices[i]]))
                         except IndexError:
                             if key not in lines[block_indices[i]:]:
-                                print('Please add "{}" to the {} block'.format(
+                                print('Add "{}" to the {} block'.format(
                                     key, lines[block_indices[i]]))
         else:
             print(
-                'Please run `nio buildreadme` '
+                'Run `nio buildreadme` '
                 'as long as the spec.json file is complete'
             )
         print('')
@@ -146,11 +159,11 @@ class BlockCheck(Base):
 
         for block in self.blocks_in_spec:
             if 'nio/' + block not in release_dict:
-                print('Please add {} block to release.json'.format(block))
+                print('Add {} block to release.json'.format(block))
             for key in ['url', 'version', 'language']:
                 if key not in release_dict['nio/' + block] \
                         or release_dict['nio/' + block][key] == '':
-                    print('Please add a {} to the {} block'.format(key, block))
+                    print('Add a {} to the {} block'.format(key, block))
             self.release_versions_dict[block] = release_dict['nio/' + block]['version']
         print('')
 
@@ -169,7 +182,7 @@ class BlockCheck(Base):
 
         for block in self.block_files:
             if '_block.py' not in block:
-                print('Please add _block.py to the end of the {} block filename'.format(block))
+                print('Add _block.py to the end of the {} block filename'.format(block))
             if not block.islower():
                 print('{} file name should be lowercased and kebab formatted'.format(block))
         print('')

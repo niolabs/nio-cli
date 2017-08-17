@@ -465,10 +465,17 @@ class TestCLI(unittest.TestCase):
                 }
             ]
 
-            # Mock list of README.md lines to check (missing 'Outputs')
-            mock_file.return_value.readlines.return_value = [
-                'nioLmnopio', 'Properties', 'Inputs',
-                'Commands', 'Dependencies'
+            mock_file.return_value.readlines.side_effect = [
+                # .readlines() for nio_lmnopio_block.py
+                [
+                    'class nioLmnopio(Block)',
+                    "version = VersionProperty('0.1.0')"
+                ],
+                # .readlines() for README.md (missing 'Outputs')
+                [
+                    'nioLmnopio', 'Properties', 'Inputs',
+                    'Commands', 'Dependencies'
+                ]
             ]
 
             self._main('blockcheck')
@@ -486,7 +493,9 @@ class TestCLI(unittest.TestCase):
                 'Checking release.json formatting ...\n\n'
                 'Checking version formatting ...\n'
                 'Spec.json and release.json versions do not match '
-                'for nioLmnopio block\n\n'
+                'for nioLmnopio block\n'
+                'The nioLmnopio version in the release file does not match '
+                'the version in its block file\n\n'
                 'Checking class and file name formatting ...\n\n',
                 mock_print.getvalue()
             )

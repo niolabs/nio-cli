@@ -14,17 +14,37 @@ class BlockCheck(Base):
         super().__init__(options, *args, **kwargs)
         self._block = os.getcwd().split('/')[-1]
         self.all_contents = os.listdir('.')
+        self.block_files_including_base = [
+            f for f in self.all_contents if self._block in f
+        ]
         self.block_files = [
             f for f in self.all_contents if 'block.py' in f and 'base' not in f
         ]
         self.blocks_in_spec = []
         self.spec_versions_dict = {}
         self.release_versions_dict = {}
+        self.file_versions_and_names_dict = self.get_versions_and_class_names()
 
-    # def get_versions_and_class_names(self):
-    #     for block in self.block_files:
-    #         with open(block) as f:
-    #             [isolate version and class name, create/return dict for assertions]
+    def get_versions_and_class_names(self):
+        name_version_dict = {
+            'classes': [],
+            'versions': [],
+        }
+        for block in self.block_files_including_base:
+            with open(block) as f:
+                lines = [l.rstrip() for l in f.readlines()]
+                for line in lines:
+                    if 'class ' in line:
+                        split1 = line.split(' ')[1]
+                        class_name = split1.split('(')[0]
+                        name_version_dict['classes'].append(class_name)
+                    if '= VersionProperty' in line:
+                        replace1 = line.replace('"', '^')
+                        replace2 = replace1.replace("'", '^')
+                        version_string = replace2.split("^")[1]
+                        # version_string = split1.split("^")[0]
+                        name_version_dict['versions'].append(version_string)
+        return name_version_dict
 
     def run(self):
 
@@ -32,8 +52,6 @@ class BlockCheck(Base):
         self.check_pep8()
 
         self.print_check('spec.json')
-        # use `sys.exit()` for "failures" in check_spec() because
-        # the checks after check_spec all use self.blocks_in_spec
         self.check_spec()
 
         self.print_check('README.md')
@@ -174,6 +192,20 @@ class BlockCheck(Base):
                     'Spec.json and release.json versions do not match for '
                     '{} block'.format(block)
                 )
+            if self.release_versions_dict[block] \
+                    not in self.file_versions_and_names_dict['versions']:
+                print(
+                    'The {} version in the release file '
+                    'does not match the version in its '
+                    'block file'.format(block)
+                )
+                if self.spec_versions_dict[block] \
+                    not in self.file_versions_and_names_dict['versions']:
+                    print(
+                        'The {} version in the spec file '
+                        'does not match the version in its '
+                        'block file'.format(block)
+                    )
         print('')
 
     def check_naming(self):
@@ -182,13 +214,12 @@ class BlockCheck(Base):
                 print(
                     '{} class name should be camel-cased format'.format(block)
                 )
+            if block not in self.file_versions_and_names_dict['classes']:
+                print(
+                    '{} block needs to have a defined class'.format(block)
+                )
 
         for block in self.block_files:
-            if '_block.py' not in block:
-                print(
-                    'Add _block.py to the end of the '
-                    '{} block filename'.format(block)
-                )
             if not block.islower():
                 print(
                     '{} file name should be lowercased and '

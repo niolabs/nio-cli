@@ -16,7 +16,7 @@ class BlockCheck(Base):
         self._block = os.getcwd().split('/')[-1]
         self.all_contents = os.listdir('.')
         self.block_files_including_base = [
-            f for f in self.all_contents if self._block in f
+            f for f in self.all_contents if '.py' in f
         ]
         self.block_files = [
             f for f in self.all_contents if 'block.py' in f and 'base' not in f
@@ -220,7 +220,7 @@ class BlockCheck(Base):
         for block in self.blocks_in_spec:
             if '_' in block:
                 print(
-                    '{} class name should be camel-cased format'.format(block)
+                    '{} class name should be camelCased format'.format(block)
                 )
             if block not in self.file_versions_and_names_dict['classes']:
                 print(
@@ -231,7 +231,7 @@ class BlockCheck(Base):
             if not block.islower():
                 print(
                     '{} file name should be lowercased and '
-                    'kebab formatted'.format(block)
+                    'snake_cased'.format(block)
                 )
         print('')
 

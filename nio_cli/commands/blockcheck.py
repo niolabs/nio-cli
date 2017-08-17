@@ -11,6 +11,7 @@ class BlockCheck(Base):
     # This should be run from inside the block dir
 
     def __init__(self, options, *args, **kwargs):
+
         super().__init__(options, *args, **kwargs)
         self._block = os.getcwd().split('/')[-1]
         self.all_contents = os.listdir('.')
@@ -26,6 +27,7 @@ class BlockCheck(Base):
         self.file_versions_and_names_dict = self.get_versions_and_class_names()
 
     def get_versions_and_class_names(self):
+
         name_version_dict = {
             'classes': [],
             'versions': [],
@@ -42,7 +44,6 @@ class BlockCheck(Base):
                         replace1 = line.replace('"', '^')
                         replace2 = replace1.replace("'", '^')
                         version_string = replace2.split("^")[1]
-                        # version_string = split1.split("^")[0]
                         name_version_dict['versions'].append(version_string)
         return name_version_dict
 
@@ -60,12 +61,9 @@ class BlockCheck(Base):
         self.print_check('release.json')
         self.check_release()
 
-        # TODO: Check that block file version is the same as spec/release
-            # open files and look for 'VersionProperty'
         self.print_check('version')
         self.check_version()
 
-        # TODO: Check that block file class name is the same as spec/release
         self.print_check('class and file name')
         self.check_naming()
 
@@ -79,7 +77,17 @@ class BlockCheck(Base):
 
         if os.path.exists('spec.json'):
             with open('spec.json') as f:
-                spec_dict = json.load(f)
+                try:
+                    spec_dict = json.load(f)
+                except json.JSONDecodeError:
+                    print('spec.json file is either incomplete or '
+                          'has an invalid JSON object')
+                    print(
+                        '\n**Run `nio buildspec {}` '
+                        'from the project directory '
+                        'and re-run this check**\n'.format(self._block)
+                    )
+                    sys.exit()
                 self.blocks_in_spec = [
                     k.split('/')[1] for k, v in spec_dict.items()
                 ]
@@ -110,7 +118,6 @@ class BlockCheck(Base):
                             'from the project directory '
                             'and re-run this check**\n'.format(self._block)
                         )
-                        sys.exit()
                 self.spec_versions_dict[block] = \
                     spec_dict['nio/' + block]['version']
 
@@ -119,7 +126,6 @@ class BlockCheck(Base):
                             or spec_dict['nio/' + block][key] == '':
                         print('Fill in the {} of the {} block'.format(
                             key, block))
-                        sys.exit()
 
                 for prop, val in \
                         spec_dict['nio/' + block]['properties'].items():
@@ -128,7 +134,6 @@ class BlockCheck(Base):
                             'Fill in the description for the '
                             '"{}" property in the {} block'.format(prop, block)
                         )
-                        sys.exit()
         else:
             print(
                 '\n**Run `nio buildspec {}` from the project directory '
@@ -169,6 +174,7 @@ class BlockCheck(Base):
         print('')
 
     def check_release(self):
+
         if os.path.exists('release.json'):
             with open('release.json') as f:
                 release_dict = json.load(f)
@@ -185,6 +191,7 @@ class BlockCheck(Base):
         print('')
 
     def check_version(self):
+
         for block in self.blocks_in_spec:
             if self.release_versions_dict[block] != \
                     self.spec_versions_dict[block]:
@@ -209,6 +216,7 @@ class BlockCheck(Base):
         print('')
 
     def check_naming(self):
+
         for block in self.blocks_in_spec:
             if '_' in block:
                 print(
@@ -227,5 +235,7 @@ class BlockCheck(Base):
                 )
         print('')
 
-    def print_check(self, check):
+    @staticmethod
+    def print_check(check):
+
         print('Checking {} formatting ...'.format(check))

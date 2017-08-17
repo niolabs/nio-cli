@@ -1,7 +1,9 @@
-import unittest
-from unittest.mock import mock_open, patch, ANY
-from docopt import docopt, DocoptExit
 import responses
+import unittest
+from unittest.mock import mock_open, patch, ANY, MagicMock
+from docopt import docopt, DocoptExit
+from io import StringIO
+
 import nio_cli.cli as cli
 
 
@@ -146,21 +148,21 @@ class TestCLI(unittest.TestCase):
             # mocks to load existing spec.json and to discover blocks
             mock_file_exists.return_value = True
             mock_json_load.return_value = {
-                "nio/SampleBlock1": {
-                    "Description": "This is the description",
-                    "Output": "The output",
-                    "Input": "The input",
-                    "Properties": {
-                        "String Prop": {
-                            "default": "this will be overridden",
-                            "description": "this description will stay",
-                            "additional thing": "this will remain",
+                'nio/SampleBlock1': {
+                    'Description': 'This is the description',
+                    'Output': 'The output',
+                    'Input': 'The input',
+                    'Properties': {
+                        'String Prop': {
+                            'default': 'this will be overridden',
+                            'description': 'this description will stay',
+                            'additional thing': 'this will remain',
                         },
                     },
-                    "Commands": {
-                        "commandit": {
-                            "description": "loaded from previous",
-                            "additional thing": "this will remain",
+                    'Commands': {
+                        'commandit': {
+                            'description': 'loaded from previous',
+                            'additional thing': 'this will remain',
                         },
                     },
                 },
@@ -180,59 +182,59 @@ class TestCLI(unittest.TestCase):
                 ANY, mock_file(), indent=2)
             self.maxDiff = None
             self.assertDictEqual(mock_json_dump.call_args[0][0], {
-                "nio/SampleBlock1": {
-                    "version": "0.1.0",
-                    "description": "",
-                    "outputs": {
-                        "default": {
-                            "description": ""
+                'nio/SampleBlock1': {
+                    'version': '0.1.0',
+                    'description': '',
+                    'outputs': {
+                        'default': {
+                            'description': ''
                         }
                     },
-                    "inputs": {
-                        "default": {
-                            "description": ""
+                    'inputs': {
+                        'default': {
+                            'description': ''
                         }
                     },
-                    "properties": {
-                        "another": {
-                            "description": "",
-                            "type": "StringType",
-                            "title": "Another Prop",
-                            "default": None
+                    'properties': {
+                        'another': {
+                            'description': '',
+                            'type': 'StringType',
+                            'title': 'Another Prop',
+                            'default': None
                         },
-                        "str_prop": {
-                            "title": "String Prop",
-                            "type": "StringType",
-                            "default": "default string",
-                            "description": "",
+                        'str_prop': {
+                            'title': 'String Prop',
+                            'type': 'StringType',
+                            'default': 'default string',
+                            'description': '',
                         }
                     },
-                    "commands": {
-                        "commandit": {
-                            "description": "",
-                            "params": {}
+                    'commands': {
+                        'commandit': {
+                            'description': '',
+                            'params': {}
                         },
-                        "commander": {
-                            "description": "",
-                            "params": {}
+                        'commander': {
+                            'description': '',
+                            'params': {}
                         },
                     },
                 },
-                "nio/SampleBlock2": {
-                    "version": "0.0.0",
-                    "description": "",
-                    "outputs": {
-                        "default": {
-                            "description": ""
+                'nio/SampleBlock2': {
+                    'version': '0.0.0',
+                    'description': '',
+                    'outputs': {
+                        'default': {
+                            'description': ''
                         }
                     },
-                    "inputs": {
-                        "default": {
-                            "description": ""
+                    'inputs': {
+                        'default': {
+                            'description': ''
                         }
                     },
-                    "properties": {},
-                    "commands": {},
+                    'properties': {},
+                    'commands': {},
                 },
             })
 
@@ -298,33 +300,33 @@ class TestCLI(unittest.TestCase):
                 patch(json_load_path) as mock_json_load:
             # mocks to load existing spec.json and to discover blocks
             mock_json_load.return_value = {
-                "nio/SampleBlock1": {
-                    "description": "This is the description",
-                    "properties": {
-                        "String Prop": {
-                            "default": "",
-                            "description": "this description",
+                'nio/SampleBlock1': {
+                    'description': 'This is the description',
+                    'properties': {
+                        'String Prop': {
+                            'default': '',
+                            'description': 'this description',
                         },
                     },
-                    "outputs": {"default": {}},
-                    "inputs": {
-                        "default": {
-                            "description": "The input",
+                    'outputs': {'default': {}},
+                    'inputs': {
+                        'default': {
+                            'description': 'The input',
                         },
                     },
-                    "commands": {
-                        "commandit": {
-                            "description": "a command",
+                    'commands': {
+                        'commandit': {
+                            'description': 'a command',
                         },
                     },
                 },
-                "nio/SampleBlock2": {
-                    "version": "0.0.0",
-                    "description": "",
-                    "inputs": {},
-                    "outputs": {},
-                    "properties": {},
-                    "commands": {},
+                'nio/SampleBlock2': {
+                    'version': '0.0.0',
+                    'description': '',
+                    'inputs': {},
+                    'outputs': {},
+                    'properties': {},
+                    'commands': {},
                 },
             }
             self._main('buildreadme')
@@ -335,48 +337,48 @@ class TestCLI(unittest.TestCase):
                              ('spec.json',))
             self.assertEqual(mock_file.call_args_list[2][0],
                              ('README.md', 'w'))
-            written = ""
+            written = ''
             for call in mock_file.return_value.write.call_args_list:
                 written += call[0][0]
             self.maxDiff = None
             self.assertEqual(
                 written,
-                "SampleBlock1\n"
-                "============\n"
-                "This is the description\n"
-                "\n"
-                "Properties\n"
-                "----------\n"
-                "- **String Prop**: this description\n"
-                "\n"
-                "Inputs\n"
-                "------\n"
-                "- **default**: The input\n"
-                "\n"
-                "Outputs\n"
-                "-------\n"
-                "- **default**: \n"
-                "\n"
-                "Commands\n"
-                "--------\n"
-                "- **commandit**: a command\n"
-                "\n"
-                "SampleBlock2\n"
-                "============\n"
-                "\n"
-                "\n"
-                "Properties\n"
-                "----------\n"
-                "\n"
-                "Inputs\n"
-                "------\n"
-                "\n"
-                "Outputs\n"
-                "-------\n"
-                "\n"
-                "Commands\n"
-                "--------\n"
-                "\n"
+                'SampleBlock1\n'
+                '============\n'
+                'This is the description\n'
+                '\n'
+                'Properties\n'
+                '----------\n'
+                '- **String Prop**: this description\n'
+                '\n'
+                'Inputs\n'
+                '------\n'
+                '- **default**: The input\n'
+                '\n'
+                'Outputs\n'
+                '-------\n'
+                '- **default**: \n'
+                '\n'
+                'Commands\n'
+                '--------\n'
+                '- **commandit**: a command\n'
+                '\n'
+                'SampleBlock2\n'
+                '============\n'
+                '\n'
+                '\n'
+                'Properties\n'
+                '----------\n'
+                '\n'
+                'Inputs\n'
+                '------\n'
+                '\n'
+                'Outputs\n'
+                '-------\n'
+                '\n'
+                'Commands\n'
+                '--------\n'
+                '\n'
             )
 
     def test_newblock_command(self):
@@ -415,6 +417,79 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(
                 mock_file.return_value.write.call_args_list[2][0][0],
                 'YabaDaba ..yaba_daba_block TestYabaDaba')
+
+    def test_blockcheck_command(self):
+        file_exists_path = 'nio_cli.commands.blockcheck.os.path.exists'
+        getcwd_path = 'nio_cli.commands.blockcheck.os.getcwd'
+        listdir_path = 'nio_cli.commands.blockcheck.os.listdir'
+        subprocess_path = 'nio_cli.commands.blockcheck.subprocess.call'
+        sys_exit_path = 'nio_cli.commands.blockcheck.sys.exit'
+        print_path = 'nio_cli.commands.blockcheck.sys.stdout'
+        json_load_path = 'nio_cli.commands.blockcheck.json.load'
+        with patch('builtins.open', mock_open()) as mock_file, \
+                patch(file_exists_path) as mock_file_exists, \
+                patch(getcwd_path) as mock_getcwd, \
+                patch(listdir_path) as mock_listdir, \
+                patch(subprocess_path) as mock_subprocess_call, \
+                patch(sys_exit_path) as mock_sys_exit, \
+                patch(print_path, new_callable=StringIO) as mock_print, \
+                patch(json_load_path) as mock_json_load:
+
+            mock_file_exists.return_value = True
+            mock_getcwd.return_value = 'nio_lmnopio_block'
+            mock_listdir.return_value = ['nio_lmnopio_block.py']
+
+            mock_json_load.side_effect = [
+                # json.load() for spec.json (prop1 missing description)
+                {
+                    'nio/nioLmnopio': {
+                        'version': '0.1.0',
+                        'description': 'spec description',
+                        'properties': {
+                            'prop1': {
+                                'description': ''
+                            }
+                        },
+                        'inputs': {},
+                        'outputs': {},
+                        'commands': {},
+                    }
+                },
+                # json.load() for release.json (versions do not match)
+                {
+                    'nio/nioLmnopio': {
+                        'language': 'Python',
+                        'url': 'release url',
+                        'version': '0.1.1',
+                    }
+                }
+            ]
+
+            # Mock list of README.md lines to check (missing 'Outputs')
+            mock_file.return_value.readlines.return_value = [
+                'nioLmnopio', 'Properties', 'Inputs',
+                'Commands', 'Dependencies'
+            ]
+
+            self._main('blockcheck')
+            self.assertEqual(
+                'pep8 .', mock_subprocess_call.call_args_list[0][0][0])
+
+            # Check that print statements are run
+            self.assertEqual(
+                'Checking PEP8 formatting ...\n\n'
+                'Checking spec.json formatting ...\n'
+                'Fill in the description for the "prop1" property '
+                'in the nioLmnopio block\n\n'
+                'Checking README.md formatting ...\n'
+                'Add "Outputs" to the nioLmnopio block\n\n'
+                'Checking release.json formatting ...\n\n'
+                'Checking version formatting ...\n'
+                'Spec.json and release.json versions do not match '
+                'for nioLmnopio block\n\n'
+                'Checking class and file name formatting ...\n\n',
+                mock_print.getvalue()
+            )
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

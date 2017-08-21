@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import subprocess
+import re
 
 from .base import Base
 
@@ -46,12 +47,10 @@ class BlockCheck(Base):
                         class_name = split1.split('(')[0]
                         block_versions[class_name] = ''
                     if '= VersionProperty' in line:
-                        replace1 = line.replace('"', '^')
-                        replace2 = replace1.replace("'", '^')
-                        version_string = replace2.split("^")[1]
-                        version_list = version_string.split('.')
-                        major_minor = '.'.join(
-                            [version_list[0], version_list[1]])
+                        major_minor = re.search(
+                            r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
+                            line
+                        ).group(1)
                         block_versions[class_name] = major_minor
         return block_versions, block_files
 

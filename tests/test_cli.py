@@ -419,6 +419,7 @@ class TestCLI(unittest.TestCase):
                 'YabaDaba ..yaba_daba_block TestYabaDaba')
 
     def test_blockcheck_command(self):
+        self.maxDiff = None
         file_exists_path = 'nio_cli.commands.blockcheck.os.path.exists'
         getcwd_path = 'nio_cli.commands.blockcheck.os.getcwd'
         listdir_path = 'nio_cli.commands.blockcheck.os.listdir'
@@ -492,10 +493,10 @@ class TestCLI(unittest.TestCase):
                 'Add "Outputs" to the nioLmnopio block\n\n'
                 'Checking release.json formatting ...\n\n'
                 'Checking version formatting ...\n'
-                'Spec.json and release.json versions do not match '
-                'for nioLmnopio block\n'
                 'The nioLmnopio version in the release file does not match '
-                'the version in its block file\n\n'
+                'the version in its block file\n'
+                'Spec.json and release.json versions do not match '
+                'for nioLmnopio block\n\n'
                 'Checking class and file name formatting ...\n\n',
                 mock_print.getvalue()
             )

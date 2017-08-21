@@ -8,234 +8,214 @@ from .base import Base
 
 class BlockCheck(Base):
 
-    # This should be run from inside the block dir
+    # This command should be run from inside the block dir
 
     def __init__(self, options, *args, **kwargs):
-
         super().__init__(options, *args, **kwargs)
-        self._block = os.getcwd().split('/')[-1]
-        self.all_contents = os.listdir('.')
-        self.block_files_including_base = [
-            f for f in self.all_contents if '.py' in f
-        ]
-        self.block_files = [
-            f for f in self.all_contents if 'block.py' in f and 'base' not in f
-        ]
-        self.blocks_in_spec = []
-        self.spec_versions_dict = {}
-        self.release_versions_dict = {}
-        self.file_versions_and_names_dict = self.get_versions_and_class_names()
+        self._directory_name = os.getcwd().split('/')[-1]
+        self.run_build_spec = False
 
-    def get_versions_and_class_names(self):
-
-        name_version_dict = {
-            'classes': [],
-            'versions': [],
-        }
-        for block in self.block_files_including_base:
+    @staticmethod
+    def _read_block_files():
+        block_versions = {}
+        class_name = None
+        block_files = [f for f in os.listdir('.') if f.endswith('.py')
+                       and '__init__' not in f]
+        for block in block_files:
             with open(block) as f:
                 lines = [l.rstrip() for l in f.readlines()]
                 for line in lines:
                     if 'class ' in line:
                         split1 = line.split(' ')[1]
                         class_name = split1.split('(')[0]
-                        name_version_dict['classes'].append(class_name)
+                        block_versions[class_name] = ''
                     if '= VersionProperty' in line:
                         replace1 = line.replace('"', '^')
                         replace2 = replace1.replace("'", '^')
                         version_string = replace2.split("^")[1]
-                        name_version_dict['versions'].append(version_string[:3])
-        return name_version_dict
+                        version_list = version_string.split('.')
+                        major_minor = '.'.join(
+                            [version_list[0], version_list[1]])
+                        block_versions[class_name] = major_minor
+        return block_versions, block_files
 
     def run(self):
+        block_versions, block_files = self._read_block_files()
+        specs = self._read_spec_file()
+        readme_lines = self._read_readme()
+        releases = self._read_release_file()
 
-        self.print_check('PEP8')
         self.check_pep8()
+        self.check_spec(specs, block_files)
+        self.check_readme(readme_lines, specs)
+        self.check_release(specs, releases)
+        self.check_version(specs, releases, block_versions)
+        self.check_naming(specs, block_versions, block_files)
+        if self.run_build_spec:
+            print(
+                '\n**Run `nio buildspec {}` from the project directory '
+                'and re-run this check**\n'.format(self._directory_name)
+            )
 
-        self.print_check('spec.json')
-        self.check_spec()
+    def _read_spec_file(self):
+        specs = {}
+        if os.path.exists('spec.json'):
+            with open('spec.json') as f:
+                try:
+                    specs = json.load(f)
+                except json.JSONDecodeError:
+                    print('spec.json file is either incomplete or '
+                          'has an invalid JSON object')
+                    self.run_build_spec = True
+        else:
+            self.run_build_spec = True
+        return specs
 
-        self.print_check('README.md')
-        self.check_readme()
+    @staticmethod
+    def _read_readme():
+        lines = []
+        if os.path.exists('README.md'):
+            with open('README.md') as f:
+                lines = [l.rstrip() for l in f.readlines()]
+        else:
+            print(
+                '\n**Run `nio buildreadme` as long as the spec.json file is '
+                'complete.**'
+            )
+        return lines
 
-        self.print_check('release.json')
-        self.check_release()
-
-        self.print_check('version')
-        self.check_version()
-
-        self.print_check('class and file name')
-        self.check_naming()
+    def _read_release_file(self):
+        release_dict = {}
+        if os.path.exists('release.json'):
+            with open('release.json') as f:
+                release_dict = json.load(f)
+        else:
+            print(
+                '\n**Run `nio buildrelease {}` from the project directory as '
+                'long as the spec.json file is complete.**'.format(
+                    self._directory_name)
+            )
+        return release_dict
 
     def check_pep8(self):
-
+        self.print_check('PEP8')
         shell_pep8 = 'pep8 .'
         subprocess.call(shell_pep8, shell=True)
         print('')
 
-    def check_spec(self):
+    def check_spec(self, specs, block_files):
+        self.print_check('spec.json')
+        if len(specs.keys()) > len(block_files):
+            print('There are extra blocks in the spec file')
+            self.run_build_spec = True
 
-        if os.path.exists('spec.json'):
-            with open('spec.json') as f:
-                try:
-                    spec_dict = json.load(f)
-                except json.JSONDecodeError:
-                    print('spec.json file is either incomplete or '
-                          'has an invalid JSON object')
+        if len(specs.keys()) < len(block_files):
+            print('Not all blocks are in the spec file')
+            self.run_build_spec = True
+
+        for block in specs.keys():
+            keys = ['version', 'description', 'properties']
+            for key in keys:
+                if key not in [k for k in specs[block]]:
+                    print('{} block is missing {}'.format(block[4:], key))
+                    self.run_build_spec = True
+                if specs[block][key] == '':
                     print(
-                        '\n**Run `nio buildspec {}` '
-                        'from the project directory '
-                        'and re-run this check**\n'.format(self._block)
+                        'Fill in the {} of the {} block'.format(key, block[4:])
                     )
-                    sys.exit()
-                self.blocks_in_spec = [
-                    k.split('/')[1] for k, v in spec_dict.items()
-                ]
 
-            if len(self.blocks_in_spec) > len(self.block_files):
-                print('There are extra blocks in the spec file')
-                print(
-                    '\n**Run `nio buildspec {}` from the project directory '
-                    'and re-run this check**\n'.format(self._block)
-                )
-                sys.exit()
-            if len(self.blocks_in_spec) < len(self.block_files):
-                print('Not all blocks are in the spec file')
-                print(
-                    '\n**Run `nio buildspec {}` from the project directory '
-                    'and re-run this check**\n'.format(self._block)
-                )
-                sys.exit()
-
-            for block in self.blocks_in_spec:
-                self.spec_versions_dict[block] = \
-                    spec_dict['nio/' + block]['version']
-                keys = ['version', 'description', 'properties', 'inputs',
-                        'outputs', 'commands']
-                for key in keys:
-                    if key not in [k for k in spec_dict['nio/' + block]]:
-                        print('{} block is missing {}'.format(block, key))
-                        print(
-                            '\n**Run `nio buildspec {}` '
-                            'from the project directory '
-                            'and re-run this check**\n'.format(self._block)
-                        )
-                    if key in ['commands', 'inputs', 'outputs']:
-                        continue
-                    if not spec_dict['nio/' + block][key] \
-                            or spec_dict['nio/' + block][key] == '':
-                        print('Fill in the {} of the {} block'.format(
-                            key, block))
-
-                for prop, val in \
-                        spec_dict['nio/' + block]['properties'].items():
-                    if val['description'] == '':
-                        print(
-                            'Fill in the description for the '
-                            '"{}" property in the {} block'.format(prop, block)
-                        )
-        else:
-            print(
-                '\n**Run `nio buildspec {}` from the project directory '
-                'and re-run this check**\n'.format(self._block)
-            )
-            sys.exit()
+            for prop, val in \
+                    specs[block]['properties'].items():
+                if val['description'] == '':
+                    print(
+                        'Fill in the description for the '
+                        '"{}" property in the {} block'.format(prop, block[4:])
+                    )
         print('')
 
-    def check_readme(self):
-
-        if os.path.exists('README.md'):
-            with open('README.md') as f:
-                lines = [l.rstrip() for l in f.readlines()]
-            block_indices = []
-            for block in self.blocks_in_spec:
-                if block not in lines:
-                    print('Add the {} block to the README')
-                block_indices.append(lines.index(block))
-            block_indices.sort()
-
-            for i in range(len(block_indices)):
-                for key in ['Properties', 'Inputs', 'Outputs',
-                            'Commands', 'Dependencies']:
-                    try:
-                        if key not in \
-                                lines[block_indices[i]:block_indices[i+1]]:
-                            print('Add "{}" to the {} block'.format(
-                                key, lines[block_indices[i]]))
-                    except IndexError:
-                        if key not in lines[block_indices[i]:]:
-                            print('Add "{}" to the {} block'.format(
-                                key, lines[block_indices[i]]))
-        else:
-            print(
-                'Run `nio buildreadme` '
-                'as long as the spec.json file is complete'
-            )
+    def check_readme(self, lines, specs):
+        self.print_check('README.md')
+        block_indices = []
+        for block in specs.keys():
+            if block[4:] not in lines:
+                print('Add the {} block to the README')
+            block_indices.append(lines.index(block[4:]))
+        block_indices.sort()
+        for i in range(len(block_indices)):
+            for key in ['Properties', 'Inputs', 'Outputs',
+                        'Commands', 'Dependencies']:
+                try:
+                    if key not in \
+                            lines[block_indices[i]:block_indices[i+1]]:
+                        print('Add "{}" to the {} block'.format(
+                            key, lines[block_indices[i]]))
+                except IndexError:
+                    if key not in lines[block_indices[i]:]:
+                        print('Add "{}" to the {} block'.format(
+                            key, lines[block_indices[i]]))
         print('')
 
-    def check_release(self):
+    def check_release(self, specs, releases):
+        self.print_check('release.json')
 
-        if os.path.exists('release.json'):
-            with open('release.json') as f:
-                release_dict = json.load(f)
-
-        for block in self.blocks_in_spec:
-            if 'nio/' + block not in release_dict:
-                print('Add {} block to release.json'.format(block))
+        for block in specs.keys():
+            if block not in releases:
+                print('Add {} block to release.json'.format(block[4:]))
             for key in ['url', 'version', 'language']:
-                if key not in release_dict['nio/' + block] \
-                        or release_dict['nio/' + block][key] == '':
-                    print('Add a {} to the {} block'.format(key, block))
-            self.release_versions_dict[block] = \
-                release_dict['nio/' + block]['version']
+                if key not in releases[block] \
+                        or releases[block][key] == '':
+                    print('Add a {} to the {} block'.format(key, block[4:]))
         print('')
 
-    def check_version(self):
-
-        for block in self.blocks_in_spec:
-            if self.release_versions_dict[block][:3] != \
-                    self.spec_versions_dict[block][:3]:
+    def check_version(self, specs, releases, block_versions):
+        self.print_check('version')
+        for block in specs.keys():
+            split_spec_version = specs[block]['version'].split('.')
+            spec_version = '.'.join(
+                [split_spec_version[0], split_spec_version[1]])
+            if block_versions[block[4:]] != spec_version:
                 print(
-                    'Spec.json and release.json versions do not match for '
-                    '{} block'.format(block)
+                    'The {} version in the spec file '
+                    'does not match the version in its '
+                    'block file'.format(block[4:])
                 )
-            if self.release_versions_dict[block][:3] \
-                    not in self.file_versions_and_names_dict['versions']:
+            split_release_version = releases[block]['version'].split('.')
+            release_version = '.'.join(
+                [split_release_version[0], split_release_version[1]])
+            if block_versions[block[4:]] != release_version:
                 print(
                     'The {} version in the release file '
                     'does not match the version in its '
-                    'block file'.format(block)
+                    'block file'.format(block[4:])
                 )
-                if self.spec_versions_dict[block][:3] \
-                    not in self.file_versions_and_names_dict['versions']:
-                    print(
-                        'The {} version in the spec file '
-                        'does not match the version in its '
-                        'block file'.format(block)
-                    )
+            if spec_version != release_version:
+                print(
+                    'Spec.json and release.json versions do not match for '
+                    '{} block'.format(block[4:])
+                )
         print('')
 
-    def check_naming(self):
-
-        for block in self.blocks_in_spec:
+    def check_naming(self, specs, block_versions, block_files):
+        self.print_check('class and file name')
+        for block in specs:
             if '_' in block:
                 print(
-                    '{} class name should be camelCased format'.format(block)
+                    '{} class name should be camelCase format'.format(
+                        block[4:])
                 )
-            if block not in self.file_versions_and_names_dict['classes']:
+            if block[4:] not in block_versions.keys():
                 print(
-                    '{} block needs to have a defined class'.format(block)
+                    '{} block needs to have a defined class'.format(block[4:])
                 )
 
-        for block in self.block_files:
+        for block in block_files:
             if not block.islower():
                 print(
                     '{} file name should be lowercased and '
-                    'snake_cased'.format(block)
+                    'snake_cased'.format(block[4:])
                 )
         print('')
 
     @staticmethod
     def print_check(check):
-
         print('Checking {} formatting ...'.format(check))

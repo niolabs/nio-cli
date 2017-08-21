@@ -44,7 +44,7 @@ class BlockCheck(Base):
                         replace1 = line.replace('"', '^')
                         replace2 = replace1.replace("'", '^')
                         version_string = replace2.split("^")[1]
-                        name_version_dict['versions'].append(version_string)
+                        name_version_dict['versions'].append(version_string[:3])
         return name_version_dict
 
     def run(self):
@@ -93,7 +93,7 @@ class BlockCheck(Base):
                 ]
 
             if len(self.blocks_in_spec) > len(self.block_files):
-                print('There\'s extra blocks in the spec file')
+                print('There are extra blocks in the spec file')
                 print(
                     '\n**Run `nio buildspec {}` from the project directory '
                     'and re-run this check**\n'.format(self._block)
@@ -108,6 +108,8 @@ class BlockCheck(Base):
                 sys.exit()
 
             for block in self.blocks_in_spec:
+                self.spec_versions_dict[block] = \
+                    spec_dict['nio/' + block]['version']
                 keys = ['version', 'description', 'properties', 'inputs',
                         'outputs', 'commands']
                 for key in keys:
@@ -118,10 +120,8 @@ class BlockCheck(Base):
                             'from the project directory '
                             'and re-run this check**\n'.format(self._block)
                         )
-                self.spec_versions_dict[block] = \
-                    spec_dict['nio/' + block]['version']
-
-                for key in ['version', 'description', 'properties']:
+                    if key in ['commands', 'inputs', 'outputs']:
+                        continue
                     if not spec_dict['nio/' + block][key] \
                             or spec_dict['nio/' + block][key] == '':
                         print('Fill in the {} of the {} block'.format(
@@ -193,20 +193,20 @@ class BlockCheck(Base):
     def check_version(self):
 
         for block in self.blocks_in_spec:
-            if self.release_versions_dict[block] != \
-                    self.spec_versions_dict[block]:
+            if self.release_versions_dict[block][:3] != \
+                    self.spec_versions_dict[block][:3]:
                 print(
                     'Spec.json and release.json versions do not match for '
                     '{} block'.format(block)
                 )
-            if self.release_versions_dict[block] \
+            if self.release_versions_dict[block][:3] \
                     not in self.file_versions_and_names_dict['versions']:
                 print(
                     'The {} version in the release file '
                     'does not match the version in its '
                     'block file'.format(block)
                 )
-                if self.spec_versions_dict[block] \
+                if self.spec_versions_dict[block][:3] \
                     not in self.file_versions_and_names_dict['versions']:
                     print(
                         'The {} version in the spec file '

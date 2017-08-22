@@ -40,18 +40,12 @@ class BlockCheck(Base):
                        and '__init__' not in f]
         for block in block_files:
             with open(block) as f:
-                lines = [l.rstrip() for l in f.readlines()]
-                for line in lines:
-                    if 'class ' in line:
-                        split1 = line.split(' ')[1]
-                        class_name = split1.split('(')[0]
-                        block_versions[class_name] = ''
-                    if '= VersionProperty' in line:
-                        major_minor = re.search(
-                            r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
-                            line
-                        ).group(1)
-                        block_versions[class_name] = major_minor
+                class_version = re.search(
+                    r".*class (\S+)\(.*\):.*?"
+                    r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
+                    ' '.join([l.rstrip() for l in f.readlines()])
+                )
+                block_versions[class_version.group(1)] = class_version.group(2)
         return block_versions, block_files
 
     def _read_spec_file(self):

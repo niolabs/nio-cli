@@ -469,7 +469,7 @@ class TestCLI(unittest.TestCase):
             mock_file.return_value.readlines.side_effect = [
                 # .readlines() for nio_lmnopio_block.py
                 [
-                    'class nioLmnopio(Block)',
+                    'class nioLmnopio(Block):',
                     "version = VersionProperty('0.1.0')"
                 ],
                 # .readlines() for README.md (missing 'Outputs')

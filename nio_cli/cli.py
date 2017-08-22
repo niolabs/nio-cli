@@ -17,6 +17,7 @@ Usage:
   nio [options] buildspec <repo-name>
   nio [options] buildreadme
   nio [options] buildrelease <repo-name>
+  nio [options] blockcheck
   nio [options] shutdown
   nio -h | --help
   nio --version

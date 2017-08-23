@@ -132,8 +132,8 @@ class TestCLI(unittest.TestCase):
                 title='Another Prop',
             )
 
-        @input('testInput')
-        @input('testInput2')
+        @input("testInput")
+        @input("testInput2")
         class SampleBlock2(Block):
             pass
 

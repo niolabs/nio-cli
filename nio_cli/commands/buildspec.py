@@ -41,13 +41,11 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("description", ""),
-                             ("outputs", {"default": {"description": ""}}),
-                             ("inputs", {"default": {"description": ""}})]
+            manual_fields = [("description", "")]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
-            for field in ["properties", "commands"]:
+            for field in ["properties", "commands", "inputs", "outputs"]:
                 for name in spec[block][field]:
                     spec[block][field][name]["description"] = \
                         previous_spec.get(block, {}).get(field, {}).\
@@ -93,14 +91,12 @@ class BuildSpec(Base):
     def _build_spec_for_block(self, block):
         block_spec = {}
         properties = block.get_description()["properties"]
-        # *********WORKS********* #
-        # print('@@@@@@@@@@@', block.outputs()[1].get_description())
-        # *********************** #
         block_spec["version"] = properties["version"]["default"]
         block_spec["properties"] = self._build_properties_spec(block)
         block_spec["commands"] = self._build_commands_spec(block)
         block_spec["inputs"] = self._build_inputs_spec(block)
         block_spec["outputs"] = self._build_outputs_spec(block)
+        print('%%%%%%%%%%%%', block_spec)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -134,6 +130,7 @@ class BuildSpec(Base):
         for input_object in inputs:
             input_label = input_object.get_description()["label"]
             inputs_spec[input_label] = {"description": ""}
+        print('$$$$$$$$$$', inputs_spec)
         return inputs_spec
 
     def _build_outputs_spec(self, block):

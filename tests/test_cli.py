@@ -3,6 +3,7 @@ from unittest.mock import mock_open, patch, ANY
 from docopt import docopt, DocoptExit
 import responses
 import nio_cli.cli as cli
+from nio.block.terminals import input
 
 
 class TestCLI(unittest.TestCase):
@@ -131,6 +132,8 @@ class TestCLI(unittest.TestCase):
                 title='Another Prop',
             )
 
+        @input('testInput')
+        @input('testInput2')
         class SampleBlock2(Block):
             pass
 
@@ -227,7 +230,10 @@ class TestCLI(unittest.TestCase):
                         }
                     },
                     "inputs": {
-                        "default": {
+                        "testInput": {
+                            "description": ""
+                        },
+                        "testInput2": {
                             "description": ""
                         }
                     },

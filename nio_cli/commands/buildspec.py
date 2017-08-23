@@ -96,7 +96,6 @@ class BuildSpec(Base):
         block_spec["commands"] = self._build_commands_spec(block)
         block_spec["inputs"] = self._build_inputs_spec(block)
         block_spec["outputs"] = self._build_outputs_spec(block)
-        print('%%%%%%%%%%%%', block_spec)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -130,7 +129,6 @@ class BuildSpec(Base):
         for input_object in inputs:
             input_label = input_object.get_description()["label"]
             inputs_spec[input_label] = {"description": ""}
-        print('$$$$$$$$$$', inputs_spec)
         return inputs_spec
 
     def _build_outputs_spec(self, block):

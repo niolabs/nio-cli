@@ -3,6 +3,7 @@ from collections import OrderedDict
 from nio.block.base import Block
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
+from nio.block.terminals import Terminal, TerminalType
 from .base import Base
 
 
@@ -92,9 +93,14 @@ class BuildSpec(Base):
     def _build_spec_for_block(self, block):
         block_spec = {}
         properties = block.get_description()["properties"]
+        # *********WORKS********* #
+        # print('@@@@@@@@@@@', block.outputs()[1].get_description())
+        # *********************** #
         block_spec["version"] = properties["version"]["default"]
         block_spec["properties"] = self._build_properties_spec(block)
         block_spec["commands"] = self._build_commands_spec(block)
+        block_spec["inputs"] = self._build_inputs_spec(block)
+        block_spec["outputs"] = self._build_outputs_spec(block)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -121,3 +127,19 @@ class BuildSpec(Base):
             command_spec["params"] = command["params"]
             commands_spec[command["title"]] = command_spec
         return commands_spec
+
+    def _build_inputs_spec(self, block):
+        inputs_spec = {}
+        inputs = block.inputs()
+        for input_object in inputs:
+            input_label = input_object.get_description()["label"]
+            inputs_spec[input_label] = {"description": ""}
+        return inputs_spec
+
+    def _build_outputs_spec(self, block):
+        outputs_spec = {}
+        outputs = block.outputs()
+        for output_object in outputs:
+            output_label = output_object.get_description()["label"]
+            outputs_spec[output_label] = {"description": ""}
+        return outputs_spec

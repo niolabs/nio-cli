@@ -3,7 +3,6 @@ from collections import OrderedDict
 from nio.block.base import Block
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
-from nio.block.terminals import Terminal, TerminalType
 from .base import Base
 
 

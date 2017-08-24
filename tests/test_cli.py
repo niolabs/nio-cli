@@ -5,6 +5,7 @@ from docopt import docopt, DocoptExit
 from io import StringIO
 
 import nio_cli.cli as cli
+from nio.block.terminals import input
 
 
 class TestCLI(unittest.TestCase):
@@ -133,6 +134,8 @@ class TestCLI(unittest.TestCase):
                 title='Another Prop',
             )
 
+        @input("testInput")
+        @input("testInput2")
         class SampleBlock2(Block):
             pass
 
@@ -228,9 +231,12 @@ class TestCLI(unittest.TestCase):
                             'description': ''
                         }
                     },
-                    'inputs': {
-                        'default': {
-                            'description': ''
+                    "inputs": {
+                        "testInput": {
+                            "description": ""
+                        },
+                        "testInput2": {
+                            "description": ""
                         }
                     },
                     'properties': {},

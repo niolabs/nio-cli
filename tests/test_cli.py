@@ -1,11 +1,18 @@
 import responses
 import unittest
+from unittest import skipIf
 from unittest.mock import mock_open, patch, ANY, MagicMock
 from docopt import docopt, DocoptExit
 from io import StringIO
 
 import nio_cli.cli as cli
 from nio.block.terminals import input
+
+try:
+    import niocore
+    niocore_installed = True
+except:
+    niocore_installed = False
 
 
 class TestCLI(unittest.TestCase):
@@ -115,6 +122,7 @@ class TestCLI(unittest.TestCase):
         })
         self.assertEqual(len(responses.calls), 1)
 
+    @skipIf(not niocore_installed, 'niocore required for buildspec')
     def test_buildspec_command(self):
         """Create spec.json file from block class"""
 
@@ -244,6 +252,7 @@ class TestCLI(unittest.TestCase):
                 },
             })
 
+    @skipIf(not niocore_installed, 'niocore required for buildrelease')
     def test_buildrelease_command(self):
         """create release.json from block class"""
 

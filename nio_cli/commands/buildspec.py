@@ -5,7 +5,12 @@ from collections import OrderedDict
 
 from nio.block.base import Base as BaseBlock
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
-from niocore.core.loader.discover import Discover
+try:
+    from niocore.core.loader.discover import Discover
+except:
+    # prevent `main` from failing on `from nio_cli import commands` if
+    # `niocore` not available
+    pass
 
 from .base import Base
 

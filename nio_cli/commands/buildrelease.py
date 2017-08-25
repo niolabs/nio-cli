@@ -47,15 +47,13 @@ class BuildRelease(Base):
 
     def _create_block_release(self, block_object, url):
         block_name = block_object.__name__
-        try:
-            block_version = block_object.get_description()["properties"]["version"]["default"]
-        except:
-            block_version = "0.1.0"
+        block_version = block_object.get_description()["properties"]["version"]["default"]
         block_release = {
             "nio/{}".format(block_name): {
                 "language": "Python",
                 "version": block_version,
-                "reference": url + "@v{}".format(block_version)
+                "url": "git://{}"
+                    .format(url.split("@")[1].replace(":", "/"))
             }
         }
         self._block_releases.update(block_release)

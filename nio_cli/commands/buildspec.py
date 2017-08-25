@@ -40,13 +40,11 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("description", ""),
-                             ("outputs", {"default": {"description": ""}}),
-                             ("inputs", {"default": {"description": ""}})]
+            manual_fields = [("description", "")]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
-            for field in ["properties", "commands"]:
+            for field in ["properties", "commands", "inputs", "outputs"]:
                 for name in spec[block][field]:
                     spec[block][field][name]["description"] = \
                         previous_spec.get(block, {}).get(field, {}).\
@@ -95,6 +93,8 @@ class BuildSpec(Base):
         block_spec["version"] = properties["version"]["default"]
         block_spec["properties"] = self._build_properties_spec(block)
         block_spec["commands"] = self._build_commands_spec(block)
+        block_spec["inputs"] = self._build_inputs_spec(block)
+        block_spec["outputs"] = self._build_outputs_spec(block)
         return "{}/{}".format("nio", block.__name__), block_spec
 
     def _build_properties_spec(self, block):
@@ -121,3 +121,19 @@ class BuildSpec(Base):
             command_spec["params"] = command["params"]
             commands_spec[command["title"]] = command_spec
         return commands_spec
+
+    def _build_inputs_spec(self, block):
+        inputs_spec = {}
+        inputs = block.inputs()
+        for input_object in inputs:
+            input_label = input_object.get_description()["label"]
+            inputs_spec[input_label] = {"description": ""}
+        return inputs_spec
+
+    def _build_outputs_spec(self, block):
+        outputs_spec = {}
+        outputs = block.outputs()
+        for output_object in outputs:
+            output_label = output_object.get_description()["label"]
+            outputs_spec[output_label] = {"description": ""}
+        return outputs_spec

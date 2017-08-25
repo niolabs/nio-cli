@@ -16,3 +16,4 @@ from .clone import *
 from .buildspec import *
 from .buildreadme import *
 from .buildrelease import *
+from .blockcheck import *

@@ -1,8 +1,12 @@
-import json, os, sys
+import json
+import os
+import sys
 from collections import OrderedDict
-from nio.block.base import Block
+
+from nio.block.base import Base as BaseBlock
 from nio.util.discovery import is_class_discoverable as _is_class_discoverable
 from niocore.core.loader.discover import Discover
+
 from .base import Base
 
 
@@ -20,7 +24,7 @@ class BuildSpec(Base):
         spec = {}
         sys.path.insert(0, os.getcwd())
         blocks = Discover.discover_classes(
-            'blocks.{}'.format(self._repo), Block, is_class_discoverable)
+            'blocks.{}'.format(self._repo), BaseBlock, is_class_discoverable)
         for block in blocks:
             k, v = self._build_spec_for_block(block)
             spec[k] = v

@@ -37,8 +37,8 @@ class BlockCheck(Base):
         """Build list of python files and reference dictionary for versions"""
         block_versions = {}
         class_name = None
-        block_files = [f for f in os.listdir('.') if f.endswith('.py')
-                       and '__init__' not in f]
+        block_files = [f for f in os.listdir('.') if f.endswith('.py') and
+                       '__init__' not in f]
         for block in block_files:
             try:
                 with open(block) as f:
@@ -47,7 +47,8 @@ class BlockCheck(Base):
                         r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
                         ' '.join([l.rstrip() for l in f.readlines()])
                     )
-                    block_versions[class_version.group(1)] = class_version.group(2)
+                    block_versions[class_version.group(1)] = \
+                        class_version.group(2)
             except AttributeError:
                 # base block classes are not supposed to have a version
                 continue
@@ -110,20 +111,18 @@ class BlockCheck(Base):
             keys = ['version', 'description', 'properties']
             for key in keys:
                 if key not in [k for k in self.specs[block]]:
-                    print('{} block is missing {}'.format(block[4:], key))
+                    print('{} block is missing {}'.format(
+                        block.split('/')[1], key))
                     self._run_build_spec = True
                 if self.specs[block][key] == '':
-                    print(
-                        'Fill in the {} of the {} block'.format(key, block[4:])
-                    )
+                    print('Fill in the {} of the {} block'.format(
+                        key, block.split('/')[1]))
 
             for prop, val in \
                     self.specs[block]['properties'].items():
                 if val['description'] == '':
-                    print(
-                        'Fill in the description for the '
-                        '"{}" property in the {} block'.format(prop, block[4:])
-                    )
+                    print('Fill in the description for the "{}" property in '
+                          'the {} block'.format(prop, block.split('/')[1]))
         print('')
 
     def check_readme(self):
@@ -131,9 +130,9 @@ class BlockCheck(Base):
         self._print_check('README.md')
         block_indices = []
         for block in self.specs.keys():
-            if block[4:] not in self.readme_lines:
+            if block.split('/')[1] not in self.readme_lines:
                 print('Add the {} block to the README')
-            block_indices.append(self.readme_lines.index(block[4:]))
+            block_indices.append(self.readme_lines.index(block.split('/')[1]))
         block_indices.sort()
         for i in range(len(block_indices)):
             for key in ['Properties', 'Inputs', 'Outputs',
@@ -155,11 +154,13 @@ class BlockCheck(Base):
 
         for block in self.specs.keys():
             if block not in self.releases:
-                print('Add {} block to release.json'.format(block[4:]))
+                print('Add {} block to release.json'.format(
+                    block.split('/')[1]))
             for key in ['url', 'version', 'language']:
                 if key not in self.releases[block] \
                         or self.releases[block][key] == '':
-                    print('Add a {} to the {} block'.format(key, block[4:]))
+                    print('Add a {} to the {} block'.format(
+                        key, block.split('/')[1]))
         print('')
 
     def check_version(self):
@@ -169,25 +170,27 @@ class BlockCheck(Base):
             split_spec_version = self.specs[block]['version'].split('.')
             spec_version = '.'.join(
                 [split_spec_version[0], split_spec_version[1]])
-            if block[4:] not in self.block_versions.keys():
+            if block.split('/')[1] not in self.block_versions.keys():
+                print('{} block does not have a version property or does not '
+                      'have a class defined'.format(block.split('/')[1]))
                 continue
-            if self.block_versions[block[4:]] != spec_version:
+            if self.block_versions[block.split('/')[1]] != spec_version:
                 print(
                     'The {} version in the spec file does not match the '
-                    'version in its block file'.format(block[4:])
+                    'version in its block file'.format(block.split('/')[1])
                 )
             split_release_version = self.releases[block]['version'].split('.')
             release_version = '.'.join(
                 [split_release_version[0], split_release_version[1]])
-            if self.block_versions[block[4:]] != release_version:
+            if self.block_versions[block.split('/')[1]] != release_version:
                 print(
                     'The {} version in the release file does not match the '
-                    'version in its block file'.format(block[4:])
+                    'version in its block file'.format(block.split('/')[1])
                 )
             if spec_version != release_version:
                 print(
                     'Spec.json and release.json versions do not match for '
-                    '{} block'.format(block[4:])
+                    '{} block'.format(block.split('/')[1])
                 )
         print('')
 
@@ -198,19 +201,20 @@ class BlockCheck(Base):
             if '_' in block:
                 print(
                     '{} class name should be camelCase format'.format(
-                        block[4:])
+                        block.split('/')[1])
                 )
-            if block[4:] not in self.block_versions.keys():
+            if block.split('/')[1] not in self.block_versions.keys():
                 print(
                     '{} block either does not have a defined class or '
-                    'does not have a version property.'.format(block[4:])
+                    'does not have a version property.'.format(
+                        block.split('/')[1])
                 )
 
         for block in self.block_files:
             if not block.islower():
                 print(
                     '{} file name should be lowercased and '
-                    'snake_cased'.format(block[4:])
+                    'snake_cased'.format(block.split('/')[1])
                 )
         print('')
 

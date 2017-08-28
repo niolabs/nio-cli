@@ -34,21 +34,27 @@ class BlockCheck(Base):
             )
 
     def _read_block_files(self):
+        """Build list of python files and reference dictionary for versions"""
         block_versions = {}
         class_name = None
         block_files = [f for f in os.listdir('.') if f.endswith('.py')
                        and '__init__' not in f]
         for block in block_files:
-            with open(block) as f:
-                class_version = re.search(
-                    r".*class (\S+)\(.*\):.*?"
-                    r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
-                    ' '.join([l.rstrip() for l in f.readlines()])
-                )
-                block_versions[class_version.group(1)] = class_version.group(2)
+            try:
+                with open(block) as f:
+                    class_version = re.search(
+                        r".*class (\S+)\(.*\):.*?"
+                        r"VersionProperty\(['\"](\d+\.\d+)\.[^)]*\)",
+                        ' '.join([l.rstrip() for l in f.readlines()])
+                    )
+                    block_versions[class_version.group(1)] = class_version.group(2)
+            except AttributeError:
+                # base block classes are not supposed to have a version
+                continue
         return block_versions, block_files
 
     def _read_spec_file(self):
+        """Load spec file into dictionary"""
         specs = {}
         if os.path.exists('spec.json'):
             with open('spec.json') as f:
@@ -63,6 +69,7 @@ class BlockCheck(Base):
         return specs
 
     def _read_readme(self):
+        """Load readme file into a list of lines"""
         lines = []
         if os.path.exists('README.md'):
             with open('README.md') as f:
@@ -75,6 +82,7 @@ class BlockCheck(Base):
         return lines
 
     def _read_release_file(self):
+        """Load release file into dictionary"""
         release_dict = {}
         if os.path.exists('release.json'):
             with open('release.json') as f:
@@ -88,20 +96,15 @@ class BlockCheck(Base):
         return release_dict
 
     def check_pep8(self):
+        """Check all python for proper PEP8 formatting"""
         self._print_check('PEP8')
         shell_pep8 = 'pep8 .'
         subprocess.call(shell_pep8, shell=True)
         print('')
 
     def check_spec(self):
+        """Check that spec file has all descriptions filled out"""
         self._print_check('spec.json')
-        if len(self.specs.keys()) > len(self.block_files):
-            print('There are extra blocks in the spec file')
-            self._run_build_spec = True
-
-        if len(self.specs.keys()) < len(self.block_files):
-            print('Not all blocks are in the spec file')
-            self._run_build_spec = True
 
         for block in self.specs.keys():
             keys = ['version', 'description', 'properties']
@@ -124,6 +127,7 @@ class BlockCheck(Base):
         print('')
 
     def check_readme(self):
+        """Check that README file has all blocks and necessary sections"""
         self._print_check('README.md')
         block_indices = []
         for block in self.specs.keys():
@@ -146,6 +150,7 @@ class BlockCheck(Base):
         print('')
 
     def check_release(self):
+        """Check that release file has all necessary keys"""
         self._print_check('release.json')
 
         for block in self.specs.keys():
@@ -158,11 +163,14 @@ class BlockCheck(Base):
         print('')
 
     def check_version(self):
+        """Check that all blocks have a version and all versions match"""
         self._print_check('version')
         for block in self.specs.keys():
             split_spec_version = self.specs[block]['version'].split('.')
             spec_version = '.'.join(
                 [split_spec_version[0], split_spec_version[1]])
+            if block[4:] not in self.block_versions.keys():
+                continue
             if self.block_versions[block[4:]] != spec_version:
                 print(
                     'The {} version in the spec file does not match the '
@@ -184,6 +192,7 @@ class BlockCheck(Base):
         print('')
 
     def check_naming(self):
+        """Check that file and class names are formatted correctly"""
         self._print_check('class and file name')
         for block in self.specs:
             if '_' in block:
@@ -193,7 +202,8 @@ class BlockCheck(Base):
                 )
             if block[4:] not in self.block_versions.keys():
                 print(
-                    '{} block needs to have a defined class'.format(block[4:])
+                    '{} block either does not have a defined class or '
+                    'does not have a version property.'.format(block[4:])
                 )
 
         for block in self.block_files:

@@ -309,26 +309,6 @@ class TestCLI(unittest.TestCase):
                 indent=2,
                 sort_keys=True)
 
-    @skipIf(not niocore_installed, 'niocore required for buildrelease')
-    def test_buildrelease_git_remote_url_parse(self):
-        from nio_cli.commands.buildrelease import BuildRelease
-        buildrelease = BuildRelease({
-            '<repo-name>': '', '--ip': '', '--port': '',
-        })
-        parse = buildrelease.parse_url_from_git_remote_command
-        self.assertEqual(
-            parse(b"origin git@github.com:nio-blocks/repo.git (fetch)"),
-            "git://github.com/nio-blocks/repo.git")
-        self.assertEqual(
-            parse(b"origin git@github.com:/nio-blocks/repo (fetch)"),
-            "git://github.com/nio-blocks/repo.git")
-        self.assertEqual(
-            parse(b"origin https://github.com/nio-blocks/repo (fetch)"),
-            "git://github.com/nio-blocks/repo.git")
-        self.assertEqual(
-            parse(b"origin https://1.2.3.4/nio-blocks/repo (fetch)"),
-            "git://1.2.3.4/nio-blocks/repo.git")
-
     def test_readme_command(self):
         """Create README.md from json.spec"""
 

@@ -1,11 +1,5 @@
 import unittest
 from unittest import skipIf
-from unittest.mock import mock_open, patch, ANY, MagicMock
-from io import StringIO
-
-from docopt import docopt, DocoptExit
-import responses
-
 
 try:
     from nio_cli.commands.buildrelease import BuildRelease

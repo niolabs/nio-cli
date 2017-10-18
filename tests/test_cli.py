@@ -349,10 +349,8 @@ class TestCLI(unittest.TestCase):
             self._main('buildreadme')
             # README and spec are opened
             self.assertEqual(mock_file.call_args_list[0][0],
-                             ('README.md',))
-            self.assertEqual(mock_file.call_args_list[1][0],
                              ('spec.json',))
-            self.assertEqual(mock_file.call_args_list[2][0],
+            self.assertEqual(mock_file.call_args_list[1][0],
                              ('README.md', 'w'))
             written = ''
             for call in mock_file.return_value.write.call_args_list:

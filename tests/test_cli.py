@@ -58,7 +58,7 @@ class TestCLI(unittest.TestCase):
             self._main('new', **{'<project-name>': 'project'})
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git clone --depth=1 '
-                'git@github.com:nioinnovation/project_template.git project'
+                'git@github.com:niolabs/project_template.git project'
             ))
             self.assertEqual(call.call_args_list[1][0][0],
                 'cd ./project '
@@ -289,7 +289,7 @@ class TestCLI(unittest.TestCase):
             # mocks to load existing spec.json and to discover blocks
             mock_file_exists.return_value = True
             discover_classes.return_value = [SampleBlock1, SampleBlock2]
-            check_output.return_value = b'origin git@github.com:nioinnovation/myblocks.git (fetch)'
+            check_output.return_value = b'origin git@github.com:niolabs/myblocks.git (fetch)'
             # Exectute on repo 'myblocks'
             self._main('buildrelease', **{'<repo-name>': 'myblocks'})
             discover_classes.assert_called_once_with(
@@ -299,11 +299,11 @@ class TestCLI(unittest.TestCase):
                 {
                     'nio/SampleBlock2': {
                         'version': '0.0.0', 'language': 'Python',
-                        'url': 'git://github.com/nioinnovation/myblocks.git'
+                        'url': 'git://github.com/niolabs/myblocks.git'
                     },
                     'nio/SampleBlock1': {
                         'version': '0.1.0', 'language': 'Python',
-                        'url': 'git://github.com/nioinnovation/myblocks.git'}
+                        'url': 'git://github.com/niolabs/myblocks.git'}
                 },
                 mock_file(),
                 indent=2,

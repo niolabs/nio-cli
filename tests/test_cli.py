@@ -58,7 +58,7 @@ class TestCLI(unittest.TestCase):
             self._main('new', **{'<project-name>': 'project'})
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git clone --depth=1 '
-                'git@github.com:niolabs/project_template.git project'
+                'git://github.com/niolabs/project_template.git project'
             ))
             self.assertEqual(call.call_args_list[1][0][0],
                 'cd ./project '
@@ -81,7 +81,7 @@ class TestCLI(unittest.TestCase):
         with patch('nio_cli.commands.add.subprocess.call') as call:
             self._main('add', **{'<block-repo>': ['block1']})
             self.assertEqual(call.call_args_list[0][0][0], (
-                'git submodule add git@github.com:nio-blocks/block1.git '
+                'git submodule add git://github.com/nio-blocks/block1.git '
                 './blocks/block1'
             ))
             self.assertEqual(call.call_args_list[1][0][0], (
@@ -414,7 +414,7 @@ class TestCLI(unittest.TestCase):
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git clone --depth=1 '
-                'git@github.com:nio-blocks/block_template.git yaba_daba'
+                'git://github.com/nio-blocks/block_template.git yaba_daba'
             ))
             self.assertEqual(call.call_args_list[1][0][0],
                 'cd ./yaba_daba '

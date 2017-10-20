@@ -16,7 +16,7 @@ class Add(Base):
     def run(self):
         # Add block repos as submodules
         for block in self._blocks:
-            submodule = "git submodule add git@github.com:{}/{}.git ./{}/{}"
+            submodule = "git submodule add git://github.com/{}/{}.git ./{}/{}"
             subprocess.call(
                 submodule.format('nio-blocks', block, 'blocks', block),
                 shell=True)

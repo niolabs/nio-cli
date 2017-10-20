@@ -11,7 +11,7 @@ class New(Base):
 
     def run(self):
         clone = (
-            "git clone --depth=1 git@github.com:{}/{}.git {}"
+            "git clone --depth=1 git://github.com/{}/{}.git {}"
         ).format('niolabs', 'project_template', self._name)
         submodule_update = (
             'cd ./{} '

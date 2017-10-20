@@ -34,7 +34,7 @@ setup(
     name='nio-cli',
     version=version,
     description='Command line tools for n.io',
-    url='https://github.com/nioinnovation/nio-cli',
+    url='https://github.com/niolabs/nio-cli',
     author='n.io',
     author_email='info@n.io',
     keywords=['nio'],

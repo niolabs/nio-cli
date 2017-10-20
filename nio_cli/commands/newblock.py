@@ -11,7 +11,7 @@ class NewBlock(Base):
 
     def run(self):
         clone = (
-            "git clone --depth=1 git@github.com:{}/{}.git {}"
+            "git clone --depth=1 git://github.com/{}/{}.git {}"
         ).format('nio-blocks', 'block_template', self._block)
         rename_block_file = (
             "cd ./{0} && mv example_block.py {0}_block.py"

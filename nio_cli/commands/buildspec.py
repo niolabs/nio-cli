@@ -49,7 +49,7 @@ class BuildSpec(Base):
 
     def _merge_previous_into_new_spec(self, previous_spec, spec):
         for block in spec:
-            manual_fields = [("description", "")]
+            manual_fields = [("description", ""), ("categories", [])]
             for field in manual_fields:
                 spec[block][field[0]] = \
                     previous_spec.get(block, {}).get(field[0], field[1])
@@ -68,6 +68,7 @@ class BuildSpec(Base):
         keyorder = [
             'version',
             'description',
+            'categories',
             'properties',
             'inputs',
             'outputs',

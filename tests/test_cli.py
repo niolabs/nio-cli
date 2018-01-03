@@ -196,6 +196,7 @@ class TestCLI(unittest.TestCase):
                 'nio/SampleBlock1': {
                     'version': '0.1.0',
                     'description': '',
+                    'categories': [],
                     'outputs': {
                         'default': {
                             'description': ''
@@ -234,6 +235,7 @@ class TestCLI(unittest.TestCase):
                 'nio/SampleBlock2': {
                     'version': '0.0.0',
                     'description': '',
+                    'categories': [],
                     'outputs': {
                         'default': {
                             'description': ''

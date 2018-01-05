@@ -43,38 +43,70 @@ class TestCLI(unittest.TestCase):
     def test_new_command(self):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:
-            self._main('new', **{'<project-name>': 'project', '<template>': None})
-            self.assertEqual(call.call_args_list[0][0][0], (
-                'git clone --depth=1 '
-                'git://github.com/niolabs/project_template.git project'
-            ))
-            self.assertEqual(call.call_args_list[1][0][0],
-                'cd ./project '
-                '&& git submodule update --init --recursive'
-            )
-            self.assertEqual(call.call_args_list[2][0][0],
-                'cd ./project '
-                '&& git remote remove origin '
-                '&& git commit --amend --reset-author -m "Initial commit"'
-            )
+            with patch('nio_cli.commands.new.config_project') as config:
+                self._main('new', **{'<project-name>': 'project', '<template>': None})
+                config.assert_called_once_with('project')
+                self.assertEqual(call.call_args_list[0][0][0], (
+                    'git clone --depth=1 '
+                    'git://github.com/niolabs/project_template.git project'
+                ))
+                self.assertEqual(call.call_args_list[1][0][0],
+                    'cd ./project '
+                    '&& git submodule update --init --recursive'
+                )
+                self.assertEqual(call.call_args_list[2][0][0],
+                    'cd ./project '
+                    '&& git remote remove origin '
+                    '&& git commit --amend --reset-author -m "Initial commit"'
+                )
 
     def test_new_command_template(self):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:
-            self._main('new', **{'<project-name>': 'project', '<template>': 'my_template'})
-            self.assertEqual(call.call_args_list[0][0][0], (
-                'git clone --depth=1 '
-                'git://github.com/niolabs/my_template.git project'
-            ))
+            with patch('nio_cli.commands.new.config_project') as config:
+                self._main('new', **{'<project-name>': 'project', '<template>': 'my_template'})
+                config.assert_called_once_with('project')
+                self.assertEqual(call.call_args_list[0][0][0], (
+                    'git clone --depth=1 '
+                    'git://github.com/niolabs/my_template.git project'
+                ))
+                self.assertEqual(call.call_args_list[1][0][0],
+                    'cd ./project '
+                    '&& git submodule update --init --recursive'
+                )
+                self.assertEqual(call.call_args_list[2][0][0],
+                    'cd ./project '
+                    '&& git remote remove origin '
+                    '&& git commit --amend --reset-author -m "Initial commit"'
+                )
+
+    def test_config_project(self):
+        pk_host = '123.pubkeeper.nio.works'
+        pk_token = '123123'
+        ws_host = '123.websocket.nio.works'
+        with patch('nio_cli.commands.config.subprocess.call') as call:
+            with patch('builtins.input', side_effect=[pk_host, pk_token]):
+                with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
+                    self._main('config')
+            self.assertEqual(call.call_args_list[0][0][0],
+              'sed -i "" "s/^PK_HOST:.*/PK_HOST: {}/" ./nio.env'.format(pk_host)
+            )
             self.assertEqual(call.call_args_list[1][0][0],
-                'cd ./project '
-                '&& git submodule update --init --recursive'
+            'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
             )
             self.assertEqual(call.call_args_list[2][0][0],
-                'cd ./project '
-                '&& git remote remove origin '
-                '&& git commit --amend --reset-author -m "Initial commit"'
+              'sed -i "" "s/^PK_TOKEN:.*/PK_TOKEN: {}/" ./nio.env'\
+                .format(pk_token)
             )
+
+    def test_config_with_no_nioenv(self):
+        with patch('nio_cli.commands.config.os.path.isfile', return_value=False):
+            with patch('builtins.print') as print:
+                with patch('nio_cli.commands.config.subprocess.call') as call:
+                    self._main('config')
+                    print.assert_called_once_with(
+                        'Command must be run from project root.')
+                    self.assertEqual(call.call_count, 0)
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""

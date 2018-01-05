@@ -8,6 +8,7 @@ Usage:
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks
   nio [options] (command | co) <command-name> [<service-name>] [<block-name>] [--args=<args>]
+  nio [options] (config | cfg) [project]
   nio [options] (config | cfg) services <service-name>
   nio [options] (config | cfg) blocks <block-name>
   nio [options] clone services <service-name> <new-name>

@@ -1,7 +1,6 @@
 import subprocess
-
 from .base import Base
-
+from .config import config_project
 
 class New(Base):
 
@@ -30,4 +29,5 @@ class New(Base):
         ).format(self._name)
         subprocess.call(clone, shell=True)
         subprocess.call(submodule_update, shell=True)
+        config_project(self._name)
         subprocess.call(reinit_repo, shell=True)

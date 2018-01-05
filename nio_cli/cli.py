@@ -6,14 +6,12 @@ Usage:
   nio newblock <block-name>
   nio server [(--daemon | -d)]
   nio [options] add <block-repo>... [(--upgrade | -u)]
-  nio [options] (list | ls) services [<service-name> [--cmd | --exec]]
-  nio [options] (list | ls) blocks [<block-name> [--cmd]]
+  nio [options] (list | ls) services
+  nio [options] (list | ls) blocks
   nio [options] (command | co) <command-name> [<service-name>] [<block-name>] [--args=<args>]
   nio [options] (config | cfg) services <service-name>
   nio [options] (config | cfg) blocks <block-name>
   nio [options] clone services <service-name> <new-name>
-  nio [options] update <block-type>
-  nio [options] (build | ln) <source-block-name>... [<sink-block-name>]
   nio [options] buildspec <repo-name>
   nio [options] buildreadme
   nio [options] buildrelease <repo-name>

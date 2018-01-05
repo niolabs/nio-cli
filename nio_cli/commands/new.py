@@ -11,26 +11,14 @@ class New(Base):
         self._template = self.options['<template>']
 
     def run(self):
-
+        repo = 'git://github.com/niolabs/project_template.git'
         if self._template:
-            # User specified their own repo
-            if('github.com' in self._template):
-                clone = (
-                    "git clone --depth=1 {} {}"
-                ).format(self._template, self._name)
-
-            # Use niolabs repo
+            if 'github.com' in self._template:
+                repo = self._template
             else:
-                clone = (
-                    "git clone --depth=1 git://github.com/{}/{}.git {}"
-                ).format('niolabs', self._template, self._name)
+                repo = 'git://github.com/niolabs/{}.git'.format(self._template)
 
-        # Clone project template
-        else:
-            clone = (
-                "git clone --depth=1 git://github.com/{}/{}.git {}"
-            ).format('niolabs', 'project_template', self._name)
-
+        clone = "git clone --depth=1 {} {}".format(repo, self._name)
         submodule_update = (
             'cd ./{} '
             '&& git submodule update --init --recursive'

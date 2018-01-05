@@ -9,9 +9,8 @@ class New(Base):
         super().__init__(options, *args, **kwargs)
         self._name = self.options['<project-name>']
         self._template = self.options['<template>']
-        
+
     def run(self):
-        print(self._template)
 
         if self._template:
             # User specified their own repo

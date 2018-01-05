@@ -2,9 +2,8 @@
 nio
 
 Usage:
-  nio new <project-name>
+  nio new <project-name> [(--template <template> | -t <template>)]
   nio newblock <block-name>
-  nio server [(--daemon | -d)]
   nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks

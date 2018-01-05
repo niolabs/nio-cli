@@ -4,6 +4,31 @@ import subprocess
 import os
 
 
+def config_project(name='.'):
+    env_location = '{}/nio.env'.format(name)
+    if not os.path.isfile(env_location):
+        print("Command must be run from project root.")
+        return
+
+    pk_host = input('Enter PK Host: ')
+    pk_token = input('Enter PK Token: ')
+    ws_host = pk_host.replace('pubkeeper', 'websocket')
+
+    pk_host_replace = "s/^PK_HOST:.*/PK_HOST: {}/".format(pk_host)
+    pk_token_replace = "s/^PK_TOKEN:.*/PK_TOKEN: {}/".format(pk_token)
+    ws_host_replace = "s/^WS_HOST:.*/WS_HOST: {}/".format(ws_host)
+
+    subprocess.call(
+        'sed -i "" "{}" {}'.format(pk_host_replace, env_location),
+        shell=True)
+    subprocess.call(
+        'sed -i "" "{}" {}'.format(pk_token_replace, env_location),
+        shell=True)
+    subprocess.call(
+        'sed -i "" "{}" {}'.format(ws_host_replace, env_location),
+        shell=True)
+
+
 class Config(Base):
     """ Get basic nio info """
 
@@ -28,28 +53,8 @@ class Config(Base):
         except Exception as e:
             print(e)
 
-    def config_project(self):
-        if not os.path.isfile('nio.env'):
-            print("Command must be run from project root.")
-            return
-
-        pk_host = input('Enter PK Host: ')
-        pk_token = input('Enter PK Token: ')
-        ws_host = pk_host.replace('pubkeeper', 'websocket')
-
-        pk_host_replace = "s/^PK_HOST:.*/PK_HOST: {}/".format(pk_host)
-        pk_token_replace = "s/^PK_TOKEN:.*/PK_TOKEN: {}/".format(pk_token)
-        ws_host_replace = "s/^WS_HOST:.*/WS_HOST: {}/".format(ws_host)
-
-        subprocess.call(
-            'sed -i "" "{}" ./nio.env'.format(pk_host_replace), shell=True)
-        subprocess.call(
-            'sed -i "" "{}" ./nio.env'.format(pk_token_replace), shell=True)
-        subprocess.call(
-            'sed -i "" "{}" ./nio.env'.format(ws_host_replace), shell=True)
-
     def run(self):
         if self._resource == 'project':
-            self.config_project()
+            config_project()
         else:
             self.config_block_or_service()

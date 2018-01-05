@@ -8,8 +8,8 @@ class New(Base):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self._name = self.options['<project-name>']
-        self._template = self.options['<template>']#self.options['-t'] if self.options['-t'] else self.options['--template']
-
+        self._template = self.options['<template>']
+        
     def run(self):
         print(self._template)
 

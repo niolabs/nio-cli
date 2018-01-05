@@ -58,6 +58,24 @@ class TestCLI(unittest.TestCase):
                 '&& git commit --amend --reset-author -m "Initial commit"'
             )
 
+    def test_new_command_template(self):
+        """Clone the project template from GitHub"""
+        with patch('nio_cli.commands.new.subprocess.call') as call:
+            self._main('new', **{'<project-name>': 'project', '<template>': 'my_template'})
+            self.assertEqual(call.call_args_list[0][0][0], (
+                'git clone --depth=1 '
+                'git://github.com/niolabs/my_template.git project'
+            ))
+            self.assertEqual(call.call_args_list[1][0][0],
+                'cd ./project '
+                '&& git submodule update --init --recursive'
+            )
+            self.assertEqual(call.call_args_list[2][0][0],
+                'cd ./project '
+                '&& git remote remove origin '
+                '&& git commit --amend --reset-author -m "Initial commit"'
+            )
+
     def test_add_command(self):
         """Clone specified blocks as submodules"""
         with patch('nio_cli.commands.add.subprocess.call') as call:

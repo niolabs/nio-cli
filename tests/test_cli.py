@@ -76,6 +76,24 @@ class TestCLI(unittest.TestCase):
                 '&& git commit --amend --reset-author -m "Initial commit"'
             )
 
+    def test_config_project(self):
+        pk_host = '123.pubkeeper.nio.works'
+        pk_token = '123123'
+        ws_host = '123.websocket.nio.works'
+        with patch('nio_cli.commands.config.subprocess.call') as call:
+            with patch('builtins.input', side_effect=[pk_host, pk_token]):
+                self._main('config')
+            self.assertEqual(call.call_args_list[0][0][0],
+              'sed -i "" "s/^PK_HOST:.*/PK_HOST: {}/" ./nio.env'.format(pk_host)
+            )
+            self.assertEqual(call.call_args_list[1][0][0],
+              'sed -i "" "s/^PK_TOKEN:.*/PK_TOKEN: {}/" ./nio.env'\
+                .format(pk_token)
+            )
+            self.assertEqual(call.call_args_list[2][0][0],
+              'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
+            )
+
     def test_add_command(self):
         """Clone specified blocks as submodules"""
         with patch('nio_cli.commands.add.subprocess.call') as call:

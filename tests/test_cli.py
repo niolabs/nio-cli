@@ -92,11 +92,11 @@ class TestCLI(unittest.TestCase):
               'sed -i "" "s/^PK_HOST:.*/PK_HOST: {}/" ./nio.env'.format(pk_host)
             )
             self.assertEqual(call.call_args_list[1][0][0],
-              'sed -i "" "s/^PK_TOKEN:.*/PK_TOKEN: {}/" ./nio.env'\
-                .format(pk_token)
+            'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
             )
             self.assertEqual(call.call_args_list[2][0][0],
-              'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
+              'sed -i "" "s/^PK_TOKEN:.*/PK_TOKEN: {}/" ./nio.env'\
+                .format(pk_token)
             )
 
     def test_config_with_no_nioenv(self):
@@ -107,8 +107,6 @@ class TestCLI(unittest.TestCase):
                     print.assert_called_once_with(
                         'Command must be run from project root.')
                     self.assertEqual(call.call_count, 0)
-
-
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""

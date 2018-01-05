@@ -8,11 +8,17 @@ class New(Base):
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
         self._name = self.options['<project-name>']
+        self._template = self.options['<template>']
 
     def run(self):
-        clone = (
-            "git clone --depth=1 git://github.com/{}/{}.git {}"
-        ).format('niolabs', 'project_template', self._name)
+        repo = 'git://github.com/niolabs/project_template.git'
+        if self._template:
+            if 'github.com' in self._template:
+                repo = self._template
+            else:
+                repo = 'git://github.com/niolabs/{}.git'.format(self._template)
+
+        clone = "git clone --depth=1 {} {}".format(repo, self._name)
         submodule_update = (
             'cd ./{} '
             '&& git submodule update --init --recursive'

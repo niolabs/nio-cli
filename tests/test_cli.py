@@ -27,18 +27,6 @@ class TestCLI(unittest.TestCase):
         with self.assertRaises(DocoptExit):
             self.parse_args('new')
 
-    def test_server_arguments(self):
-        """'server' has optional daemon flags"""
-        args = self.parse_args('server')
-        self.assertEqual(args['--daemon'], False)
-        self.assertEqual(args['-d'], False)
-        args = self.parse_args('server --daemon')
-        self.assertEqual(args['--daemon'], True)
-        self.assertEqual(args['-d'], False)
-        args = self.parse_args('server -d')
-        self.assertEqual(args['--daemon'], False)
-        self.assertEqual(args['-d'], True)
-
     def test_buildpsec_arguments(self):
         """'buildspec' requires a repo-name"""
         args = self.parse_args('buildspec repo')
@@ -55,7 +43,7 @@ class TestCLI(unittest.TestCase):
     def test_new_command(self):
         """Clone the project template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call:
-            self._main('new', **{'<project-name>': 'project'})
+            self._main('new', **{'<project-name>': 'project', '<template>': None})
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git clone --depth=1 '
                 'git://github.com/niolabs/project_template.git project'
@@ -69,12 +57,6 @@ class TestCLI(unittest.TestCase):
                 '&& git remote remove origin '
                 '&& git commit --amend --reset-author -m "Initial commit"'
             )
-
-    def test_server_command(self):
-        """Execute niod as a subprocess"""
-        with patch('nio_cli.commands.server.subprocess.Popen') as Popen:
-            self._main('server')
-            self.assertEqual(Popen.call_args[0][0], ['niod'])
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""
@@ -529,11 +511,10 @@ class TestCLI(unittest.TestCase):
             '--ip': ip,
             '--port': port,
             '--daemon': False,
-            '-d': False,
             '--upgrade': False,
             '-u': False,
-            '--template': None,
-            '-t': None,
+            '--template': False,
+            '-t': False,
         }
         args[command] = True
         for k, v in kwargs.items():

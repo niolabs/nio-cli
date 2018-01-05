@@ -82,7 +82,8 @@ class TestCLI(unittest.TestCase):
         ws_host = '123.websocket.nio.works'
         with patch('nio_cli.commands.config.subprocess.call') as call:
             with patch('builtins.input', side_effect=[pk_host, pk_token]):
-                self._main('config')
+                with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
+                    self._main('config')
             self.assertEqual(call.call_args_list[0][0][0],
               'sed -i "" "s/^PK_HOST:.*/PK_HOST: {}/" ./nio.env'.format(pk_host)
             )
@@ -93,6 +94,17 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(call.call_args_list[2][0][0],
               'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
             )
+
+    def test_config_with_no_nioenv(self):
+        with patch('nio_cli.commands.config.os.path.isfile', return_value=False):
+            with patch('builtins.print') as print:
+                with patch('nio_cli.commands.config.subprocess.call') as call:
+                    self._main('config')
+                    print.assert_called_once_with(
+                        'Command must be run from project root.')
+                    self.assertEqual(call.call_count, 0)
+
+
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""

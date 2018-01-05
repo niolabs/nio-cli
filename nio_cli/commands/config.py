@@ -29,6 +29,10 @@ class Config(Base):
             print(e)
 
     def config_project(self):
+        if not os.path.isfile('nio.env'):
+            print("Command must be run from project root.")
+            return
+
         pk_host = input('Enter PK Host: ')
         pk_token = input('Enter PK Token: ')
         ws_host = pk_host.replace('pubkeeper', 'websocket')

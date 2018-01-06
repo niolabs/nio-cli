@@ -1,13 +1,15 @@
+import os
 import subprocess
 from .base import Base
 from .config import config_project
+
 
 class New(Base):
 
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
-        self._name = self.options['<project-name>']
-        self._template = self.options['<template>']
+        self._name = self.options.get('<project-name>')
+        self._template = self.options.get('<template>')
 
     def run(self):
         repo = 'git://github.com/niolabs/project_template.git'
@@ -28,6 +30,8 @@ class New(Base):
             '&& git commit --amend --reset-author -m "Initial commit"'
         ).format(self._name)
         subprocess.call(clone, shell=True)
+        if not os.path.isdir(self._name):
+            return
         subprocess.call(submodule_update, shell=True)
         config_project(self._name)
         subprocess.call(reinit_repo, shell=True)

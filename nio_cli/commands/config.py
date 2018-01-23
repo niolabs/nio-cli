@@ -25,12 +25,13 @@ def config_project(name='.'):
                 'WS_HOST: {}'.format(ws_host), line))
         elif re.search('PK_TOKEN:', line) and pk_token:
             tmp.write(re.sub('PK_TOKEN:.*',
-                'PK_HOST: {}'.format(pk_token), line))
+                'PK_TOKEN: {}'.format(pk_token), line))
         else:
             tmp.write(line)
     nenv.close()
     tmp.close()
 
+    os.remove(env_location)
     os.rename(env_location + '.tmp', env_location)
 
 

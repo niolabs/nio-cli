@@ -110,9 +110,9 @@ class TestCLI(unittest.TestCase):
                     with patch('nio_cli.commands.config.os.rename') as rename:
                         with patch('nio_cli.commands.config.os.remove') as remove:
                             self._main('config')
-                            self.assertEqual(mopen.call_count, 2)
+                            self.assertEqual(mopen.call_count, 1)
                             remove.assert_called_once_with('./nio.env')
-                            rename.assert_called_once_with('./nio.env.tmp', './nio.env')
+                            self.assertEqual(rename.call_count, 1)
 
     def test_config_with_no_nioenv(self):
         with patch('nio_cli.commands.config.os.path.isfile', return_value=False):

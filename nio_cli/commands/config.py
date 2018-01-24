@@ -2,6 +2,7 @@ from .base import Base
 import requests
 import os
 import re
+import tempfile
 
 
 def config_project(name='.'):
@@ -15,7 +16,7 @@ def config_project(name='.'):
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
     nenv = open(env_location, 'r')
-    tmp = open(env_location + '.tmp', 'w')
+    tmp = tempfile.NamedTemporaryFile(mode='w', delete=False)
     for line in nenv:
         if re.search('PK_HOST:', line) and pk_host:
             tmp.write(re.sub('PK_HOST:.*',
@@ -29,10 +30,8 @@ def config_project(name='.'):
         else:
             tmp.write(line)
     nenv.close()
-    tmp.close()
-
     os.remove(env_location)
-    os.rename(env_location + '.tmp', env_location)
+    os.rename(tmp.name, env_location)
 
 
 class Config(Base):

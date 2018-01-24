@@ -104,29 +104,24 @@ class TestCLI(unittest.TestCase):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         ws_host = '123.websocket.nio.works'
-        with patch('nio_cli.commands.config.subprocess.call') as call:
+        with patch('builtins.open', mock_open()) as mopen:
             with patch('builtins.input', side_effect=[pk_host, pk_token]):
                 with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
-                    self._main('config')
-            self.assertEqual(call.call_args_list[0][0][0],
-              'sed -i "" "s/^PK_HOST:.*/PK_HOST: {}/" ./nio.env'.format(pk_host)
-            )
-            self.assertEqual(call.call_args_list[1][0][0],
-            'sed -i "" "s/^WS_HOST:.*/WS_HOST: {}/" ./nio.env'.format(ws_host)
-            )
-            self.assertEqual(call.call_args_list[2][0][0],
-              'sed -i "" "s/^PK_TOKEN:.*/PK_TOKEN: {}/" ./nio.env'\
-                .format(pk_token)
-            )
+                    with patch('nio_cli.commands.config.os.rename') as rename:
+                        with patch('nio_cli.commands.config.os.remove') as remove:
+                            self._main('config')
+                            self.assertEqual(mopen.call_count, 1)
+                            remove.assert_called_once_with('./nio.env')
+                            self.assertEqual(rename.call_count, 1)
 
     def test_config_with_no_nioenv(self):
         with patch('nio_cli.commands.config.os.path.isfile', return_value=False):
             with patch('builtins.print') as print:
-                with patch('nio_cli.commands.config.subprocess.call') as call:
+                with patch('builtins.open', mock_open()) as mopen:
                     self._main('config')
                     print.assert_called_once_with(
                         'Command must be run from project root.')
-                    self.assertEqual(call.call_count, 0)
+                    self.assertEqual(mopen.call_count, 0)
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""

@@ -1,7 +1,8 @@
 from .base import Base
 import requests
-import subprocess
 import os
+import re
+import tempfile
 
 
 def config_project(name='.'):
@@ -14,22 +15,19 @@ def config_project(name='.'):
     pk_token = input('Enter PK Token (optional): ')
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
-    pk_host_replace = "s/^PK_HOST:.*/PK_HOST: {}/".format(pk_host)
-    pk_token_replace = "s/^PK_TOKEN:.*/PK_TOKEN: {}/".format(pk_token)
-    ws_host_replace = "s/^WS_HOST:.*/WS_HOST: {}/".format(ws_host)
-
-    if pk_host:
-        subprocess.call(
-            'sed -i "" "{}" {}'.format(pk_host_replace, env_location),
-            shell=True)
-        subprocess.call(
-            'sed -i "" "{}" {}'.format(ws_host_replace, env_location),
-            shell=True)
-    if pk_token:
-        subprocess.call(
-            'sed -i "" "{}" {}'.format(pk_token_replace, env_location),
-            shell=True)
-
+    with open(env_location, 'r') as nenv,\
+     tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        for line in nenv:
+            if re.search('^PK_HOST:', line) and pk_host:
+                tmp.write('PK_HOST: {}\n'.format(pk_host))
+            elif re.search('^WS_HOST:', line) and pk_host:
+                tmp.write('WS_HOST: {}\n'.format(ws_host))
+            elif re.search('^PK_TOKEN:', line) and pk_token:
+                tmp.write('PK_TOKEN: {}\n'.format(pk_token))
+            else:
+                tmp.write(line)
+        os.remove(env_location)
+        os.rename(tmp.name, env_location)
 
 
 class Config(Base):

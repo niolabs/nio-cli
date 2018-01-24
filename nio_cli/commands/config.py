@@ -15,23 +15,19 @@ def config_project(name='.'):
     pk_token = input('Enter PK Token (optional): ')
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
-    nenv = open(env_location, 'r')
-    tmp = tempfile.NamedTemporaryFile(mode='w', delete=False)
-    for line in nenv:
-        if re.search('PK_HOST:', line) and pk_host:
-            tmp.write(re.sub('PK_HOST:.*',
-                'PK_HOST: {}'.format(pk_host), line))
-        elif re.search('WS_HOST:', line) and pk_host:
-            tmp.write(re.sub('WS_HOST:.*',
-                'WS_HOST: {}'.format(ws_host), line))
-        elif re.search('PK_TOKEN:', line) and pk_token:
-            tmp.write(re.sub('PK_TOKEN:.*',
-                'PK_TOKEN: {}'.format(pk_token), line))
-        else:
-            tmp.write(line)
-    nenv.close()
-    os.remove(env_location)
-    os.rename(tmp.name, env_location)
+    with open(env_location, 'r') as nenv,\
+     tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        for line in nenv:
+            if re.search('^PK_HOST:', line) and pk_host:
+                tmp.write('PK_HOST: {}\n'.format(pk_host))
+            elif re.search('^WS_HOST:', line) and pk_host:
+                tmp.write('WS_HOST: {}\n'.format(ws_host))
+            elif re.search('^PK_TOKEN:', line) and pk_token:
+                tmp.write('PK_TOKEN: {}\n'.format(pk_token))
+            else:
+                tmp.write(line)
+        os.remove(env_location)
+        os.rename(tmp.name, env_location)
 
 
 class Config(Base):

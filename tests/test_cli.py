@@ -105,16 +105,30 @@ class TestCLI(unittest.TestCase):
         pk_token = '123123'
         ws_host = '123.websocket.nio.works'
         with patch('builtins.open', mock_open()) as mopen:
-            with patch('builtins.input', side_effect=[pk_host, pk_token]):
+            with patch('builtins.input', side_effect=[pk_host, pk_token, 'N']):
                 with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
                     with patch('nio_cli.commands.config.os.rename') as rename:
                         with patch('nio_cli.commands.config.os.remove') as remove:
                             self._main('config')
                             self.assertEqual(mopen.call_count, 1)
-                            remove.assert_called_once_with('./nio.env')
+                            remove.assert_called_once_with('./nio.conf')
                             self.assertEqual(rename.call_count, 1)
 
-    def test_config_with_no_nioenv(self):
+    def test_config_project_secure(self):
+        pk_host = '123.pubkeeper.nio.works'
+        pk_token = '123123'
+        ws_host = '123.websocket.nio.works'
+        with patch('builtins.open', mock_open()) as mopen:
+            with patch('builtins.input', side_effect=[pk_host, pk_token, 'Y', 'US', 'CO', 'Denver', 'testOrg', 'testOwner', 'testUser']):
+                with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
+                    with patch('nio_cli.commands.config.os.rename') as rename:
+                        with patch('nio_cli.commands.config.os.remove') as remove:
+                            self._main('config')
+                            self.assertEqual(mopen.call_count, 2)
+                            self.assertEqual(remove.call_count, 2)
+                            self.assertEqual(rename.call_count, 2)
+
+    def test_config_with_no_nioconf(self):
         with patch('nio_cli.commands.config.os.path.isfile', return_value=False):
             with patch('builtins.print') as print:
                 with patch('builtins.open', mock_open()) as mopen:
@@ -138,7 +152,7 @@ class TestCLI(unittest.TestCase):
     @responses.activate
     def test_list_command(self):
         """List blocks or services from the rest api"""
-        service_response=[{'api': 'response'}, {'another': 'service'}]
+        service_response = [{'api': 'response'}, {'another': 'service'}]
         responses.add(responses.GET,
                       'http://127.0.0.1:8181/services',
                       json=service_response)
@@ -460,7 +474,7 @@ class TestCLI(unittest.TestCase):
                     'builtins.open',
                     mock_open(
                         read_data='Example ..example_block TestExample')
-                ) as mock_file:
+        ) as mock_file:
             # need to patch open
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
@@ -468,16 +482,16 @@ class TestCLI(unittest.TestCase):
                 'git://github.com/nio-blocks/block_template.git yaba_daba'
             ))
             self.assertEqual(call.call_args_list[1][0][0],
-                'cd ./yaba_daba '
-                '&& mv example_block.py yaba_daba_block.py'
-            )
+                             'cd ./yaba_daba '
+                             '&& mv example_block.py yaba_daba_block.py'
+                             )
             self.assertEqual(call.call_args_list[2][0][0],
-                'cd ./yaba_daba/tests '
-                '&& mv test_example_block.py test_yaba_daba_block.py'
-            )
+                             'cd ./yaba_daba/tests '
+                             '&& mv test_example_block.py test_yaba_daba_block.py'
+                             )
             self.assertEqual(call.call_args_list[3][0][0],
-                'cd ./yaba_daba && mv BLOCK_README.md README.md'
-            )
+                             'cd ./yaba_daba && mv BLOCK_README.md README.md'
+                             )
             self.assertEqual(mock_file.call_args_list[0][0],
                              ('./yaba_daba/yaba_daba_block.py',))
             self.assertEqual(

@@ -4,6 +4,7 @@ import os
 import re
 import tempfile
 import subprocess
+import ssl
 
 
 def config_project(name='.'):
@@ -33,13 +34,16 @@ def config_project(name='.'):
     if secure.lower() == 'y':
         config_ssl(name, conf_location)
 
-# Assumes the user has OpenSSL already installed
-
 
 def config_ssl(name, conf_location):
+
+    v = ssl.OPENSSL_VERSION.split()[0]
+    if v != 'OpenSSL':
+        print('No OpenSSL installation detected')
+        return
+
     ssl_cert = ''
     ssl_key = ''
-
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
     if (new_certs.lower() == 'y'):

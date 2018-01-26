@@ -2,7 +2,6 @@ from .base import Base
 import requests
 import os
 import re
-import sys
 import tempfile
 
 
@@ -41,7 +40,6 @@ def config_ssl(name, conf_location):
     ssl_key = ''
 
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
-    host_platform = sys.platform
 
     if (new_certs.lower() == 'y'):
         subprocess.call('mkdir ssl &&  cd ssl')

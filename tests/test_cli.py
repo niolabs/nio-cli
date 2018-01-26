@@ -111,7 +111,7 @@ class TestCLI(unittest.TestCase):
                         with patch('nio_cli.commands.config.os.remove') as remove:
                             self._main('config')
                             self.assertEqual(mopen.call_count, 1)
-                            remove.assert_called_once_with('./nio.env')
+                            remove.assert_called_once_with('./nio.conf')
                             self.assertEqual(rename.call_count, 1)
 
     def test_config_with_no_nioenv(self):

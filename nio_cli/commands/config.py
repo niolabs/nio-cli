@@ -7,8 +7,8 @@ import tempfile
 
 
 def config_project(name='.'):
-    env_location = '{}/nio.conf'.format(name)
-    if not os.path.isfile(env_location):
+    conf_location = '{}/nio.conf'.format(name)
+    if not os.path.isfile(conf_location):
         print("Command must be run from project root.")
         return
 
@@ -16,7 +16,7 @@ def config_project(name='.'):
     pk_token = input('Enter PK Token (optional): ')
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
-    with open(env_location, 'r') as nenv,\
+    with open(conf_location, 'r') as nenv,\
      tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
         for line in nenv:
             if re.search('^PK_HOST=', line) and pk_host:
@@ -27,11 +27,11 @@ def config_project(name='.'):
                 tmp.write('PK_TOKEN= {}\n'.format(pk_token))
             else:
                 tmp.write(line)
-        os.remove(env_location)
-        os.rename(tmp.name, env_location)
+        os.remove(conf_location)
+        os.rename(tmp.name, conf_location)
     secure = input('Optional secure instance configuration [Y/N]: ')
     if secure.lower() == 'y':
-        config_ssl(name, env_location)
+        config_ssl(name, conf_location)
 
 # Assumes the user has OpenSSL already installed
 def config_ssl(name, conf_location):
@@ -39,7 +39,7 @@ def config_ssl(name, conf_location):
     host_platform = sys.platform
 
     if (new_certs.lower() == 'y'):
-        subprocess.call('mkdir ssl &&  cd ssl &&')
+        subprocess.call('mkdir ssl &&  cd ssl')
         country = input('Enter two-letter country code: ')
         state = input('Enter two-letter state code: ')
         city = input('Enter city: ')

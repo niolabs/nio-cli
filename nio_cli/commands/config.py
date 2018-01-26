@@ -3,6 +3,7 @@ import requests
 import os
 import re
 import tempfile
+import subprocess
 
 
 def config_project(name='.'):
@@ -42,7 +43,7 @@ def config_ssl(name, conf_location):
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
     if (new_certs.lower() == 'y'):
-        subprocess.call('mkdir ssl &&  cd ssl')
+        subprocess.call('mkdir ssl &&  cd ssl', shell=True)
         country = input('Enter two-letter country code: ')
         state = input('Enter two-letter state code: ')
         city = input('Enter city: ')

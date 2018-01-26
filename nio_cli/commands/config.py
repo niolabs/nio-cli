@@ -56,7 +56,7 @@ def config_ssl(name, conf_location):
 
         subprocess.call(gen_cert, shell=True)
         subprocess.call('openssl pkcs12 -inkey key.pem -in certificate.pem -export -out certificate.p12 -passout pass:', shell=True)
-        subprocess.call('openssl pkcs12 -in certificate.p12 -noout -info -passin pass:')
+        subprocess.call('openssl pkcs12 -in certificate.p12 -noout -info -passin pass:', shell=True)
 
     else:
         ssl_cert = input('Enter SSL certificate file location: ')

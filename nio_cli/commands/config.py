@@ -20,11 +20,11 @@ def config_project(name='.'):
             tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
         for line in nenv:
             if re.search('^PK_HOST=', line) and pk_host:
-                tmp.write('PK_HOST= {}\n'.format(pk_host))
+                tmp.write('PK_HOST={}\n'.format(pk_host))
             elif re.search('^WS_HOST=', line) and pk_host:
-                tmp.write('WS_HOST= {}\n'.format(ws_host))
+                tmp.write('WS_HOST={}\n'.format(ws_host))
             elif re.search('^PK_TOKEN=', line) and pk_token:
-                tmp.write('PK_TOKEN= {}\n'.format(pk_token))
+                tmp.write('PK_TOKEN={}\n'.format(pk_token))
             else:
                 tmp.write(line)
         os.remove(conf_location)

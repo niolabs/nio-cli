@@ -26,8 +26,8 @@ def config_project(name='.'):
                 tmp.write('PK_TOKEN={}\n'.format(pk_token))
             else:
                 tmp.write(line)
-        os.remove(env_location)
-        os.rename(tmp.name, env_location)
+    os.remove(env_location)
+    os.rename(tmp.name, env_location)
 
 
 class Config(Base):

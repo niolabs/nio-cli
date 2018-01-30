@@ -37,16 +37,16 @@ def config_project(name='.'):
 
 def config_ssl(name, conf_location):
 
-    v = ssl.OPENSSL_VERSION.split()[0]
-    if v != 'OpenSSL':
-        print('No OpenSSL installation detected')
-        return
-
     ssl_cert = ''
     ssl_key = ''
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
     if (new_certs.lower() == 'y'):
+        v = ssl.OPENSSL_VERSION.split()[0]
+        if v != 'OpenSSL':
+            print('No OpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install OpenSSL and re-run "nio configure"')
+            return
+
         subprocess.call('mkdir ssl &&  cd ssl', shell=True)
         country = input('Enter two-letter country code: ')
         state = input('Enter two-letter state code: ')

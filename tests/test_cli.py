@@ -42,10 +42,10 @@ class TestCLI(unittest.TestCase):
 
     def test_new_command(self):
         """Clone the project template from GitHub"""
-        with patch('nio_cli.commands.new.os.path.isdir', return_value=True):
-            with patch('nio_cli.commands.new.subprocess.call') as call:
-                with patch('nio_cli.commands.new.config_project') as config:
-                    self._patched_new_command(call, config)
+        with patch('nio_cli.commands.new.os.path.isdir', return_value=True), \
+                patch('nio_cli.commands.new.subprocess.call') as call, \
+                patch('nio_cli.commands.new.config_project') as config:
+            self._patched_new_command(call, config)
 
     def _patched_new_command(self, call, config):
         self._main('new', **{'<project-name>': 'project', '<template>': None})
@@ -66,10 +66,10 @@ class TestCLI(unittest.TestCase):
 
     def test_new_command_template(self):
         """Clone the project template from GitHub"""
-        with patch('nio_cli.commands.new.os.path.isdir', return_value=True):
-            with patch('nio_cli.commands.new.subprocess.call') as call:
-                with patch('nio_cli.commands.new.config_project') as config:
-                    self._patched_new_command_template(call, config)
+        with patch('nio_cli.commands.new.os.path.isdir', return_value=True), \
+                patch('nio_cli.commands.new.subprocess.call') as call, \
+                patch('nio_cli.commands.new.config_project') as config:
+            self._patched_new_command_template(call, config)
 
     def _patched_new_command_template(self, call, config):
         self._main('new', **{
@@ -94,48 +94,48 @@ class TestCLI(unittest.TestCase):
     def test_new_command_with_failed_clone(self):
         """Cleanly handle new command when 'git clone' fails"""
         isdir_path = 'nio_cli.commands.new.os.path.isdir'
-        with patch(isdir_path, return_value=False) as isdir:
-            with patch('nio_cli.commands.new.subprocess.call') as call:
-                self._main('new', **{'<project-name>': 'project'})
-                self.assertEqual(call.call_count, 1)
-                isdir.assert_called_once_with('project')
+        with patch(isdir_path, return_value=False) as isdir, \
+                patch('nio_cli.commands.new.subprocess.call') as call:
+            self._main('new', **{'<project-name>': 'project'})
+            self.assertEqual(call.call_count, 1)
+            isdir.assert_called_once_with('project')
 
     def test_config_project(self):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         ws_host = '123.websocket.nio.works'
-        with patch('builtins.open', mock_open()) as mopen:
-            with patch('builtins.input', side_effect=[pk_host, pk_token, 'N']):
-                with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
-                    with patch('nio_cli.commands.config.os.rename') as rename:
-                        with patch('nio_cli.commands.config.os.remove') as remove:
-                            self._main('config')
-                            self.assertEqual(mopen.call_count, 1)
-                            remove.assert_called_once_with('./nio.conf')
-                            self.assertEqual(rename.call_count, 1)
+        with patch('builtins.open', mock_open()) as mopen, \
+                patch('builtins.input', side_effect=[pk_host, pk_token, 'N']), \
+                patch('nio_cli.commands.config.os.path.isfile', return_value=True), \
+                patch('nio_cli.commands.config.os.rename') as rename, \
+                patch('nio_cli.commands.config.os.remove') as remove:
+            self._main('config')
+            self.assertEqual(mopen.call_count, 1)
+            remove.assert_called_once_with('./nio.conf')
+            self.assertEqual(rename.call_count, 1)
 
     def test_config_project_secure(self):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         ws_host = '123.websocket.nio.works'
-        with patch('builtins.open', mock_open()) as mopen:
-            with patch('builtins.input', side_effect=[pk_host, pk_token, 'Y', 'US', 'CO', 'Denver', 'testOrg', 'testOwner', 'testUser']):
-                with patch('nio_cli.commands.config.os.path.isfile', return_value=True):
-                    with patch('nio_cli.commands.config.os.rename') as rename:
-                        with patch('nio_cli.commands.config.os.remove') as remove:
-                            self._main('config')
-                            self.assertEqual(mopen.call_count, 2)
-                            self.assertEqual(remove.call_count, 2)
-                            self.assertEqual(rename.call_count, 2)
+        with patch('builtins.open', mock_open()) as mopen, \
+                patch('builtins.input', side_effect=[pk_host, pk_token, 'Y', 'US', 'CO', 'Denver', 'testOrg', 'testOwner', 'testUser']), \
+                patch('nio_cli.commands.config.os.path.isfile', return_value=True), \
+                patch('nio_cli.commands.config.os.rename') as rename, \
+                patch('nio_cli.commands.config.os.remove') as remove:
+            self._main('config')
+            self.assertEqual(mopen.call_count, 2)
+            self.assertEqual(remove.call_count, 2)
+            self.assertEqual(rename.call_count, 2)
 
     def test_config_with_no_nioconf(self):
-        with patch('nio_cli.commands.config.os.path.isfile', return_value=False):
-            with patch('builtins.print') as print:
-                with patch('builtins.open', mock_open()) as mopen:
-                    self._main('config')
-                    print.assert_called_once_with(
-                        'Command must be run from project root.')
-                    self.assertEqual(mopen.call_count, 0)
+        with patch('nio_cli.commands.config.os.path.isfile', return_value=False), \
+                patch('builtins.print') as print, \
+                patch('builtins.open', mock_open()) as mopen:
+            self._main('config')
+            print.assert_called_once_with(
+                'Command must be run from project root.')
+            self.assertEqual(mopen.call_count, 0)
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""

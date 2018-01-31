@@ -1,6 +1,6 @@
-n.io CLI
+nio CLI
 =======
 
-A suite of command line tools for the [n.io](https://niolabs.com/) platform.
+A suite of command line tools for the [nio](https://niolabs.com/) Platform.
 
 [Documentation](https://docs.n.io/cli/)

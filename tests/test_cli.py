@@ -553,7 +553,7 @@ class TestCLI(unittest.TestCase):
 
             self._main('blockcheck')
             self.assertEqual(
-                'pep8 .', mock_subprocess_call.call_args_list[0][0][0])
+                'pycodestyle .', mock_subprocess_call.call_args_list[0][0][0])
 
             # Check that print statements are run
             self.assertEqual(

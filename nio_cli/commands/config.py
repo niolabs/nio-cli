@@ -64,13 +64,13 @@ def config_ssl(name, conf_location):
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(365 * 24 * 60 * 60)
         cert.set_issuer(cert.get_subject())
-        cert.set_pubkey(k)
-        cert.sign(k, 'sha1')
+        cert.set_pubkey(kp)
+        cert.sign(kp, 'sha1')
 
         open('certificate.pem', "wt").write(
             str(crypto.dump_certificate(crypto.FILETYPE_PEM, cert)))
         open('private_key.pem', "wt").write(
-            str(crypto.dump_privatekey(crypto.FILETYPE_PEM, k)))
+            str(crypto.dump_privatekey(crypto.FILETYPE_PEM, kp)))
 
         ssl_cert = os.getcwd() + '/certificate.pem'
         ssl_key = os.getcwd() + '/private_key.pem'

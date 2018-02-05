@@ -3,7 +3,6 @@ import requests
 import os
 import re
 import tempfile
-import subprocess
 import ssl
 
 
@@ -28,8 +27,9 @@ def config_project(name='.'):
                 tmp.write('PK_TOKEN={}\n'.format(pk_token))
             else:
                 tmp.write(line)
-        os.remove(conf_location)
-        os.rename(tmp.name, conf_location)
+    os.remove(conf_location)
+    os.rename(tmp.name, conf_location)
+
     secure = input('Optional secure instance configuration [Y/N]: ')
     if secure.lower() == 'y':
         config_ssl(name, conf_location)
@@ -88,9 +88,6 @@ def config_ssl(name, conf_location):
                 tmp.write('ssl_private_key: {}\n'.format(ssl_key))
             else:
                 tmp.write(line)
-        os.remove(conf_location)
-        os.rename(tmp.name, conf_location)
-
     os.remove(conf_location)
     os.rename(tmp.name, conf_location)
 

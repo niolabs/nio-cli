@@ -99,7 +99,7 @@ class BlockCheck(Base):
     def check_pep8(self):
         """Check all python for proper PEP8 formatting"""
         self._print_check('PEP8')
-        shell_pep8 = 'pep8 .'
+        shell_pep8 = 'pycodestyle .'
         subprocess.call(shell_pep8, shell=True)
         print('')
 

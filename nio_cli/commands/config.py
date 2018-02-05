@@ -3,7 +3,6 @@ import requests
 import os
 import re
 import tempfile
-import ssl
 
 
 def config_project(name='.'):
@@ -39,11 +38,13 @@ def config_ssl(name, conf_location):
 
     ssl_cert = ''
     ssl_key = ''
+    cwd = os.getcwd()
+
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
     if (new_certs.lower() == 'y'):
         try:
-            from OpenSSL import crypto, SSL
+            from OpenSSL import crypto
         except Exception as e:
             print('No pyOpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install pyOpenSSL and re-run "nio configure"')
             return
@@ -67,13 +68,13 @@ def config_ssl(name, conf_location):
         cert.set_pubkey(kp)
         cert.sign(kp, 'sha1')
 
-        open('certificate.pem', "wt").write(
+        open('{}/certificate.pem'.format(name), "wt").write(
             str(crypto.dump_certificate(crypto.FILETYPE_PEM, cert)))
-        open('private_key.pem', "wt").write(
+        open('{}/private_key.pem'.format(name), "wt").write(
             str(crypto.dump_privatekey(crypto.FILETYPE_PEM, kp)))
 
-        ssl_cert = os.getcwd() + '/certificate.pem'
-        ssl_key = os.getcwd() + '/private_key.pem'
+        ssl_cert = '{}/{}/certificate.pem'.format(cwd, name)
+        ssl_key = '{}/{}/private_key.pem'.format(cwd, name)
 
     else:
         ssl_cert = input('Enter SSL certificate file location: ')

@@ -125,8 +125,8 @@ class TestCLI(unittest.TestCase):
                 patch('nio_cli.commands.config.os.remove') as remove:
             self._main('config')
             self.assertEqual(mopen.call_count, 2)
-            self.assertEqual(remove.call_count, 2)
-            self.assertEqual(rename.call_count, 2)
+            self.assertEqual(remove.call_count, 3)
+            self.assertEqual(rename.call_count, 3)
 
     def test_config_with_no_nioconf(self):
         with patch('nio_cli.commands.config.os.path.isfile', return_value=False), \

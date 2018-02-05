@@ -17,9 +17,9 @@ def config_project(name='.'):
     pk_token = input('Enter PK Token (optional): ')
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
-    with open(conf_location, 'r') as nenv,\
+    with open(conf_location, 'r') as nconf,\
             tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
-        for line in nenv:
+        for line in nconf:
             if re.search('^PK_HOST=', line) and pk_host:
                 tmp.write('PK_HOST={}\n'.format(pk_host))
             elif re.search('^WS_HOST=', line) and pk_host:
@@ -91,8 +91,8 @@ def config_ssl(name, conf_location):
         os.remove(conf_location)
         os.rename(tmp.name, conf_location)
 
-    os.remove(env_location)
-    os.rename(tmp.name, env_location)
+    os.remove(conf_location)
+    os.rename(tmp.name, conf_location)
 
 
 class Config(Base):

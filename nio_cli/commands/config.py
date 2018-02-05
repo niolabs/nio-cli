@@ -84,6 +84,9 @@ def config_ssl(name, conf_location):
         os.remove(conf_location)
         os.rename(tmp.name, conf_location)
 
+    os.remove(env_location)
+    os.rename(tmp.name, env_location)
+
 
 class Config(Base):
     """ Get basic nio info """

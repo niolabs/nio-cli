@@ -33,7 +33,8 @@ Examples:
   nio co start Service
 
 Help:
-  For help using this tool, please open an issue on the Github repository:
+  Full documentation is available here: https://docs.n.io/cli/
+  For help, issues, and feature requests please open an issue on the Github repository:
   https://github.com/niolabs/nio-cli
 """
 

@@ -132,8 +132,6 @@ class TestCLI(unittest.TestCase):
     def test_config_project_self_signed_cert(self):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
-        ssl_cert = '/path/to/certificate.pem'
-        ssl_key = '/path/to/private_key.pem'
 
         with patch('builtins.open', mock_open()) as mopen, \
                 patch('builtins.input', side_effect=[pk_host, pk_token, 'Y', 'Y', 'US', 'CO', 'Denver', 'testOrg', 'testOwner', 'testUser']), \

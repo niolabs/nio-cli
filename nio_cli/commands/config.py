@@ -11,8 +11,8 @@ def config_project(name='.'):
         print("Command must be run from project root.")
         return
 
-    pk_host = input('Enter PK Host (optional): ')
-    pk_token = input('Enter PK Token (optional): ')
+    pk_host = input('Enter Pubkeeper Hostname (optional): ')
+    pk_token = input('Enter Pubkeeper Token (optional): ')
     ws_host = pk_host.replace('pubkeeper', 'websocket')
 
     with open(env_location, 'r') as nenv,\

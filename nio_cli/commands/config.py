@@ -42,31 +42,38 @@ def config_ssl(name, conf_location):
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
     if (new_certs.lower() == 'y'):
-        v = ssl.OPENSSL_VERSION.split()[0]
-        if v != 'OpenSSL':
-            print('No OpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install OpenSSL and re-run "nio configure"')
+        try:
+            from OpenSSL import crypto, SSL
+        except Exception as e:
+            print('No pyOpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install pyOpenSSL and re-run "nio configure"')
             return
 
-        subprocess.call('mkdir ssl &&  cd ssl', shell=True)
-        country = input('Enter two-letter country code: ')
-        state = input('Enter two-letter state code: ')
-        city = input('Enter city: ')
-        org = input('Enter name of organization: ')
-        owner = input('Enter name of owner: ')
-        user = input('Enter name of user: ')
+        # Create a key pair
+        kp = crypto.PKey()
+        kp.generate_key(crypto.TYPE_RSA, 2048)
 
-        gen_cert = ('openssl req -newkey rsa:2048 -nodes -keyout key.pem \
-                    -x509 -days 365 -out certificate.pem -subj \
-                    "/C={}/ST={}/L={}/O={}/OU=<{}/CN=localhost"').format(
-            country, state, city, org, owner, user)
-        subprocess.call(gen_cert, shell=True)
-        subprocess.call(
-            'openssl pkcs12 -inkey key.pem -in certificate.pem -export -out certificate.p12 -passout pass:', shell=True)
-        subprocess.call(
-            'openssl pkcs12 -in certificate.p12 -noout -info -passin pass:', shell=True)
+        # Create a self-signed cert
+        cert = crypto.X509()
+        cert.get_subject().C = input('Enter two-letter country code: ')
+        cert.get_subject().ST = input('Enter state: ')
+        cert.get_subject().L = input('Enter city: ')
+        cert.get_subject().O = input('Enter company/owner: ')
+        cert.get_subject().OU = input('Enter user: ')
+        cert.get_subject().CN = 'localhost'
+        cert.set_serial_number(1000)
+        cert.gmtime_adj_notBefore(0)
+        cert.gmtime_adj_notAfter(365 * 24 * 60 * 60)
+        cert.set_issuer(cert.get_subject())
+        cert.set_pubkey(k)
+        cert.sign(k, 'sha1')
+
+        open('certificate.pem', "wt").write(
+            str(crypto.dump_certificate(crypto.FILETYPE_PEM, cert)))
+        open('private_key.pem', "wt").write(
+            str(crypto.dump_privatekey(crypto.FILETYPE_PEM, k)))
 
         ssl_cert = os.getcwd() + '/certificate.pem'
-        ssl_key = os.getcwd() + '/key.pem'
+        ssl_key = os.getcwd() + '/private_key.pem'
 
     else:
         ssl_cert = input('Enter SSL certificate file location: ')

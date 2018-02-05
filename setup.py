@@ -41,6 +41,7 @@ setup(
     packages=find_packages(exclude=['docs', 'tests', 'tests.*']),
     install_requires=['nio', 'requests', 'docopts', 'pycodestyle'],
     tests_require=['pytest', 'pytest-cov', 'responses'],
+    extras_require={'dev': ['responses']},
     cmdclass={'test': PyTest},
     entry_points={
         'console_scripts': [

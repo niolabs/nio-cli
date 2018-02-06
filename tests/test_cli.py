@@ -4,6 +4,7 @@ from unittest import skipIf
 from unittest.mock import mock_open, patch, ANY, MagicMock
 from docopt import docopt, DocoptExit
 from io import StringIO
+import sys
 
 import nio_cli.cli as cli
 from nio.block.terminals import input
@@ -132,6 +133,7 @@ class TestCLI(unittest.TestCase):
     def test_config_project_self_signed_cert(self):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
+        sys.modules['OpenSSL'] = MagicMock()
 
         with patch('builtins.open', mock_open()) as mopen, \
                 patch('builtins.input', side_effect=[pk_host, pk_token, 'Y', 'Y', 'US', 'CO', 'Denver', 'testOrg', 'testOwner', 'testUser']), \

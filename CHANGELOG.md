@@ -3,9 +3,12 @@
 ## [0.5.5](https://github.com/niolabs/nio-cli/tree/0.5.5) (2018-03-15)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.4...0.5.5)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
 - nio new command searches project template for requirements.txt and installs libraries [\#87](https://github.com/niolabs/nio-cli/pull/87) ([cowleyk](https://github.com/cowleyk))
+
+**Merged pull requests:**
+
 - Add optional SSL cert generation and secure instance configuration [\#73](https://github.com/niolabs/nio-cli/pull/73) ([nioJake](https://github.com/nioJake))
 
 ## [0.5.4](https://github.com/niolabs/nio-cli/tree/0.5.4) (2018-02-05)

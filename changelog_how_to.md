@@ -5,7 +5,7 @@ To generate the changelog from the PR history, use the command-line tool github-
 
 1. To install the github-changelog-generator, follow the directions here: [https://github.com/skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator)
 
-2. Label any relevant PRs on GitHub with one or more of the following labels: bug, enhancement, deprecated, removed, security
+2. Double check that any relevant PRs on GitHub are correctly labeled with one or more of the following labels: bug, enhancement, deprecated, removed, security. These are the PRs that will show up in the changelog.
 
 3. Generate the CHANGELOG.md with the command:
 

@@ -6,9 +6,6 @@
 **Implemented enhancements:**
 
 - nio new command searches project template for requirements.txt and installs libraries [\#87](https://github.com/niolabs/nio-cli/pull/87) ([cowleyk](https://github.com/cowleyk))
-
-**Merged pull requests:**
-
 - Add optional SSL cert generation and secure instance configuration [\#73](https://github.com/niolabs/nio-cli/pull/73) ([nioJake](https://github.com/nioJake))
 
 ## [0.5.4](https://github.com/niolabs/nio-cli/tree/0.5.4) (2018-02-05)
@@ -31,16 +28,16 @@
 ## [0.5.3](https://github.com/niolabs/nio-cli/tree/0.5.3) (2018-01-29)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.2...0.5.3)
 
+**Fixed bugs:**
+
+- close tmp file before rename [\#76](https://github.com/niolabs/nio-cli/pull/76) ([tyoungNIO](https://github.com/tyoungNIO))
+
 **Closed issues:**
 
 - nio server eats up 100% of CPU [\#24](https://github.com/niolabs/nio-cli/issues/24)
 - Update blocks should not reinitialize the submodules [\#23](https://github.com/niolabs/nio-cli/issues/23)
 - Server action should have a project location param [\#20](https://github.com/niolabs/nio-cli/issues/20)
 - Use pynio for nio api calls [\#4](https://github.com/niolabs/nio-cli/issues/4)
-
-**Merged pull requests:**
-
-- close tmp file before rename [\#76](https://github.com/niolabs/nio-cli/pull/76) ([tyoungNIO](https://github.com/tyoungNIO))
 
 ## [0.5.2](https://github.com/niolabs/nio-cli/tree/0.5.2) (2018-01-26)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.1...0.5.2)
@@ -52,10 +49,17 @@
 ## [0.5.1](https://github.com/niolabs/nio-cli/tree/0.5.1) (2018-01-24)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.0...0.5.1)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
 - refactor configure to not use sed [\#71](https://github.com/niolabs/nio-cli/pull/71) ([tlugger](https://github.com/tlugger))
 - fix niolabs and cli docs links [\#70](https://github.com/niolabs/nio-cli/pull/70) ([ssclay](https://github.com/ssclay))
+
+**Fixed bugs:**
+
+- refactor configure to not use sed [\#71](https://github.com/niolabs/nio-cli/pull/71) ([tlugger](https://github.com/tlugger))
+
+**Merged pull requests:**
+
 - Add seperator between blocks in buildreadme [\#69](https://github.com/niolabs/nio-cli/pull/69) ([hansmosh](https://github.com/hansmosh))
 - Handle failed git clone on 'nio new' [\#68](https://github.com/niolabs/nio-cli/pull/68) ([hansmosh](https://github.com/hansmosh))
 - Update install\_requires [\#67](https://github.com/niolabs/nio-cli/pull/67) ([hansmosh](https://github.com/hansmosh))
@@ -63,7 +67,7 @@
 ## [0.5.0](https://github.com/niolabs/nio-cli/tree/0.5.0) (2018-01-05)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.4.4...0.5.0)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
 - Config project [\#66](https://github.com/niolabs/nio-cli/pull/66) ([tlugger](https://github.com/tlugger))
 - Launch items [\#65](https://github.com/niolabs/nio-cli/pull/65) ([tlugger](https://github.com/tlugger))

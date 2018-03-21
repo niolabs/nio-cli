@@ -3,7 +3,7 @@
 The changelog is visible at docs.n.io/cli/changelog.html. Update the changelog after each release.
 To generate the changelog from the PR history, use the command-line tool github-changelog-generator.
 
-1. To install the github-changelog-generator, follow the directions here: [https://github.com/skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator) 
+1. To install the github-changelog-generator, follow the directions here: [https://github.com/skywinder/github-changelog-generator](https://github.com/skywinder/github-changelog-generator)
 
 2. Label any relevant PRs on GitHub with one or more of the following labels: bug, enhancement, deprecated, removed, security
 
@@ -23,4 +23,4 @@ To generate the changelog from the PR history, use the command-line tool github-
   ```
   and then repeat the command in step 3 above to generate your CHANGELOG.md.
 
-4. You can then add the most recent changes to the release notes.
+4. You can then copy and paste the most recent changes into the release notes.

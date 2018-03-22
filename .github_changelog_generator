@@ -1,0 +1,5 @@
+since-tag=0.4.4
+add_issues_wo_labels=false
+add_pr_wo_labels=false
+enhancement_prefix=**Added features:**
+include_labels=bug,enhancement,deprecated,removed,security

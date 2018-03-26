@@ -9,4 +9,5 @@ To install for development:
 ```
 git clone git@github.com:niolabs/nio-cli.git
 cd nio-cli
-pip3 install -e .[dev]```
+pip3 install -e .[dev]
+```

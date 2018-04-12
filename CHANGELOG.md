@@ -8,6 +8,10 @@
 
 - Nio 1055 id prep [\#88](https://github.com/niolabs/nio-cli/pull/88) ([tlugger](https://github.com/tlugger))
 
+**Fixed bugs:**
+
+- Silently fail on git commit errors [\#91](https://github.com/niolabs/nio-cli/pull/91) ([tlugger](https://github.com/tlugger))
+
 ## [0.5.5](https://github.com/niolabs/nio-cli/tree/0.5.5) (2018-03-15)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.4...0.5.5)
 

@@ -46,7 +46,7 @@ def config_ssl(name, conf_location):
         try:
             from OpenSSL import crypto
         except Exception as e:
-            print('No pyOpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install pyOpenSSL and re-run "nio configure"')
+            print('No pyOpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install pyOpenSSL and re-run "nio config" from inside the project directory.')
             return
 
         # Create a key pair

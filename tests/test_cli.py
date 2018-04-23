@@ -73,8 +73,7 @@ class TestCLI(unittest.TestCase):
                 patch('nio_cli.commands.new.config_project') as config:
             self._patched_new_command_template(call, config)
 
-    @patch('nio_cli.commands.new.pip.main')
-    def _patched_new_command_template(self, call, config, patch_pip_main):
+    def _patched_new_command_template(self, call, config):
         with patch('nio_cli.commands.new.os.walk') as patched_os_walk:
             join_module = 'nio_cli.commands.new.os.path.join'
             with patch(join_module, return_value='join'):
@@ -95,12 +94,13 @@ class TestCLI(unittest.TestCase):
                     '&& git submodule update --init --recursive'
                 ))
                 self.assertEqual(call.call_args_list[2][0][0], (
+                    [sys.executable, '-m', 'pip', 'install', '-r', 'join']
+                ))
+                self.assertEqual(call.call_args_list[3][0][0], (
                     'cd ./project '
                     '&& git remote remove origin '
                     '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
                 ))
-                patch_pip_main.assert_called_once_with(
-                    ['install', '-r', 'join'])
 
     def test_new_command_with_failed_clone(self):
         """Cleanly handle new command when 'git clone' fails"""

@@ -1,7 +1,6 @@
 import os
 import subprocess
-
-import pip
+import sys
 
 from .base import Base
 
@@ -35,7 +34,7 @@ class Add(Base):
                 for file_name in files:
                     if file_name == 'requirements.txt':
                         reqs = os.path.join(root, file_name)
-                        pip.main(['install', '-r', reqs])
+                        subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
 
     def _upgrade_block(self, block):
         checkout = "cd ./{}/{} && git checkout {}"

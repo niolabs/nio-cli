@@ -1,8 +1,7 @@
 # Changelog
 
-## [Unreleased](https://github.com/niolabs/nio-cli/tree/HEAD)
-
-[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.5...HEAD)
+## [0.5.6](https://github.com/niolabs/nio-cli/tree/0.5.6) (2018-04-26)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.5...0.5.6)
 
 **Added:**
 

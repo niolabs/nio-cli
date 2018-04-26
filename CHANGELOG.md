@@ -6,7 +6,7 @@
 
 **Added:**
 
-- Nio 1055 id prep [\#88](https://github.com/niolabs/nio-cli/pull/88) ([tlugger](https://github.com/tlugger))
+- `nio list` supports nio 3 block and service ids [\#88](https://github.com/niolabs/nio-cli/pull/88) ([tlugger](https://github.com/tlugger))
 
 **Fixed bugs:**
 

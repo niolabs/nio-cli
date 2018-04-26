@@ -1,21 +1,22 @@
-# Change Log
+# Changelog
 
 ## [Unreleased](https://github.com/niolabs/nio-cli/tree/HEAD)
 
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.5...HEAD)
 
-**Added features:**
+**Added:**
 
 - Nio 1055 id prep [\#88](https://github.com/niolabs/nio-cli/pull/88) ([tlugger](https://github.com/tlugger))
 
 **Fixed bugs:**
 
+- Works with pip 10 [\#94](https://github.com/niolabs/nio-cli/pull/94) ([deliciousmonster](https://github.com/deliciousmonster))
 - Silently fail on git commit errors [\#91](https://github.com/niolabs/nio-cli/pull/91) ([tlugger](https://github.com/tlugger))
 
 ## [0.5.5](https://github.com/niolabs/nio-cli/tree/0.5.5) (2018-03-15)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.4...0.5.5)
 
-**Added features:**
+**Added:**
 
 - nio new command searches project template for requirements.txt and installs libraries [\#87](https://github.com/niolabs/nio-cli/pull/87) ([cowleyk](https://github.com/cowleyk))
 - Add optional SSL cert generation and secure instance configuration [\#73](https://github.com/niolabs/nio-cli/pull/73) ([nioJake](https://github.com/nioJake))
@@ -23,7 +24,7 @@
 ## [0.5.4](https://github.com/niolabs/nio-cli/tree/0.5.4) (2018-02-05)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.3...0.5.4)
 
-**Added features:**
+**Added:**
 
 - add docs link to help close \#17 [\#78](https://github.com/niolabs/nio-cli/pull/78) ([tyoungNIO](https://github.com/tyoungNIO))
 
@@ -37,14 +38,14 @@
 ## [0.5.2](https://github.com/niolabs/nio-cli/tree/0.5.2) (2018-01-26)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.1...0.5.2)
 
-**Added features:**
+**Added:**
 
 - config for nio.conf user defined [\#72](https://github.com/niolabs/nio-cli/pull/72) ([tlugger](https://github.com/tlugger))
 
 ## [0.5.1](https://github.com/niolabs/nio-cli/tree/0.5.1) (2018-01-24)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.0...0.5.1)
 
-**Added features:**
+**Added:**
 
 - refactor configure to not use sed [\#71](https://github.com/niolabs/nio-cli/pull/71) ([tlugger](https://github.com/tlugger))
 - fix niolabs and cli docs links [\#70](https://github.com/niolabs/nio-cli/pull/70) ([ssclay](https://github.com/ssclay))
@@ -57,7 +58,7 @@
 ## [0.5.0](https://github.com/niolabs/nio-cli/tree/0.5.0) (2018-01-05)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.4.4...0.5.0)
 
-**Added features:**
+**Added:**
 
 - Config project [\#66](https://github.com/niolabs/nio-cli/pull/66) ([tlugger](https://github.com/tlugger))
 - Launch items [\#65](https://github.com/niolabs/nio-cli/pull/65) ([tlugger](https://github.com/tlugger))

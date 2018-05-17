@@ -111,7 +111,7 @@ class BuildSpec(Base):
         properties_spec = {}
         properties = block.get_description()["properties"]
         for k, property in properties.items():
-            if k in ["type", "name", "version", "log_level"]:
+            if k in ["id", "type", "name", "version", "log_level"]:
                 continue
             property_spec = {}
             property_spec["title"] = property["title"]

@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [0.6.2](https://github.com/niolabs/nio-cli/tree/0.6.2) (2018-05-23)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.6.1...0.6.2)
+
+**Added:**
+
+- Update package metadata [\#102](https://github.com/niolabs/nio-cli/pull/102) ([tlugger](https://github.com/tlugger))
+
 ## [0.6.1](https://github.com/niolabs/nio-cli/tree/0.6.1) (2018-05-17)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.6.0...0.6.1)
 

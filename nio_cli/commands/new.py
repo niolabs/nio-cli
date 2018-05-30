@@ -41,7 +41,7 @@ class New(Base):
             for file_name in files:
                 if file_name == 'requirements.txt':
                     reqs = os.path.join(root, file_name)
-                    subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
+                    subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs, '--user'])
         config_project(
             self._name, self._pubkeeper_hostname, self._pubkeeper_token)
         subprocess.call(reinit_repo, shell=True)

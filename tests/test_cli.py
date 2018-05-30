@@ -101,7 +101,7 @@ class TestCLI(unittest.TestCase):
                     '&& git submodule update --init --recursive'
                 ))
                 self.assertEqual(call.call_args_list[2][0][0], (
-                    [sys.executable, '-m', 'pip', 'install', '-r', 'join']
+                    [sys.executable, '-m', 'pip', 'install', '-r', 'join', '--user']
                 ))
                 self.assertEqual(call.call_args_list[3][0][0], (
                     'cd ./project '

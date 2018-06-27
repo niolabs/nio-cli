@@ -37,9 +37,32 @@ class Base(object):
     def _get_credentials(self):
         # allow to override last credentials set
         (username, password) = self._auth
-        username = input('Username ({}): '.format(username))
-        if username:
-            password = input('Password ({}): '.format(password))
-            self._auth = (username, password)
 
+        if "<username>" in self.options and self.options["<username>"]:
+            username = self.options.get("<username>")
+        else:
+            username = self._gather_input('Username ({}): '.format(username),
+                                          username)
+        if username:
+            if "<password>" in self.options and self.options["<password>"]:
+                password = self.options.get("<password>")
+            else:
+                password = \
+                    self._gather_input('Password ({}): '.format(password),
+                                       password)
+        else:
+            # user when asked for username pressed enter or it came in empty
+            # from command line ==> use cached credentials
+            pass
+
+        # cache last credentials
+        self._auth = (username, password)
         return self._auth
+
+    @staticmethod
+    def _gather_input(message, default=""):
+        user_input = input(message)
+        if user_input:
+            return user_input
+        else:
+            return default

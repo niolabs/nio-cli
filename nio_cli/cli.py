@@ -5,18 +5,18 @@ Usage:
   nio new <project-name> [(--template <template> | -t <template>)] [(--pubkeeper-hostname=HOSTAME --pubkeeper-token=TOKEN)] [<username>] [<password>]
   nio newblock <block-name>
   nio [options] add <block-repo>... [(--upgrade | -u)]
-  nio [options] (list | ls) services
-  nio [options] (list | ls) blocks
-  nio [options] (command | co) <command-name> [<service-name>] [<block-name>] [--args=<args>]
-  nio [options] (config | cfg) [project]
-  nio [options] (config | cfg) services <service-name>
-  nio [options] (config | cfg) blocks <block-name>
-  nio [options] clone services <service-name> <new-name>
+  nio [options] (list | ls) services [<username>] [<password>]
+  nio [options] (list | ls) blocks [<username>] [<password>]
+  nio [options] (command | co) <command-name> [<service-name>] [<block-name>] [--args=<args>] [<username>] [<password>]
+  nio [options] (config | cfg) project [<username>] [<password>]
+  nio [options] (config | cfg) services <service-name> [<username>] [<password>]
+  nio [options] (config | cfg) blocks <block-name> [<username>] [<password>]
+  nio [options] clone services <service-name> <new-name> [<username>] [<password>]
   nio [options] buildspec <repo-name>
   nio [options] buildreadme
   nio [options] buildrelease <repo-name>
   nio [options] blockcheck
-  nio [options] shutdown
+  nio [options] shutdown [<username>] [<password>]
   nio [options] add_user <project-name> [<username>] [<password>]
   nio [options] remove_user <project-name> [<username>]
   nio -h | --help
@@ -59,7 +59,3 @@ def main():
                        issubclass(command[1], commands.base.Base)
                        ][0]
             command(options).run()
-
-
-if __name__ == '__main__':
-    main()

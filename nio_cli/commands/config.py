@@ -125,6 +125,7 @@ class Config(Base):
 
     def run(self):
         if self._resource == 'project':
-            config_project()
+            config_project(username=self.options['<username>'],
+                           password=self.options['<password>'])
         else:
             self.config_block_or_service()

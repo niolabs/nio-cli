@@ -13,3 +13,5 @@ from .buildspec import *
 from .buildreadme import *
 from .buildrelease import *
 from .blockcheck import *
+from .add_user import AddUser
+from .remove_user import RemoveUser

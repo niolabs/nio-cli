@@ -13,6 +13,8 @@ class New(Base):
         self._template = self.options.get('<template>')
         self._pubkeeper_hostname = self.options.get('--pubkeeper-hostname')
         self._pubkeeper_token = self.options.get('--pubkeeper-token')
+        self._username = self.options['<username>']
+        self._password = self.options['<password>']
 
     def run(self):
         repo = 'git://github.com/niolabs/project_template.git'
@@ -43,5 +45,7 @@ class New(Base):
                     reqs = os.path.join(root, file_name)
                     subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs, '--user'])
         config_project(
-            self._name, self._pubkeeper_hostname, self._pubkeeper_token)
+            self._name, self._pubkeeper_hostname, self._pubkeeper_token,
+            self._username, self._password
+        )
         subprocess.call(reinit_repo, shell=True)

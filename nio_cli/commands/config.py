@@ -1,11 +1,12 @@
+from nio_cli.commands.add_user import set_user
 from .base import Base
-import requests
 import os
 import re
 import tempfile
 
 
-def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None):
+def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
+                   username=None, password=None):
     conf_location = '{}/nio.conf'.format(name)
     if not os.path.isfile(conf_location):
         print("Command must be run from project root.")
@@ -16,6 +17,9 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None):
     pk_token = input('Enter Pubkeeper token (optional): ') \
         if pubkeeper_token is None else pubkeeper_token
     ws_host = pk_host.replace('pubkeeper', 'websocket')
+
+    # allow to set a user
+    set_user(name, username, password)
 
     with open(conf_location, 'r') as nconf,\
             tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
@@ -38,17 +42,18 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None):
 
 def config_ssl(name, conf_location):
 
-    ssl_cert = ''
-    ssl_key = ''
     cwd = os.getcwd()
 
     new_certs = input('Generate a self-signed certificate/key [Y/N]: ')
 
-    if (new_certs.lower() == 'y'):
+    if new_certs.lower() == 'y':
         try:
             from OpenSSL import crypto
         except Exception as e:
-            print('No pyOpenSSL installation detected. Your instance has still been configured but no certs were installed. To install certificates install pyOpenSSL and re-run "nio config" from inside the project directory.')
+            print('No pyOpenSSL installation detected. Your instance has still '
+                  'been configured but no certs were installed. To install '
+                  'certificates install pyOpenSSL and re-run "nio config" from '
+                  'inside the project directory.')
             return
 
         # Create a key pair
@@ -109,10 +114,9 @@ class Config(Base):
             ""
 
     def config_block_or_service(self):
-        response = requests.get(
+        response = self.get(
             self._base_url.format(
-                '{}/{}'.format(self._resource, self._resource_name)),
-            auth=self._auth)
+                '{}/{}'.format(self._resource, self._resource_name)))
         try:
             config = response.json()
             print(config)

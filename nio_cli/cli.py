@@ -2,7 +2,7 @@
 nio
 
 Usage:
-  nio new <project-name> [(--template <template> | -t <template>)] [(--pubkeeper-hostname=HOSTAME --pubkeeper-token=TOKEN)]
+  nio new <project-name> [(--template <template> | -t <template>)] [(--pubkeeper-hostname=HOSTAME --pubkeeper-token=TOKEN)] [<username>] [<password>]
   nio newblock <block-name>
   nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
@@ -17,6 +17,8 @@ Usage:
   nio [options] buildrelease <repo-name>
   nio [options] blockcheck
   nio [options] shutdown
+  nio [options] add_user <project-name> [<username>] [<password>]
+  nio [options] remove_user <project-name> [<username>]
   nio -h | --help
   nio --version
 
@@ -57,3 +59,7 @@ def main():
                        issubclass(command[1], commands.base.Base)
                        ][0]
             command(options).run()
+
+
+if __name__ == '__main__':
+    main()

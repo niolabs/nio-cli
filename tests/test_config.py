@@ -15,8 +15,8 @@ class TestConfig(unittest.TestCase):
             '<block-name>': None,
             'services': False,
             '<service-name>': None,
-            '<username>': None,
-            '<password>': None
+            '--username': None,
+            '--password': None
         }
         with patch('builtins.print') as self.mock_print, \
                 patch(Config.__module__ + '.config_project') as self.mock_conf:

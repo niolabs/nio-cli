@@ -55,8 +55,8 @@ class TestCLI(unittest.TestCase):
             '<template>': None,
             '--pubkeeper-hostname': None,
             '--pubkeeper-token': None,
-            '<username>': 'user',
-            '<password>': 'pwd'
+            '--username': 'user',
+            '--password': 'pwd'
         })
         config.assert_called_once_with('project', None, None, 'user', 'pwd')
         self.assertEqual(call.call_args_list[0][0][0], (
@@ -92,8 +92,8 @@ class TestCLI(unittest.TestCase):
                     '<template>': 'my_template',
                     '--pubkeeper-hostname': 'pkhost',
                     '--pubkeeper-token': 'pktoken',
-                    '<username>': 'user',
-                    '<password>': 'pwd'
+                    '--username': 'user',
+                    '--password': 'pwd'
                 })
                 config.assert_called_once_with('project', 'pkhost', 'pktoken',
                                                'user', 'pwd')
@@ -121,8 +121,8 @@ class TestCLI(unittest.TestCase):
                 patch('nio_cli.commands.new.subprocess.call') as call:
             self._main('new', **{
                 '<project-name>': 'project',
-                '<username>': 'user',
-                '<password>': 'pwd'
+                '--username': 'user',
+                '--password': 'pwd'
             })
             self.assertEqual(call.call_count, 1)
             isdir.assert_called_once_with('project')
@@ -149,8 +149,8 @@ class TestCLI(unittest.TestCase):
         with patch('builtins.print') as print:
             self._main('list', **{
                 "services": True,
-                '<username>': 'user',
-                '<password>': 'pwd'
+                '--username': 'user',
+                '--password': 'pwd'
             })
             self.assertEqual(len(responses.calls), 1)
             self.assertEqual(print.call_count, len(service_response))
@@ -169,8 +169,8 @@ class TestCLI(unittest.TestCase):
         with patch('builtins.print') as print:
             self._main('list', **{
                 "services": False,
-                '<username>': 'user',
-                '<password>': 'pwd'
+                '--username': 'user',
+                '--password': 'pwd'
             })
             self.assertEqual(len(responses.calls), 1)
             self.assertEqual(print.call_count, 2)
@@ -185,8 +185,8 @@ class TestCLI(unittest.TestCase):
         """Shutdown nio through the rest api"""
         responses.add(responses.GET, 'http://127.0.0.1:8181/shutdown')
         self._main('shutdown', **{
-                '<username>': 'user',
-                '<password>': 'pwd'
+                '--username': 'user',
+                '--password': 'pwd'
         })
         self.assertEqual(len(responses.calls), 1)
 
@@ -199,8 +199,8 @@ class TestCLI(unittest.TestCase):
             '<command-name>': 'command',
             '<service-name>': 'service',
             '<block-name>': 'block',
-            '<username>': 'user',
-            '<password>': 'pwd'
+            '--username': 'user',
+            '--password': 'pwd'
         })
         self.assertEqual(len(responses.calls), 1)
 
@@ -590,8 +590,8 @@ class TestCLI(unittest.TestCase):
         with patch("nio_cli.commands.add_user.set_user") as set_user_patch:
             self._main('add_user', **{
                 '<project-name>': 'testing_project',
-                '<username>': 'user',
-                '<password>': 'pwd'
+                '--username': 'user',
+                '--password': 'pwd'
             })
             self.assertEqual(set_user_patch.call_count, 1)
             self.assertEqual(set_user_patch.call_args_list[0],
@@ -609,8 +609,8 @@ class TestCLI(unittest.TestCase):
 
             self._main('add_user', **{
                 '<project-name>': 'testing_project',
-                '<username>': username,
-                '<password>': password
+                '--username': username,
+                '--password': password
             })
             # two open calls one to read and one to save
             self.assertEqual(mock_open.call_count, 2)
@@ -625,7 +625,7 @@ class TestCLI(unittest.TestCase):
                 remove_user_patch:
             self._main('remove_user', **{
                 '<project-name>': 'testing_project',
-                '<username>': 'user'
+                '--username': 'user'
             })
             self.assertEqual(remove_user_patch.call_count, 1)
             self.assertEqual(remove_user_patch.call_args_list[0],
@@ -642,7 +642,7 @@ class TestCLI(unittest.TestCase):
 
             self._main('remove_user', **{
                 '<project-name>': 'testing_project',
-                '<username>': username
+                '--username': username
             })
             # two open calls one to read and one to save
             self.assertEqual(mock_open.call_count, 2)

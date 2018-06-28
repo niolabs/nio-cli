@@ -38,14 +38,14 @@ class Base(object):
         # allow to override last credentials set
         (username, password) = self._auth
 
-        if "<username>" in self.options and self.options["<username>"]:
-            username = self.options.get("<username>")
+        if "--username" in self.options and self.options["--username"]:
+            username = self.options.get("--username")
         else:
             username = self._gather_input('Username ({}): '.format(username),
                                           username)
         if username:
-            if "<password>" in self.options and self.options["<password>"]:
-                password = self.options.get("<password>")
+            if "--password" in self.options and self.options["--password"]:
+                password = self.options.get("--password")
             else:
                 password = \
                     self._gather_input('Password ({}): '.format(password),

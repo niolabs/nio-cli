@@ -13,8 +13,8 @@ class New(Base):
         self._template = self.options.get('<template>')
         self._pubkeeper_hostname = self.options.get('--pubkeeper-hostname')
         self._pubkeeper_token = self.options.get('--pubkeeper-token')
-        self._username = self.options['--username'] or "Admin"
-        self._password = self.options['--password'] or "Admin"
+        self._username = self.options['--username']
+        self._password = self.options['--password']
 
     def run(self):
         repo = 'git://github.com/niolabs/project_template.git'

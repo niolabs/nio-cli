@@ -25,6 +25,8 @@ Usage:
 Options:
   -p PORT --port=PORT               Specify n.io port [default: 8181].
   -i IP --ip=IP                     Specify n.io ip address [default: 127.0.0.1].
+  --username=Admin                  Specify username [default: Admin].
+  --password=Admin                  Specify password [default: Admin].
   -h --help                         Show this screen.
   --version                         Show version.
 

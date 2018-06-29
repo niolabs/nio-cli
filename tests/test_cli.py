@@ -602,7 +602,7 @@ class TestCLI(unittest.TestCase):
                 patch(AddUser.__module__ + '.json') as mock_json, \
                 patch('builtins.open') as mock_open:
             mock_os.path.isfile.return_value = True
-            mock_json.loads.return_value = {"Admin": "AdminPwd"}
+            mock_json.load.return_value = {"Admin": "AdminPwd"}
 
             username = "user1"
             password = "pwd1"
@@ -636,7 +636,7 @@ class TestCLI(unittest.TestCase):
                 patch(RemoveUser.__module__ + '.json') as mock_json, \
                 patch('builtins.open') as mock_open:
             mock_os.path.isfile.return_value = True
-            mock_json.loads.return_value = {"Admin": "AdminPwd"}
+            mock_json.load.return_value = {"Admin": "AdminPwd"}
 
             username = "Admin"
 

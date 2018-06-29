@@ -23,7 +23,7 @@ def set_user(project_name, username, password):
     users_location = '{}/etc/users.json'.format(project_name)
     if os.path.isfile(users_location):
         with open(users_location, 'r') as f:
-            users = json.loads(f.read())
+            users = json.load(f)
     else:
         users = {}
 

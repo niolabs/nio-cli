@@ -591,17 +591,17 @@ class TestCLI(unittest.TestCase):
         """ Adds a user through the rest api"""
         with patch("nio_cli.commands.add_user.set_user") as set_user_patch:
             self._main('add_user', **{
-                '<project-name>': 'testing_project',
-                '--username': 'user',
-                '--password': 'pwd'
+                '--project': 'testing_project',
+                '<username>': 'user',
+                '<password>': 'pwd'
             })
             self.assertEqual(set_user_patch.call_count, 1)
             self.assertEqual(set_user_patch.call_args_list[0],
                              call('testing_project', 'user', 'pwd'))
 
-        from nio_cli.commands.add_user import AddUser, _base64_encode
-        with patch(AddUser.__module__ + '.os') as mock_os, \
-                patch(AddUser.__module__ + '.json') as mock_json, \
+        from nio_cli.utils import set_user, _base64_encode
+        with patch(set_user.__module__ + '.os') as mock_os, \
+                patch(set_user.__module__ + '.json') as mock_json, \
                 patch('builtins.open') as mock_open:
             mock_os.path.isfile.return_value = True
             mock_json.load.return_value = {"Admin": "AdminPwd"}
@@ -610,9 +610,9 @@ class TestCLI(unittest.TestCase):
             password = "pwd1"
 
             self._main('add_user', **{
-                '<project-name>': 'testing_project',
-                '--username': username,
-                '--password': password
+                '--project': 'testing_project',
+                '<username>': username,
+                '<password>': password
             })
             # two open calls one to read and one to save
             self.assertEqual(mock_open.call_count, 2)
@@ -626,8 +626,8 @@ class TestCLI(unittest.TestCase):
         with patch("nio_cli.commands.remove_user.remove_user") as \
                 remove_user_patch:
             self._main('remove_user', **{
-                '<project-name>': 'testing_project',
-                '--username': 'user'
+                '--project': 'testing_project',
+                '<username>': 'user'
             })
             self.assertEqual(remove_user_patch.call_count, 1)
             self.assertEqual(remove_user_patch.call_args_list[0],
@@ -643,8 +643,8 @@ class TestCLI(unittest.TestCase):
             username = "Admin"
 
             self._main('remove_user', **{
-                '<project-name>': 'testing_project',
-                '--username': username
+                '--project': 'testing_project',
+                '<username>': username
             })
             # two open calls one to read and one to save
             self.assertEqual(mock_open.call_count, 2)

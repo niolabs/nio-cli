@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from .base import Base
-from .config import config_project
+from nio_cli.utils import config_project
 
 
 class New(Base):

@@ -1,5 +1,3 @@
-import json
-import requests
 from .base import Base
 
 
@@ -12,16 +10,14 @@ class Clone(Base):
         self._to_name = self.options['<new-name>']
 
     def run(self):
-        response = requests.get(
+        response = self.get(
             self._base_url.format(
-                '{}/{}'.format(self._resource, self._from_name)),
-            auth=self._auth)
+                '{}/{}'.format(self._resource, self._from_name)))
         try:
             new_config = response.json()
             new_config['name'] = self._to_name
-            requests.post(
+            self.post(
                 self._base_url.format(self._resource),
-                json=new_config,
-                auth=self._auth)
+                json=new_config)
         except Exception as e:
             print(e)

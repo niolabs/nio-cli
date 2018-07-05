@@ -1,8 +1,9 @@
 import sys
 import unittest
-from unittest.mock import mock_open, patch, ANY, MagicMock
+from unittest.mock import mock_open, patch, ANY, MagicMock, call
 
-from nio_cli.commands.config import Config, config_project, config_ssl
+from nio_cli.commands.config import Config
+from nio_cli.utils import config_project, _config_ssl
 
 
 class TestConfig(unittest.TestCase):
@@ -15,6 +16,9 @@ class TestConfig(unittest.TestCase):
             '<block-name>': None,
             'services': False,
             '<service-name>': None,
+            '--username': None,
+            '--password': None,
+            '--project': '.'
         }
         with patch('builtins.print') as self.mock_print, \
                 patch(Config.__module__ + '.config_project') as self.mock_conf:
@@ -35,9 +39,9 @@ class TestConfigSSL(unittest.TestCase):
                 patch('builtins.input', side_effect=user_input) \
                 as self.mock_input, \
                 patch('OpenSSL.crypto') as self.mock_crypto, \
-                patch(Config.__module__ + '.os') as self.mock_os:
+                patch(_config_ssl.__module__ + '.os') as self.mock_os:
             self.mock_os.path.isfile.return_value = isfile
-            config_ssl('.', './nio.conf')
+            _config_ssl('.', './nio.conf')
 
     def test_config_ssl(self):
         ssl_cert = '/path/to/certificate.pem'
@@ -76,8 +80,9 @@ class TestConfigProject(unittest.TestCase):
                 patch('builtins.print') as self.mock_print, \
                 patch('builtins.input', side_effect=user_input) \
                 as self.mock_input, \
-                patch(Config.__module__ + '.os') as self.mock_os, \
-                patch(Config.__module__ + '.config_ssl') as self.mock_ssl:
+                patch(config_project.__module__ + '.os') as self.mock_os, \
+                patch(config_project.__module__ + '.json') as mock_json, \
+                patch(config_project.__module__ + '._config_ssl') as self.mock_ssl:
             self.mock_os.path.isfile.return_value = isfile
             config_project(**kwargs)
 
@@ -85,8 +90,11 @@ class TestConfigProject(unittest.TestCase):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         user_input = [pk_host, pk_token, 'N']
-        self._run_config_project(user_input)
-        self.mock_open.assert_called_once_with('./nio.conf', 'r')
+        self._run_config_project(
+            user_input, kwargs={"name": '.', "username": 'user', "password": 'pwd'})
+
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
         self.assertEqual(self.mock_ssl.call_count, 0)
@@ -98,8 +106,13 @@ class TestConfigProject(unittest.TestCase):
         user_input = [pk_host, pk_token, 'N']
         path = '/path/to/project'
         conf_location = '{}/nio.conf'.format(path)
-        self._run_config_project(user_input, kwargs={'name': path})
-        self.mock_open.assert_called_once_with(conf_location, 'r')
+        users_location = '{}/etc/users.json'.format(path)
+        self._run_config_project(
+            user_input,
+            kwargs={'name': path, "username": 'user', "password": 'pwd'})
+
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list, path)
         self.mock_os.remove.assert_called_once_with(conf_location)
         self.mock_os.rename.assert_called_once_with(ANY, conf_location)
 
@@ -107,8 +120,11 @@ class TestConfigProject(unittest.TestCase):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         user_input = ['N']
+        username = "user"
+        password = "pwd"
         self._run_config_project(user_input, kwargs={
-            'pubkeeper_hostname': 'pkhost', 'pubkeeper_token': 'token'})
+            'pubkeeper_hostname': pk_host, 'pubkeeper_token': pk_token,
+            'username': username, 'password': password})
         self.assertEqual(self.mock_input.call_count, len(user_input))
 
     def test_config_with_no_nioconf(self):
@@ -121,8 +137,28 @@ class TestConfigProject(unittest.TestCase):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
         user_input = [pk_host, pk_token, 'Y']
-        self._run_config_project(user_input)
-        self.mock_open.assert_called_once_with('./nio.conf', 'r')
+        self._run_config_project(
+            user_input, kwargs={"username": 'user', "password": 'pwd'})
+
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
         self.assertEqual(self.mock_ssl.call_count, 1)
+
+    def _test_open_call_order(self, call_args_list, path='.'):
+        open1_call_args = self.mock_open.call_args_list[0]
+        self.assertEqual(open1_call_args, call('{}/etc/users.json'\
+            .format(path), 'r'))
+        open2_call_args = self.mock_open.call_args_list[1]
+        self.assertEqual(open2_call_args, call('{}/etc/users.json'\
+            .format(path), 'w+'))
+        open3_call_args = self.mock_open.call_args_list[2]
+        self.assertEqual(open3_call_args, call('{}/etc/permissions.json'\
+            .format(path), 'r'))
+        open4_call_args = self.mock_open.call_args_list[3]
+        self.assertEqual(open4_call_args, call('{}/etc/permissions.json'\
+            .format(path), 'w+'))
+        open5_call_args = self.mock_open.call_args_list[4]
+        self.assertEqual(open5_call_args, call('{}/nio.conf'\
+            .format(path), 'r'))

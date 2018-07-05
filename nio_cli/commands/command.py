@@ -1,5 +1,3 @@
-import requests
-
 from .base import Base
 
 
@@ -17,4 +15,4 @@ class Command(Base):
             command = self._block_name + "/" + command
         if self._service_name:
             command = "services/" + self._service_name + "/" + command
-        requests.post(self._base_url.format(command), auth=self._auth)
+        self.post(self._base_url.format(command))

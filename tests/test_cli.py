@@ -1,7 +1,7 @@
 import responses
 import unittest
 from unittest import skipIf
-from unittest.mock import mock_open, patch, ANY, MagicMock
+from unittest.mock import mock_open, patch, ANY, call
 from docopt import docopt, DocoptExit
 from io import StringIO
 from collections import OrderedDict
@@ -55,8 +55,10 @@ class TestCLI(unittest.TestCase):
             '<template>': None,
             '--pubkeeper-hostname': None,
             '--pubkeeper-token': None,
+            '--username': 'user',
+            '--password': 'pwd'
         })
-        config.assert_called_once_with('project', None, None)
+        config.assert_called_once_with('project', None, None, 'user', 'pwd')
         self.assertEqual(call.call_args_list[0][0][0], (
             'git clone --depth=1 '
             'git://github.com/niolabs/project_template.git project'
@@ -90,8 +92,11 @@ class TestCLI(unittest.TestCase):
                     '<template>': 'my_template',
                     '--pubkeeper-hostname': 'pkhost',
                     '--pubkeeper-token': 'pktoken',
+                    '--username': 'user',
+                    '--password': 'pwd'
                 })
-                config.assert_called_once_with('project', 'pkhost', 'pktoken')
+                config.assert_called_once_with('project', 'pkhost', 'pktoken',
+                                               'user', 'pwd')
                 self.assertEqual(call.call_args_list[0][0][0], (
                     'git clone --depth=1 '
                     'git://github.com/niolabs/my_template.git project'
@@ -114,14 +119,21 @@ class TestCLI(unittest.TestCase):
         isdir_path = 'nio_cli.commands.new.os.path.isdir'
         with patch(isdir_path, return_value=False) as isdir, \
                 patch('nio_cli.commands.new.subprocess.call') as call:
-            self._main('new', **{'<project-name>': 'project'})
+            self._main('new', **{
+                '<project-name>': 'project',
+                '--username': 'user',
+                '--password': 'pwd'
+            })
             self.assertEqual(call.call_count, 1)
             isdir.assert_called_once_with('project')
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""
         with patch('nio_cli.commands.add.subprocess.call') as call:
-            self._main('add', **{'<block-repo>': ['block1']})
+            self._main('add', **{
+                '<block-repo>': ['block1'],
+                '--project': '.'
+            })
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git submodule add git://github.com/nio-blocks/block1.git '
                 './blocks/block1'
@@ -138,7 +150,11 @@ class TestCLI(unittest.TestCase):
                       'http://127.0.0.1:8181/services',
                       json=service_response)
         with patch('builtins.print') as print:
-            self._main('list', services=True)
+            self._main('list', **{
+                "services": True,
+                '--username': 'user',
+                '--password': 'pwd'
+            })
             self.assertEqual(len(responses.calls), 1)
             self.assertEqual(print.call_count, len(service_response))
             for index, service in enumerate(service_response):
@@ -154,7 +170,11 @@ class TestCLI(unittest.TestCase):
                       'http://127.0.0.1:8181/blocks',
                       json=blk_response)
         with patch('builtins.print') as print:
-            self._main('list', services=False)
+            self._main('list', **{
+                "services": False,
+                '--username': 'user',
+                '--password': 'pwd'
+            })
             self.assertEqual(len(responses.calls), 1)
             self.assertEqual(print.call_count, 2)
             for index, blk in enumerate(blk_response):
@@ -167,7 +187,10 @@ class TestCLI(unittest.TestCase):
     def test_shutdown_command(self):
         """Shutdown nio through the rest api"""
         responses.add(responses.GET, 'http://127.0.0.1:8181/shutdown')
-        self._main('shutdown')
+        self._main('shutdown', **{
+                '--username': 'user',
+                '--password': 'pwd'
+        })
         self.assertEqual(len(responses.calls), 1)
 
     @responses.activate
@@ -179,6 +202,8 @@ class TestCLI(unittest.TestCase):
             '<command-name>': 'command',
             '<service-name>': 'service',
             '<block-name>': 'block',
+            '--username': 'user',
+            '--password': 'pwd'
         })
         self.assertEqual(len(responses.calls), 1)
 
@@ -481,12 +506,6 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(
                 mock_file.return_value.write.call_args_list[0][0][0],
                 'YabaDaba ..example_block TestYabaDaba')
-            self.assertEqual(
-                mock_file.return_value.write.call_args_list[1][0][0],
-                'Example ..example_block TestYabaDaba')
-            self.assertEqual(
-                mock_file.return_value.write.call_args_list[2][0][0],
-                'YabaDaba ..yaba_daba_block TestYabaDaba')
 
     def test_blockcheck_command(self):
         self.maxDiff = None
@@ -570,6 +589,92 @@ class TestCLI(unittest.TestCase):
                 'Checking class and file name formatting ...\n\n',
                 mock_print.getvalue()
             )
+
+    def test_add_user_command(self):
+        """ Adds a user through the rest api"""
+        with patch("nio_cli.commands.add_user.set_user") as set_user_patch:
+            self._main('add_user', **{
+                '--project': 'testing_project',
+                '<username>': 'user',
+                '<password>': 'pwd'
+            })
+            self.assertEqual(set_user_patch.call_count, 1)
+            self.assertEqual(set_user_patch.call_args_list[0],
+                             call('testing_project', 'user', 'pwd'))
+
+        from nio_cli.utils import set_user, _base64_encode, _set_permissions
+        with patch(set_user.__module__ + '.os') as mock_os, \
+                patch(set_user.__module__ + '.json') as mock_json, \
+                patch('builtins.open') as mock_open, \
+                patch('nio_cli.utils._set_permissions'):
+            mock_os.path.isfile.return_value = True
+            mock_json.load.return_value = {"Admin": "AdminPwd"}
+
+            username = "user1"
+            password = "pwd1"
+
+            self._main('add_user', **{
+                '--project': 'testing_project',
+                '<username>': username,
+                '<password>': password
+            })
+            # one call to read users.json and one to save users.json
+            self.assertEqual(mock_open.call_count, 2)
+            print(mock_json.dump.call_args_list)
+            users, _ = mock_json.dump.call_args_list[0][0]
+            self.assertIn(username, users)
+            self.assertDictEqual(users[username],
+                                 {"password": _base64_encode(password)})
+
+            _set_permissions('testing_project', username)
+            # make sure we open permissions.json two times
+            # to read and write new permissions
+            self.assertEqual(mock_open.call_count, 4)
+            print(mock_json.dump.call_args_list)
+            permissions, _ = mock_json.dump.call_args_list[0][0]
+            self.assertIn(username, permissions)
+            self.assertDictEqual(permissions[username],
+                                 {".*": "rwx"})
+
+    def test_remove_user_command(self):
+        """ Adds a user through the rest api"""
+        with patch("nio_cli.commands.remove_user.remove_user") as \
+                remove_user_patch:
+            self._main('remove_user', **{
+                '--project': 'testing_project',
+                '<username>': 'user'
+            })
+            self.assertEqual(remove_user_patch.call_count, 1)
+            self.assertEqual(remove_user_patch.call_args_list[0],
+                             call('testing_project', 'user'))
+
+        from nio_cli.commands.remove_user import RemoveUser, _remove_permission
+        with patch(RemoveUser.__module__ + '.os') as mock_os, \
+                patch(RemoveUser.__module__ + '.json') as mock_json, \
+                patch('builtins.open') as mock_open, \
+                patch('nio_cli.commands.remove_user._remove_permission'):
+            mock_os.path.isfile.return_value = True
+            mock_json.load.return_value = {"Admin": "AdminPwd"}
+
+            username = "Admin"
+
+            self._main('remove_user', **{
+                '--project': 'testing_project',
+                '<username>': username
+            })
+            # one call to read users.json and one to save users.json
+            self.assertEqual(mock_open.call_count, 2)
+            users, _ = mock_json.dump.call_args_list[0][0]
+            self.assertNotIn(username, users)
+            self.assertEqual(len(users), 0)
+            # make sure we open permissions.json two times
+            # to read and write new permissions
+            mock_json.load.return_value = {"Admin": {".*": "rwx"}}
+            _remove_permission('testing_project', username)
+            self.assertEqual(mock_open.call_count, 4)
+            permissions, _ = mock_json.dump.call_args_list[0][0]
+            self.assertNotIn(username, permissions)
+            self.assertEqual(len(permissions), 0)
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

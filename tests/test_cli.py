@@ -130,7 +130,10 @@ class TestCLI(unittest.TestCase):
     def test_add_command(self):
         """Clone specified blocks as submodules"""
         with patch('nio_cli.commands.add.subprocess.call') as call:
-            self._main('add', **{'<block-repo>': ['block1']})
+            self._main('add', **{
+                '<block-repo>': ['block1'],
+                '--project': '.'
+            })
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git submodule add git://github.com/nio-blocks/block1.git '
                 './blocks/block1'
@@ -599,10 +602,11 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(set_user_patch.call_args_list[0],
                              call('testing_project', 'user', 'pwd'))
 
-        from nio_cli.utils import set_user, _base64_encode
+        from nio_cli.utils import set_user, _base64_encode, _set_permissions
         with patch(set_user.__module__ + '.os') as mock_os, \
                 patch(set_user.__module__ + '.json') as mock_json, \
-                patch('builtins.open') as mock_open:
+                patch('builtins.open') as mock_open, \
+                patch('nio_cli.utils._set_permissions'):
             mock_os.path.isfile.return_value = True
             mock_json.load.return_value = {"Admin": "AdminPwd"}
 
@@ -614,12 +618,23 @@ class TestCLI(unittest.TestCase):
                 '<username>': username,
                 '<password>': password
             })
-            # two open calls one to read and one to save
+            # one call to read users.json and one to save users.json
             self.assertEqual(mock_open.call_count, 2)
+            print(mock_json.dump.call_args_list)
             users, _ = mock_json.dump.call_args_list[0][0]
             self.assertIn(username, users)
             self.assertDictEqual(users[username],
                                  {"password": _base64_encode(password)})
+
+            _set_permissions('testing_project', username)
+            # make sure we open permissions.json two times
+            # to read and write new permissions
+            self.assertEqual(mock_open.call_count, 4)
+            print(mock_json.dump.call_args_list)
+            permissions, _ = mock_json.dump.call_args_list[0][0]
+            self.assertIn(username, permissions)
+            self.assertDictEqual(permissions[username],
+                                 {".*": "rwx"})
 
     def test_remove_user_command(self):
         """ Adds a user through the rest api"""
@@ -633,10 +648,11 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(remove_user_patch.call_args_list[0],
                              call('testing_project', 'user'))
 
-        from nio_cli.commands.remove_user import RemoveUser
+        from nio_cli.commands.remove_user import RemoveUser, _remove_permission
         with patch(RemoveUser.__module__ + '.os') as mock_os, \
                 patch(RemoveUser.__module__ + '.json') as mock_json, \
-                patch('builtins.open') as mock_open:
+                patch('builtins.open') as mock_open, \
+                patch('nio_cli.commands.remove_user._remove_permission'):
             mock_os.path.isfile.return_value = True
             mock_json.load.return_value = {"Admin": "AdminPwd"}
 
@@ -646,11 +662,19 @@ class TestCLI(unittest.TestCase):
                 '--project': 'testing_project',
                 '<username>': username
             })
-            # two open calls one to read and one to save
+            # one call to read users.json and one to save users.json
             self.assertEqual(mock_open.call_count, 2)
             users, _ = mock_json.dump.call_args_list[0][0]
             self.assertNotIn(username, users)
             self.assertEqual(len(users), 0)
+            # make sure we open permissions.json two times
+            # to read and write new permissions
+            mock_json.load.return_value = {"Admin": {".*": "rwx"}}
+            _remove_permission('testing_project', username)
+            self.assertEqual(mock_open.call_count, 4)
+            permissions, _ = mock_json.dump.call_args_list[0][0]
+            self.assertNotIn(username, permissions)
+            self.assertEqual(len(permissions), 0)
 
     def _main(self, command, ip='127.0.0.1', port='8181', **kwargs):
         args = {

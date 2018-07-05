@@ -26,7 +26,7 @@ class Config(Base):
 
     def run(self):
         if self._resource == 'project':
-            config_project(name=self.options.get('--project', '.'),
+            config_project(name=self.options['--project'],
                            username=self.options['--username'],
                            password=self.options['--password'])
         else:

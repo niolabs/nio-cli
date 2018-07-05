@@ -11,13 +11,14 @@ class Add(Base):
         super().__init__(options, *args, **kwargs)
         self._blocks = self.options['<block-repo>']
         self._upgrade = self.options['--upgrade'] or self.options['-u']
+        self._project = self.options['--project']
 
     def run(self):
         # Add block repos as submodules
         for block in self._blocks:
-            submodule = "git submodule add git://github.com/{}/{}.git ./{}/{}"
+            submodule = "git submodule add git://github.com/{}/{}.git {}/{}/{}"
             subprocess.call(
-                submodule.format('nio-blocks', block, 'blocks', block),
+                submodule.format('nio-blocks', block, self._project, 'blocks', block),
                 shell=True)
         # Initialize all submodules
         subprocess.call("git submodule update --init --recursive", shell=True)
@@ -37,7 +38,7 @@ class Add(Base):
                         subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
 
     def _upgrade_block(self, block):
-        checkout = "cd ./{}/{} && git checkout {}"
-        subprocess.call(checkout.format('blocks', block, 'master'), shell=True)
-        update = "cd ./{}/{} && git pull --ff-only --recurse-submodules --all"
-        subprocess.call(update.format('blocks', block), shell=True)
+        checkout = "cd {}/{}/{} && git checkout {}"
+        subprocess.call(checkout.format(self._project, 'blocks', block, 'master'), shell=True)
+        update = "cd {}/{}/{} && git pull --ff-only --recurse-submodules --all"
+        subprocess.call(update.format(self._project, 'blocks', block), shell=True)

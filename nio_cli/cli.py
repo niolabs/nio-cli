@@ -2,13 +2,13 @@
 nio
 
 Usage:
-  nio [options] new <project-name> [(--template <template> | -t <template>)]
+  nio [options] new <project-name> [(--template <template> | -t <template>) --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN]
   nio newblock <block-name>
   nio add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks
   nio [options] (command | co) <command-name> [--args=<args> (<service-name> | <block-name>)]
-  nio [options] (config | cfg)
+  nio [options] (config | cfg) [--pubkeeper-hostname=HOST --pubkeeper-token=TOKEN]
   nio [options] (config | cfg) services <service-name>
   nio [options] (config | cfg) blocks <block-name>
   nio [options] clone services <service-name> <new-name>
@@ -28,8 +28,6 @@ Options:
   --username=USERNAME               Specify username [default: Admin].
   --password=PASSWORD               Specify password [default: Admin].
   --project=PROJECT                 Specify project directory [default: .].
-  --pubkeeper-hostname=HOST         Specify Pubkeeper Server Hostname.
-  --pubkeeper-token=TOKEN           Specify Pukeeper Server Authentication Token.
   -h --help                         Show this screen.
   --version                         Show version.
 

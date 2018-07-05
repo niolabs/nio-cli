@@ -26,7 +26,13 @@ class Base(object):
     @staticmethod
     def _execute_request(fn, *args, **kwargs):
         response = fn(*args, **kwargs)
-        if response.status_code >= 400:
+        if response.status_code == 401:
+            msg = "Client error, status: {}, message: {} "\
+                  ", Try running again with '--username' and '--password' options".\
+                  format(response.status_code, response.reason)
+            print(msg)
+            raise RuntimeError(msg)
+        elif response.status_code >= 400:
             msg = "Client error, status: {}, message: {}".format(
                 response.status_code, response.reason)
             print(msg)
@@ -38,22 +44,13 @@ class Base(object):
         # allow to override last credentials set
         (username, password) = self._auth
 
-        if "--username" in self.options and self.options["--username"]:
-            username = self.options.get("--username")
-        else:
-            username = self._gather_input('Username ({}): '.format(username),
-                                          username)
-        if username:
-            if "--password" in self.options and self.options["--password"]:
-                password = self.options.get("--password")
-            else:
-                password = \
-                    self._gather_input('Password ({}): '.format(password),
-                                       password)
-        else:
-            # user when asked for username pressed enter or it came in empty
-            # from command line ==> use cached credentials
-            pass
+        new_username = self.options.get('--username', username)
+        if new_username != username:
+            username = new_username
+
+        new_password = self.options.get('--password', password)
+        if new_password != password:
+            password = new_password
 
         # cache last credentials
         self._auth = (username, password)

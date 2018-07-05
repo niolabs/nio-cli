@@ -120,9 +120,26 @@ def set_user(project_name, username, password):
         # write it back
         with open(users_location, 'w+') as f:
             json.dump(users, f, indent=4, separators=(',', ': '))
+        _set_permissions(project_name, username)
     else:
         print('Username cannot be empty')
 
+def _set_permissions(project_name, username):
+    # Add new user with admin level permission
+    permission_location = '{}/etc/permissions.json'.format(project_name)
+    if os.path.isfile(permission_location):
+        with open(permission_location, 'r') as f:
+            permissions = json.load(f)
+    else:
+        permissions = {}
+
+    print('Adding permissions for user: {}'.format(username))
+    permissions[username] = {
+        ".*": "rwx"
+    }
+    # write it back
+    with open(permission_location, 'w+') as f:
+        json.dump(permissions, f, indent=4, separators=(',', ': '))
 
 def _base64_encode(s, encoding='ISO-8859-1'):
     """Return the native string base64-encoded (as a native string)."""

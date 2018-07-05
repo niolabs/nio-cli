@@ -6,7 +6,7 @@ class AddUser(Base):
 
     def __init__(self, options, *args, **kwargs):
         super().__init__(options, *args, **kwargs)
-        self._project_name = self.options.get('--project', '.')
+        self._project_name = self.options['--project']
         self._username = self.options['<username>']
         self._password = self.options['<password>']
 

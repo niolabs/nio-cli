@@ -17,7 +17,8 @@ class TestConfig(unittest.TestCase):
             'services': False,
             '<service-name>': None,
             '--username': None,
-            '--password': None
+            '--password': None,
+            '--project': '.'
         }
         with patch('builtins.print') as self.mock_print, \
                 patch(Config.__module__ + '.config_project') as self.mock_conf:
@@ -92,14 +93,8 @@ class TestConfigProject(unittest.TestCase):
         self._run_config_project(
             user_input, kwargs={"name": '.', "username": 'user', "password": 'pwd'})
 
-        self.assertEqual(self.mock_open.call_count, 3)
-        open1_call_args = self.mock_open.call_args_list[0]
-        self.assertEqual(open1_call_args, call('./etc/users.json', 'r'))
-        open2_call_args = self.mock_open.call_args_list[1]
-        self.assertEqual(open2_call_args, call('./etc/users.json', 'w+'))
-        open3_call_args = self.mock_open.call_args_list[2]
-        self.assertEqual(open3_call_args, call('./nio.conf', 'r'))
-
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
         self.assertEqual(self.mock_ssl.call_count, 0)
@@ -116,14 +111,8 @@ class TestConfigProject(unittest.TestCase):
             user_input,
             kwargs={'name': path, "username": 'user', "password": 'pwd'})
 
-        self.assertEqual(self.mock_open.call_count, 3)
-        open1_call_args = self.mock_open.call_args_list[0]
-        self.assertEqual(open1_call_args, call(users_location, 'r'))
-        open2_call_args = self.mock_open.call_args_list[1]
-        self.assertEqual(open2_call_args, call(users_location, 'w+'))
-        open3_call_args = self.mock_open.call_args_list[2]
-        self.assertEqual(open3_call_args, call(conf_location, 'r'))
-
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list, path)
         self.mock_os.remove.assert_called_once_with(conf_location)
         self.mock_os.rename.assert_called_once_with(ANY, conf_location)
 
@@ -151,14 +140,25 @@ class TestConfigProject(unittest.TestCase):
         self._run_config_project(
             user_input, kwargs={"username": 'user', "password": 'pwd'})
 
-        self.assertEqual(self.mock_open.call_count, 3)
-        open1_call_args = self.mock_open.call_args_list[0]
-        self.assertEqual(open1_call_args, call('./etc/users.json', 'r'))
-        open2_call_args = self.mock_open.call_args_list[1]
-        self.assertEqual(open2_call_args, call('./etc/users.json', 'w+'))
-        open3_call_args = self.mock_open.call_args_list[2]
-        self.assertEqual(open3_call_args, call('./nio.conf', 'r'))
-
+        self.assertEqual(self.mock_open.call_count, 5)
+        self._test_open_call_order(self.mock_open.call_args_list)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
         self.assertEqual(self.mock_ssl.call_count, 1)
+
+    def _test_open_call_order(self, call_args_list, path='.'):
+        open1_call_args = self.mock_open.call_args_list[0]
+        self.assertEqual(open1_call_args, call('{}/etc/users.json'\
+            .format(path), 'r'))
+        open2_call_args = self.mock_open.call_args_list[1]
+        self.assertEqual(open2_call_args, call('{}/etc/users.json'\
+            .format(path), 'w+'))
+        open3_call_args = self.mock_open.call_args_list[2]
+        self.assertEqual(open3_call_args, call('{}/etc/permissions.json'\
+            .format(path), 'r'))
+        open4_call_args = self.mock_open.call_args_list[3]
+        self.assertEqual(open4_call_args, call('{}/etc/permissions.json'\
+            .format(path), 'w+'))
+        open5_call_args = self.mock_open.call_args_list[4]
+        self.assertEqual(open5_call_args, call('{}/nio.conf'\
+            .format(path), 'r'))

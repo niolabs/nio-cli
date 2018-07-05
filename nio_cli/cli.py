@@ -2,9 +2,9 @@
 nio
 
 Usage:
-  nio [options] new <project-name> [(--template <template> | -t <template>) --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN]
+  nio new <project-name> [(--template <template> | -t <template>) --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN]
   nio newblock <block-name>
-  nio add <block-repo>... [(--upgrade | -u)]
+  nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks
   nio [options] (command | co) <command-name> [--args=<args> (<service-name> | <block-name>)]

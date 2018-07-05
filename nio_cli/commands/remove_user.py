@@ -47,7 +47,6 @@ def _remove_permission(project_name, username):
         return
 
     # remove permissions
-    print(permissions)
     if username in permissions:
         print('Removing permissions for user: {}'.format(username))
         del permissions[username]

@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [0.7.0](https://github.com/niolabs/nio-cli/tree/0.7.0) (2018-07-06)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.6.2...0.7.0)
+
+**Added:**
+
+- Use --user flag for all dependancy install [\#103](https://github.com/niolabs/nio-cli/pull/103) ([tlugger](https://github.com/tlugger))
+
 ## [0.6.2](https://github.com/niolabs/nio-cli/tree/0.6.2) (2018-05-23)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.6.1...0.6.2)
 
@@ -43,7 +50,7 @@
 **Added:**
 
 - nio new command searches project template for requirements.txt and installs libraries [\#87](https://github.com/niolabs/nio-cli/pull/87) ([cowleyk](https://github.com/cowleyk))
-- Add optional SSL cert generation and secure instance configuration [\#73](https://github.com/niolabs/nio-cli/pull/73) ([nioJake](https://github.com/nioJake))
+- Add optional SSL cert generation and secure instance configuration [\#73](https://github.com/niolabs/nio-cli/pull/73) ([gingajake](https://github.com/gingajake))
 
 ## [0.5.4](https://github.com/niolabs/nio-cli/tree/0.5.4) (2018-02-05)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.5.3...0.5.4)

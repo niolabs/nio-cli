@@ -5,6 +5,7 @@
 
 **Added:**
 
+- User mgmt and credentials [\#104](https://github.com/niolabs/nio-cli/pull/104) ([f1401martin](https://github.com/f1401martin))
 - Use --user flag for all dependancy install [\#103](https://github.com/niolabs/nio-cli/pull/103) ([tlugger](https://github.com/tlugger))
 
 ## [0.6.2](https://github.com/niolabs/nio-cli/tree/0.6.2) (2018-05-23)

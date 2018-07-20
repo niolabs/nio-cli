@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [0.7.1](https://github.com/niolabs/nio-cli/tree/0.7.1) (2018-07-20)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.0...0.7.1)
+
+**Fixed bugs:**
+
+- Allow prompt to show given cli defaults [\#106](https://github.com/niolabs/nio-cli/pull/106) ([tlugger](https://github.com/tlugger))
+
 ## [0.7.0](https://github.com/niolabs/nio-cli/tree/0.7.0) (2018-07-06)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.6.2...0.7.0)
 

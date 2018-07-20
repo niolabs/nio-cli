@@ -109,10 +109,14 @@ def set_user(project_name, username, password):
         users = {}
 
     # add/override this user and password
-    username = input('Username: ') if username is None else username
+    username = input('Create Username (optional): ') or 'Admin' \
+        if username is None or username == 'Admin' \
+        else username
     # if username is valid
     if username:
-        password = input('Password: ') if password is None else password
+        password = input('Create Password (optional): ') or 'Admin' \
+            if password is None or password == 'Admin' \
+            else password
         print('Adding user: {}'.format(username))
         users[username] = {
             "password": _base64_encode(password)

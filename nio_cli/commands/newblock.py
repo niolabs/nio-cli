@@ -1,6 +1,7 @@
 import subprocess, re
 
 from .base import Base
+import os
 
 
 class NewBlock(Base):
@@ -13,30 +14,39 @@ class NewBlock(Base):
         clone = (
             "git clone --depth=1 git://github.com/{}/{}.git {}"
         ).format('nio-blocks', 'block_template', self._block)
-        rename_block_file = (
-            "cd ./{0} && mv example_block.py {0}_block.py"
-        ).format(self._block)
-        rename_test_file = (
-            "cd ./{0}/tests && mv test_example_block.py test_{0}_block.py"
-        ).format(self._block)
-        rename_readme = (
-            "cd ./{} && mv BLOCK_README.md README.md"
-        ).format(self._block)
+        subprocess.call(clone, shell=True)
+
+        # rename block file
+        block_parent_path = os.path.abspath(".")
+        block_root_path = os.path.join(block_parent_path, self._block)
+        os.chdir(block_root_path)
+        os.rename(os.path.join(block_root_path, "example_block.py"),
+                  os.path.join(block_root_path,
+                               "{0}_block.py".format(self._block)))
+
+        # rename readme
+        os.rename(os.path.join(block_root_path, "BLOCK_README.md"),
+                  os.path.join(block_root_path, "README.md"))
+
+        # rename test file
+        block_tests_path = os.path.join(block_root_path, "tests")
+        os.chdir(block_tests_path)
+        os.rename(os.path.join(block_tests_path, "test_example_block.py"),
+                  os.path.join(block_tests_path,
+                               "test_{0}_block.py".format(self._block)))
+
+        # subsequent calls assume being on block's parent folder
+        os.chdir(block_parent_path)
+        self.rename_block_class(self._block)
+        self.rename_test_class(self._block)
+        self.rename_test_imports(self._block)
+
         reinit_repo = (
             'cd ./{} '
             '&& git remote remove origin '
             '&& git add -A'
             '&& git commit --amend --reset-author -m "Initial commit"'
         ).format(self._block)
-        subprocess.call(clone, shell=True)
-        subprocess.call(rename_block_file, shell=True)
-        subprocess.call(rename_test_file, shell=True)
-        subprocess.call(rename_readme, shell=True)
-
-        self.rename_block_class(self._block)
-        self.rename_test_class(self._block)
-        self.rename_test_imports(self._block)
-
         subprocess.call(reinit_repo, shell=True)
 
     def rename_block_class(self, block):

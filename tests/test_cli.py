@@ -496,6 +496,7 @@ class TestCLI(unittest.TestCase):
                 mock_file.return_value.write.call_args_list[0][0][0],
                 'YabaDaba ..example_block TestYabaDaba')
             # assert calls to rename block files
+            self.assertEqual(os_mock.remove.call_count, 1)
             self.assertEqual(os_mock.rename.call_count, 3)
 
     def test_blockcheck_command(self):

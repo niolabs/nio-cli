@@ -25,6 +25,7 @@ class NewBlock(Base):
                                "{0}_block.py".format(self._block)))
 
         # rename readme
+        os.remove(os.path.join(block_root_path, "README.md"))
         os.rename(os.path.join(block_root_path, "BLOCK_README.md"),
                   os.path.join(block_root_path, "README.md"))
 

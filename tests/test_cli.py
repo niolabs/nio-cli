@@ -479,33 +479,25 @@ class TestCLI(unittest.TestCase):
     def test_newblock_command(self):
         """Clone the block template from GitHub"""
         with patch('nio_cli.commands.new.subprocess.call') as call, \
-                patch(
-                    'builtins.open',
-                    mock_open(
-                        read_data='Example ..example_block TestExample')
-        ) as mock_file:
-            # need to patch open
+                patch('builtins.open',
+                   mock_open(
+                       read_data='Example ..example_block TestExample')
+                   ) as mock_file, \
+                patch("nio_cli.commands.newblock.os") as os_mock:
+
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
                 'git clone --depth=1 '
                 'git://github.com/nio-blocks/block_template.git yaba_daba'
             ))
-            self.assertEqual(call.call_args_list[1][0][0],
-                             'cd ./yaba_daba '
-                             '&& mv example_block.py yaba_daba_block.py'
-                             )
-            self.assertEqual(call.call_args_list[2][0][0],
-                             'cd ./yaba_daba/tests '
-                             '&& mv test_example_block.py test_yaba_daba_block.py'
-                             )
-            self.assertEqual(call.call_args_list[3][0][0],
-                             'cd ./yaba_daba && mv BLOCK_README.md README.md'
-                             )
             self.assertEqual(mock_file.call_args_list[0][0],
                              ('./yaba_daba/yaba_daba_block.py',))
             self.assertEqual(
                 mock_file.return_value.write.call_args_list[0][0][0],
                 'YabaDaba ..example_block TestYabaDaba')
+            # assert calls to rename block files
+            self.assertEqual(os_mock.remove.call_count, 1)
+            self.assertEqual(os_mock.rename.call_count, 3)
 
     def test_blockcheck_command(self):
         self.maxDiff = None

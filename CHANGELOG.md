@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [0.7.2](https://github.com/niolabs/nio-cli/tree/0.7.2) (2018-07-31)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.1...0.7.2)
+
+**Added:**
+
+- Add block url to etc/blocks.cfg on nio add [\#109](https://github.com/niolabs/nio-cli/pull/109) ([tlugger](https://github.com/tlugger))
+
 ## [0.7.1](https://github.com/niolabs/nio-cli/tree/0.7.1) (2018-07-20)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.0...0.7.1)
 

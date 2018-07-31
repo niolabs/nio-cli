@@ -1,4 +1,5 @@
 import os
+import json
 import subprocess
 import sys
 
@@ -20,6 +21,8 @@ class Add(Base):
             subprocess.call(
                 submodule.format('nio-blocks', block, self._project, 'blocks', block),
                 shell=True)
+            # Add block url to etc/blocks.cfg
+            self._add_to_blocks_cfg(block)
         # Initialize all submodules
         subprocess.call("git submodule update --init --recursive", shell=True)
         # Upgrade blocks if requested
@@ -36,6 +39,26 @@ class Add(Base):
                     if file_name == 'requirements.txt':
                         reqs = os.path.join(root, file_name)
                         subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
+
+    def _add_to_blocks_cfg(self, block):
+        blocks_location = "{}/etc/blocks.cfg".format(self._project)
+        if os.path.isfile(blocks_location):
+            with open(blocks_location, 'r') as f:
+                blocks = json.load(f)
+        else:
+            blocks = { "blocks": [] }
+
+        # Create new block entry and add it to blocks list
+        new_block = {
+            "branch": None,
+            "path": None,
+            "tag": None,
+            "url": "git://github.com/nio-blocks/{}.git".format(block)
+        }
+        blocks['blocks'].append(new_block)
+
+        with open(blocks_location, 'w+') as f:
+            json.dump(blocks, f, indent=4, separators=(',', ':'))
 
     def _upgrade_block(self, block):
         checkout = "cd {}/{}/{} && git checkout {}"

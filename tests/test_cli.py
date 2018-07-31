@@ -129,7 +129,12 @@ class TestCLI(unittest.TestCase):
 
     def test_add_command(self):
         """Clone specified blocks as submodules"""
-        with patch('nio_cli.commands.add.subprocess.call') as call:
+        with patch('nio_cli.commands.add.os') as mock_os, \
+            patch('nio_cli.commands.add.json') as mock_json, \
+            patch('builtins.open') as mock_open, \
+            patch('nio_cli.commands.add.subprocess.call') as call:
+            mock_os.isfile.return_value = True
+
             self._main('add', **{
                 '<block-repo>': ['block1'],
                 '--project': '.'
@@ -141,6 +146,7 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(call.call_args_list[1][0][0], (
                 'git submodule update --init --recursive'
             ))
+            self.assertTrue(mock_open.call_count == 2)
 
     @responses.activate
     def test_list_command(self):

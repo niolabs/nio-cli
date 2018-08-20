@@ -58,7 +58,14 @@ class TestCLI(unittest.TestCase):
             '--username': 'user',
             '--password': 'pwd'
         })
-        config.assert_called_once_with('project', None, None, 'user', 'pwd')
+        config.assert_called_once_with(name='project',
+                                       niohost='127.0.0.1',
+                                       nioport='8181',
+                                       pubkeeper_hostname=None,
+                                       pubkeeper_token=None,
+                                       username='user',
+                                       password='pwd',
+                                       ssl=None)
         self.assertEqual(call.call_args_list[0][0][0], (
             'git clone --depth=1 '
             'git://github.com/niolabs/project_template.git project'
@@ -95,8 +102,14 @@ class TestCLI(unittest.TestCase):
                     '--username': 'user',
                     '--password': 'pwd'
                 })
-                config.assert_called_once_with('project', 'pkhost', 'pktoken',
-                                               'user', 'pwd')
+                config.assert_called_once_with(name='project',
+                                               niohost='127.0.0.1',
+                                               nioport='8181',
+                                               pubkeeper_hostname='pkhost',
+                                               pubkeeper_token='pktoken',
+                                               username='user',
+                                               password='pwd',
+                                               ssl=None)
                 self.assertEqual(call.call_args_list[0][0][0], (
                     'git clone --depth=1 '
                     'git://github.com/niolabs/my_template.git project'
@@ -106,7 +119,7 @@ class TestCLI(unittest.TestCase):
                     '&& git submodule update --init --recursive'
                 ))
                 self.assertEqual(call.call_args_list[2][0][0], (
-                    [sys.executable, '-m', 'pip', 'install', '-r', 'join', '--user']
+                    [sys.executable, '-m', 'pip', 'install', '-r', 'join']
                 ))
                 self.assertEqual(call.call_args_list[3][0][0], (
                     'cd ./project '

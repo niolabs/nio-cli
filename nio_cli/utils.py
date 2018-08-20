@@ -5,37 +5,40 @@ import re
 import tempfile
 
 def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
-                   username=None, password=None):
+                   username=None, password=None, ssl=False, niohost=None,
+                   nioport=None):
     conf_location = '{}/nio.conf'.format(name)
     if not os.path.isfile(conf_location):
         print("Command must be run from project root.")
         return
 
-    pk_host = input('Enter Pubkeeper hostname (optional): ') \
-        if pubkeeper_hostname is None else pubkeeper_hostname
-    pk_token = input('Enter Pubkeeper token (optional): ') \
-        if pubkeeper_token is None else pubkeeper_token
-    ws_host = pk_host.replace('pubkeeper', 'websocket')
-
-    # allow to set a user
-    set_user(name, username, password)
+    if pubkeeper_hostname:
+        websocket_hostname = pubkeeper_hostname.replace('pubkeeper',
+                                                        'websocket')
 
     with open(conf_location, 'r') as nconf,\
             tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
         for line in nconf:
-            if re.search('^PK_HOST=', line) and pk_host:
-                tmp.write('PK_HOST={}\n'.format(pk_host))
-            elif re.search('^WS_HOST=', line) and pk_host:
-                tmp.write('WS_HOST={}\n'.format(ws_host))
-            elif re.search('^PK_TOKEN=', line) and pk_token:
-                tmp.write('PK_TOKEN={}\n'.format(pk_token))
+            if re.search('^PK_HOST=', line) and pubkeeper_hostname:
+                tmp.write('PK_HOST={}\n'.format(pubkeeper_hostname))
+            elif re.search('^WS_HOST=', line) and pubkeeper_hostname:
+                tmp.write('WS_HOST={}\n'.format(websocket_hostname))
+            elif re.search('^PK_TOKEN=', line) and pubkeeper_token:
+                tmp.write('PK_TOKEN={}\n'.format(pubkeeper_token))
+            elif re.search('^NIOHOST=', line) and niohost:
+                tmp.write('NIOHOST={}\n'.format(niohost))
+            elif re.search('^NIOPORT=', line) and nioport:
+                tmp.write('NIOPORT={}\n'.format(nioport))
             else:
                 tmp.write(line)
     os.remove(conf_location)
     os.rename(tmp.name, conf_location)
 
-    secure = input('Optional secure instance configuration [y/N]: ')
-    if secure.lower() == 'y':
+    # allow to set a user
+    if username or password:
+        set_user(name, username, password)
+
+    if ssl:
         _config_ssl(name, conf_location)
 
 
@@ -100,6 +103,10 @@ def _config_ssl(name, conf_location):
 
 
 def set_user(project_name, username, password):
+    # Return if user is not changed from default
+    if username == 'Admin' and password == 'Admin':
+        return
+
     # load users
     users_location = '{}/etc/users.json'.format(project_name)
     if os.path.isfile(users_location):
@@ -109,14 +116,7 @@ def set_user(project_name, username, password):
         users = {}
 
     # add/override this user and password
-    username = input('Create Username (optional): ') or 'Admin' \
-        if username is None or username == 'Admin' \
-        else username
-    # if username is valid
-    if username:
-        password = input('Create Password (optional): ') or 'Admin' \
-            if password is None or password == 'Admin' \
-            else password
+    if username and password:
         print('Adding user: {}'.format(username))
         users[username] = {
             "password": _base64_encode(password)

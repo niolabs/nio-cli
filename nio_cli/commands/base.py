@@ -7,8 +7,13 @@ class Base(object):
         self.options = options
         self.args = args
         self.kwargs = kwargs
-        self._base_url = "http://{}:{}/{{}}".format(self.options['--ip'],
-                                                    self.options['--port'])
+        self._ip = self.options['--ip']\
+            if self.options['--ip'] is not None\
+            else '0.0.0.0'
+        self._port = self.options['--port']\
+            if self.options['--port'] is not None\
+            else '8181'
+        self._base_url = "http://{}:{}/{{}}".format(self._ip, self._port)
         # default to Admin/Admin
         self._auth = ('Admin', 'Admin')
 

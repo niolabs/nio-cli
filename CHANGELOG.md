@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [0.7.3](https://github.com/niolabs/nio-cli/tree/0.7.3) (2018-08-21)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.2...0.7.3)
+
+**Fixed bugs:**
+
+- fix options reference to pk host/port in config [\#113](https://github.com/niolabs/nio-cli/pull/113) ([tlugger](https://github.com/tlugger))
+
 ## [0.7.2](https://github.com/niolabs/nio-cli/tree/0.7.2) (2018-07-31)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.1...0.7.2)
 

@@ -27,8 +27,8 @@ class Config(Base):
     def run(self):
         if self._resource == 'project':
             config_project(name=self.options['--project'],
-                           pubkeeper_hostname=self.options.get('pubkeeper-hostname'),
-                           pubkeeper_token=self.options.get('pubkeeper-token'),
+                           pubkeeper_hostname=self.options.get('--pubkeeper-hostname'),
+                           pubkeeper_token=self.options.get('--pubkeeper-token'),
                            username=self.options['--username'],
                            password=self.options['--password'],
                            ssl=self.options.get('--ssl'),

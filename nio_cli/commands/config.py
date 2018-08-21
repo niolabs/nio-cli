@@ -27,7 +27,12 @@ class Config(Base):
     def run(self):
         if self._resource == 'project':
             config_project(name=self.options['--project'],
+                           pubkeeper_hostname=self.options.get('pubkeeper-hostname'),
+                           pubkeeper_token=self.options.get('pubkeeper-token'),
                            username=self.options['--username'],
-                           password=self.options['--password'])
+                           password=self.options['--password'],
+                           ssl=self.options.get('--ssl'),
+                           niohost=self.options['--ip'],
+                           nioport=self.options['--port'])
         else:
             self.config_block_or_service()

@@ -2,8 +2,8 @@
 nio
 
 Usage:
-  nio new <project-name> [(--template <template> | -t <template>) --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN]
   nio newblock <block-name>
+  nio [options] new <project-name> [(--template <template> | -t <template>) --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN --ssl]
   nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks
@@ -23,8 +23,8 @@ Usage:
   nio --version
 
 Options:
-  -p PORT --port=PORT               Specify nio port [default: 8181].
-  -i IP --ip=IP                     Specify nio ip address [default: 127.0.0.1].
+  -p PORT --port=PORT               Specify nio port.
+  -i IP --ip=IP                     Specify nio ip address.
   --username=USERNAME               Specify username [default: Admin].
   --password=PASSWORD               Specify password [default: Admin].
   --project=PROJECT                 Specify project directory [default: .].

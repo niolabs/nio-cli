@@ -189,17 +189,17 @@ class TestCLI(unittest.TestCase):
         responses.add(responses.GET,
                       'http://127.0.0.1:8181/blocks',
                       json=blk_response)
-        with patch('builtins.print') as print:
+        with patch('builtins.print') as mock_print:
             self._main('list', **{
                 "services": False,
                 '--username': 'user',
                 '--password': 'pwd'
             })
             self.assertEqual(len(responses.calls), 1)
-            self.assertEqual(print.call_count, 2)
+            self.assertEqual(mock_print.call_count, 2)
             for index, blk in enumerate(blk_response):
                 self.assertEqual(
-                    print.call_args_list[index],
+                    mock_print.call_args_list[index],
                     ((blk_response[blk]['id'], blk_response[blk]['name']),)
                 )
 

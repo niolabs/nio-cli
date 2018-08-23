@@ -46,7 +46,8 @@ class New(Base):
             for file_name in files:
                 if file_name == 'requirements.txt':
                     reqs = os.path.join(root, file_name)
-                    subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
+                    subprocess.call(
+                        [sys.executable, '-m', 'pip', 'install', '-r', reqs])
         config_project(name=self._name,
                        pubkeeper_hostname=self._pubkeeper_hostname,
                        pubkeeper_token=self._pubkeeper_token,

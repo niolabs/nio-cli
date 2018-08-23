@@ -77,7 +77,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(call.call_args_list[2][0][0], (
             'cd ./project '
             '&& git remote remove origin '
-            '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+            '&& git commit --amend --reset-author --quiet -m "Initial commit"'
         ))
 
     def test_new_command_template(self):
@@ -124,7 +124,8 @@ class TestCLI(unittest.TestCase):
                 self.assertEqual(call.call_args_list[3][0][0], (
                     'cd ./project '
                     '&& git remote remove origin '
-                    '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+                    '&& git commit --amend --reset-author --quiet '
+                    '-m "Initial commit"'
                 ))
 
     def test_new_command_with_failed_clone(self):

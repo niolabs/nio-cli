@@ -35,7 +35,7 @@ class New(Base):
         reinit_repo = (
             'cd ./{} '
             '&& git remote remove origin '
-            '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+            '&& git commit --amend --reset-author --quiet -m "Initial commit"'
         ).format(self._name)
         subprocess.call(clone, shell=True)
         if not os.path.isdir(self._name):

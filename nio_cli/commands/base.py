@@ -9,7 +9,7 @@ class Base(object):
         self.kwargs = kwargs
         self._ip = self.options['--ip']\
             if self.options['--ip'] is not None\
-            else '0.0.0.0'
+            else '127.0.0.1'
         self._port = self.options['--port']\
             if self.options['--port'] is not None\
             else '8181'

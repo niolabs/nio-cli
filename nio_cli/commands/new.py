@@ -27,7 +27,7 @@ class New(Base):
             else:
                 repo = 'git://github.com/niolabs/{}.git'.format(self._template)
 
-        clone = "git clone --depth=1 {} {}".format(repo, self._name)
+        clone = "git clone {} {}".format(repo, self._name)
         submodule_update = (
             'cd ./{} '
             '&& git submodule update --init --recursive'

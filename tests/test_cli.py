@@ -67,7 +67,7 @@ class TestCLI(unittest.TestCase):
                                        password='pwd',
                                        ssl=None)
         self.assertEqual(call.call_args_list[0][0][0], (
-            'git clone --depth=1 '
+            'git clone '
             'git://github.com/niolabs/project_template.git project'
         ))
         self.assertEqual(call.call_args_list[1][0][0], (
@@ -111,7 +111,7 @@ class TestCLI(unittest.TestCase):
                                                password='pwd',
                                                ssl=None)
                 self.assertEqual(call.call_args_list[0][0][0], (
-                    'git clone --depth=1 '
+                    'git clone '
                     'git://github.com/niolabs/my_template.git project'
                 ))
                 self.assertEqual(call.call_args_list[1][0][0], (
@@ -507,7 +507,7 @@ class TestCLI(unittest.TestCase):
 
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
-                'git clone --depth=1 '
+                'git clone '
                 'git://github.com/nio-blocks/block_template.git yaba_daba'
             ))
             self.assertEqual(mock_file.call_args_list[0][0],

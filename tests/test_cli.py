@@ -197,11 +197,12 @@ class TestCLI(unittest.TestCase):
             })
             self.assertEqual(len(responses.calls), 1)
             self.assertEqual(mock_print.call_count, 2)
-            for index, blk in enumerate(blk_response):
-                self.assertEqual(
-                    mock_print.call_args_list[index],
-                    ((blk_response[blk]['id'], blk_response[blk]['name']),)
-                )
+            call_args = [arg[0] for arg in mock_print.call_args_list]
+            for blk in blk_response:
+                # the order of responses is not guaranteed
+                self.assertTrue(
+                    (blk_response[blk]['id'], blk_response[blk]['name'])
+                    in call_args)
 
     @responses.activate
     def test_shutdown_command(self):

@@ -27,7 +27,7 @@ class New(Base):
             else:
                 repo = 'git://github.com/niolabs/{}.git'.format(self._template)
 
-        clone = "git clone --depth=1 {} {}".format(repo, self._name)
+        clone = "git clone {} {}".format(repo, self._name)
         submodule_update = (
             'cd ./{} '
             '&& git submodule update --init --recursive'
@@ -35,7 +35,7 @@ class New(Base):
         reinit_repo = (
             'cd ./{} '
             '&& git remote remove origin '
-            '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+            '&& git commit --amend --reset-author --quiet -m "Initial commit"'
         ).format(self._name)
         subprocess.call(clone, shell=True)
         if not os.path.isdir(self._name):
@@ -46,7 +46,8 @@ class New(Base):
             for file_name in files:
                 if file_name == 'requirements.txt':
                     reqs = os.path.join(root, file_name)
-                    subprocess.call([sys.executable, '-m', 'pip', 'install', '-r', reqs])
+                    subprocess.call(
+                        [sys.executable, '-m', 'pip', 'install', '-r', reqs])
         config_project(name=self._name,
                        pubkeeper_hostname=self._pubkeeper_hostname,
                        pubkeeper_token=self._pubkeeper_token,

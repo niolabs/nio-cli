@@ -12,7 +12,7 @@ class NewBlock(Base):
 
     def run(self):
         clone = (
-            "git clone --depth=1 git://github.com/{}/{}.git {}"
+            "git clone git://github.com/{}/{}.git {}"
         ).format('nio-blocks', 'block_template', self._block)
         subprocess.call(clone, shell=True)
 

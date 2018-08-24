@@ -67,7 +67,7 @@ class TestCLI(unittest.TestCase):
                                        password='pwd',
                                        ssl=None)
         self.assertEqual(call.call_args_list[0][0][0], (
-            'git clone --depth=1 '
+            'git clone '
             'git://github.com/niolabs/project_template.git project'
         ))
         self.assertEqual(call.call_args_list[1][0][0], (
@@ -77,7 +77,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(call.call_args_list[2][0][0], (
             'cd ./project '
             '&& git remote remove origin '
-            '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+            '&& git commit --amend --reset-author --quiet -m "Initial commit"'
         ))
 
     def test_new_command_template(self):
@@ -111,7 +111,7 @@ class TestCLI(unittest.TestCase):
                                                password='pwd',
                                                ssl=None)
                 self.assertEqual(call.call_args_list[0][0][0], (
-                    'git clone --depth=1 '
+                    'git clone '
                     'git://github.com/niolabs/my_template.git project'
                 ))
                 self.assertEqual(call.call_args_list[1][0][0], (
@@ -124,7 +124,8 @@ class TestCLI(unittest.TestCase):
                 self.assertEqual(call.call_args_list[3][0][0], (
                     'cd ./project '
                     '&& git remote remove origin '
-                    '&& git commit --amend --reset-author -m "Initial commit" > /dev/null 2>&1'
+                    '&& git commit --amend --reset-author --quiet '
+                    '-m "Initial commit"'
                 ))
 
     def test_new_command_with_failed_clone(self):
@@ -188,19 +189,20 @@ class TestCLI(unittest.TestCase):
         responses.add(responses.GET,
                       'http://127.0.0.1:8181/blocks',
                       json=blk_response)
-        with patch('builtins.print') as print:
+        with patch('builtins.print') as mock_print:
             self._main('list', **{
                 "services": False,
                 '--username': 'user',
                 '--password': 'pwd'
             })
             self.assertEqual(len(responses.calls), 1)
-            self.assertEqual(print.call_count, 2)
-            for index, blk in enumerate(blk_response):
-                self.assertEqual(
-                    print.call_args_list[index],
-                    ((blk_response[blk]['id'], blk_response[blk]['name']),)
-                )
+            self.assertEqual(mock_print.call_count, 2)
+            call_args = [arg[0] for arg in mock_print.call_args_list]
+            for blk in blk_response:
+                # the order of responses is not guaranteed
+                self.assertTrue(
+                    (blk_response[blk]['id'], blk_response[blk]['name'])
+                    in call_args)
 
     @responses.activate
     def test_shutdown_command(self):
@@ -506,7 +508,7 @@ class TestCLI(unittest.TestCase):
 
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
-                'git clone --depth=1 '
+                'git clone '
                 'git://github.com/nio-blocks/block_template.git yaba_daba'
             ))
             self.assertEqual(mock_file.call_args_list[0][0],

@@ -1,8 +1,8 @@
 import os
 import json
-from base64 import b64encode
 import re
 import tempfile
+from bcrypt import hashpw, gensalt
 
 def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
                    username=None, password=None, ssl=False, niohost=None,
@@ -103,10 +103,6 @@ def _config_ssl(name, conf_location):
 
 
 def set_user(project_name, username, password):
-    # Return if user is not changed from default
-    if username == 'Admin' and password == 'Admin':
-        return
-
     # load users
     users_location = '{}/etc/users.json'.format(project_name)
     if os.path.isfile(users_location):
@@ -119,7 +115,7 @@ def set_user(project_name, username, password):
     if username and password:
         print('Adding user: {}'.format(username))
         users[username] = {
-            "password": _base64_encode(password)
+            "password": _hash_password(password)
         }
         # write it back
         with open(users_location, 'w+') as f:
@@ -145,11 +141,11 @@ def _set_permissions(project_name, username):
     with open(permission_location, 'w+') as f:
         json.dump(permissions, f, indent=4, separators=(',', ': '))
 
-def _base64_encode(s, encoding='ISO-8859-1'):
-    """Return the native string base64-encoded (as a native string)."""
+def _hash_password(s, encoding='ISO-8859-1'):
+    """Return the native string bcrypt hashed (as a native string)."""
     if isinstance(s, str):
-        b = s.encode(encoding)
+        pwd = s.encode(encoding)
     else:
-        b = s
-    b = b64encode(b)
-    return b.decode(encoding)
+        pwd = s
+    hashed = hashpw(pwd, gensalt())
+    return hashed.decode(encoding)

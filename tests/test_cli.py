@@ -54,17 +54,54 @@ class TestCLI(unittest.TestCase):
             '<project-name>': 'project',
             '<template>': None,
             '--pubkeeper-hostname': None,
-            '--pubkeeper-token': None,
-            '--username': 'user',
-            '--password': 'pwd'
+            '--pubkeeper-token': None
         })
         config.assert_called_once_with(name='project',
                                        niohost='127.0.0.1',
                                        nioport='8181',
                                        pubkeeper_hostname=None,
                                        pubkeeper_token=None,
-                                       username='user',
-                                       password='pwd',
+                                       ssl=None)
+        self.assertEqual(call.call_args_list[0][0][0], (
+            'git clone '
+            'git://github.com/niolabs/project_template.git project'
+        ))
+        self.assertEqual(call.call_args_list[1][0][0], (
+            'cd ./project '
+            '&& git submodule update --init --recursive'
+        ))
+        self.assertEqual(call.call_args_list[2][0][0], (
+            'cd ./project '
+            '&& git remote remove origin '
+            '&& git commit --amend --reset-author --quiet -m "Initial commit"'
+        ))
+
+    def test_new_command_set_user(self):
+        """Clone the project template from GitHub"""
+        with patch('nio_cli.commands.new.os.path.isdir', return_value=True), \
+                patch('nio_cli.commands.new.subprocess.call') as call, \
+                patch('nio_cli.commands.new.set_user') as user, \
+                patch('nio_cli.commands.new.config_project') as config:
+            self._patched_new_command_set_user(call, user, config)
+
+    def _patched_new_command_set_user(self, call, user, config):
+        self._main('new', **{
+            '<project-name>': 'project',
+            '<template>': None,
+            '--pubkeeper-hostname': None,
+            '--pubkeeper-token': None,
+            '--username': 'new_user',
+            '--password': 'new_password'
+        })
+        user.assert_called_once_with('project',
+                                     'new_user',
+                                     'new_password',
+                                     True)
+        config.assert_called_once_with(name='project',
+                                       niohost='127.0.0.1',
+                                       nioport='8181',
+                                       pubkeeper_hostname=None,
+                                       pubkeeper_token=None,
                                        ssl=None)
         self.assertEqual(call.call_args_list[0][0][0], (
             'git clone '
@@ -98,17 +135,13 @@ class TestCLI(unittest.TestCase):
                     '<project-name>': 'project',
                     '<template>': 'my_template',
                     '--pubkeeper-hostname': 'pkhost',
-                    '--pubkeeper-token': 'pktoken',
-                    '--username': 'user',
-                    '--password': 'pwd'
+                    '--pubkeeper-token': 'pktoken'
                 })
                 config.assert_called_once_with(name='project',
                                                niohost='127.0.0.1',
                                                nioport='8181',
                                                pubkeeper_hostname='pkhost',
                                                pubkeeper_token='pktoken',
-                                               username='user',
-                                               password='pwd',
                                                ssl=None)
                 self.assertEqual(call.call_args_list[0][0][0], (
                     'git clone '

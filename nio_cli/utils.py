@@ -102,10 +102,10 @@ def _config_ssl(name, conf_location):
     os.rename(tmp.name, conf_location)
 
 
-def set_user(project_name, username, password):
+def set_user(project_name, username, password, replace=False):
     # load users
     users_location = '{}/etc/users.json'.format(project_name)
-    if os.path.isfile(users_location):
+    if os.path.isfile(users_location) and not replace:
         with open(users_location, 'r') as f:
             users = json.load(f)
     else:

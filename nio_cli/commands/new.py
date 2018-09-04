@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from .base import Base
-from nio_cli.utils import config_project
+from nio_cli.utils import config_project, set_user
 
 
 class New(Base):
@@ -13,8 +13,8 @@ class New(Base):
         self._template = self.options.get('<template>')
         self._pubkeeper_hostname = self.options.get('--pubkeeper-hostname')
         self._pubkeeper_token = self.options.get('--pubkeeper-token')
-        self._username = self.options['--username']
-        self._password = self.options['--password']
+        self._username = self.options.get('--username')
+        self._password = self.options.get('--password')
         self._ssl = self.options.get('--ssl')
         self._niohost = self.options.get('--ip')
         self._nioport = self.options.get('--port')
@@ -48,11 +48,14 @@ class New(Base):
                     reqs = os.path.join(root, file_name)
                     subprocess.call(
                         [sys.executable, '-m', 'pip', 'install', '-r', reqs])
+
+        # Overwrite user credentials
+        if self._username and self._password:
+            set_user(self._name, self._username, self._password, True)
+
         config_project(name=self._name,
                        pubkeeper_hostname=self._pubkeeper_hostname,
                        pubkeeper_token=self._pubkeeper_token,
-                       username=self._username,
-                       password=self._password,
                        ssl=self._ssl,
                        niohost=self._niohost,
                        nioport=self._nioport

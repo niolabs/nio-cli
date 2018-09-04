@@ -674,7 +674,7 @@ class TestCLI(unittest.TestCase):
             self.assertDictEqual(users[username],
                                  {"password": "AdminPwdHash"})
 
-            _set_permissions('testing_project', username)
+            _set_permissions('testing_project', username, False)
             # make sure we open permissions.json two times
             # to read and write new permissions
             self.assertEqual(mock_open.call_count, 4)

@@ -102,10 +102,10 @@ def _config_ssl(name, conf_location):
     os.rename(tmp.name, conf_location)
 
 
-def set_user(project_name, username, password):
+def set_user(project_name, username, password, replace=False):
     # load users
     users_location = '{}/etc/users.json'.format(project_name)
-    if os.path.isfile(users_location):
+    if os.path.isfile(users_location) and not replace:
         with open(users_location, 'r') as f:
             users = json.load(f)
     else:
@@ -120,14 +120,14 @@ def set_user(project_name, username, password):
         # write it back
         with open(users_location, 'w+') as f:
             json.dump(users, f, indent=4, separators=(',', ': '))
-        _set_permissions(project_name, username)
+        _set_permissions(project_name, username, replace)
     else:
         print('Username cannot be empty')
 
-def _set_permissions(project_name, username):
+def _set_permissions(project_name, username, replace):
     # Add new user with admin level permission
     permission_location = '{}/etc/permissions.json'.format(project_name)
-    if os.path.isfile(permission_location):
+    if os.path.isfile(permission_location) and not replace:
         with open(permission_location, 'r') as f:
             permissions = json.load(f)
     else:

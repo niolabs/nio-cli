@@ -5,8 +5,7 @@ import tempfile
 from bcrypt import hashpw, gensalt
 
 def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
-                   username=None, password=None, ssl=False, niohost=None,
-                   nioport=None):
+                   ssl=False, niohost=None, nioport=None):
     conf_location = '{}/nio.conf'.format(name)
     if not os.path.isfile(conf_location):
         print("Command must be run from project root.")
@@ -33,10 +32,6 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
                 tmp.write(line)
     os.remove(conf_location)
     os.rename(tmp.name, conf_location)
-
-    # allow to set a user
-    if username or password:
-        set_user(name, username, password)
 
     if ssl:
         _config_ssl(name, conf_location)

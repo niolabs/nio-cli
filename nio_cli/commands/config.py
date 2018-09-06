@@ -29,8 +29,6 @@ class Config(Base):
             config_project(name=self.options['--project'],
                            pubkeeper_hostname=self.options.get('--pubkeeper-hostname'),
                            pubkeeper_token=self.options.get('--pubkeeper-token'),
-                           username=self.options['--username'],
-                           password=self.options['--password'],
                            ssl=self.options.get('--ssl'),
                            niohost=self.options['--ip'],
                            nioport=self.options['--port'])

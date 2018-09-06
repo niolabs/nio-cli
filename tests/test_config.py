@@ -117,21 +117,6 @@ class TestConfigProject(unittest.TestCase):
         self.mock_os.remove.assert_called_once_with(conf_location)
         self.mock_os.rename.assert_called_once_with(ANY, conf_location)
 
-    def test_config_with_added_users(self):
-        pk_host = '123.pubkeeper.nio.works'
-        pk_token = '123123'
-        conf_location = './nio.conf'
-        users_location = './etc/users.json'
-        self._run_config_project(kwargs={"username": 'user',
-                                         "password": 'pwd',
-                                         "pubkeeper_hostname": pk_host,
-                                         "pubkeeper_token": pk_token})
-
-        self.assertEqual(self.mock_open.call_count, 5)
-        self._test_open_call_order(self.mock_open.call_args_list)
-        self.mock_os.remove.assert_called_once_with(conf_location)
-        self.mock_os.rename.assert_called_once_with(ANY, conf_location)
-
     def test_config_with_no_nioconf(self):
         self._run_config_project(isfile=False)
         self.mock_print.assert_called_once_with(
@@ -141,14 +126,11 @@ class TestConfigProject(unittest.TestCase):
     def test_config_with_ssl(self):
         pk_host = '123.pubkeeper.nio.works'
         pk_token = '123123'
-        self._run_config_project(kwargs={"username": 'user',
-                                         "password": 'pwd',
-                                         "pubkeeper_hostname": pk_host,
+        self._run_config_project(kwargs={"pubkeeper_hostname": pk_host,
                                          "pubkeeper_token": pk_token,
                                          "ssl": True})
 
-        self.assertEqual(self.mock_open.call_count, 5)
-        self._test_open_call_order(self.mock_open.call_args_list)
+        self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
         self.assertEqual(self.mock_ssl.call_count, 1)

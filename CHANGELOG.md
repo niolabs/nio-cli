@@ -1,5 +1,22 @@
 # nio-cli Changelog
 
+## [1.0.0](https://github.com/niolabs/nio-cli/tree/1.0.0) (2018-09-10)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.3...1.0.0)
+
+**Added:**
+
+- add ssl flag to config [\#118](https://github.com/niolabs/nio-cli/pull/118) ([tyoungNIO](https://github.com/tyoungNIO))
+
+**Fixed bugs:**
+
+- No username/password on config project [\#120](https://github.com/niolabs/nio-cli/pull/120) ([tlugger](https://github.com/tlugger))
+- Use correct localhost ip [\#115](https://github.com/niolabs/nio-cli/pull/115) ([tlugger](https://github.com/tlugger))
+- Unshallow clone [\#114](https://github.com/niolabs/nio-cli/pull/114) ([tyoungNIO](https://github.com/tyoungNIO))
+
+**Merged pull requests:**
+
+- Use bcrypt hashing for user/pasword creation [\#117](https://github.com/niolabs/nio-cli/pull/117) ([tlugger](https://github.com/tlugger))
+
 ## [0.7.3](https://github.com/niolabs/nio-cli/tree/0.7.3) (2018-08-21)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.2...0.7.3)
 

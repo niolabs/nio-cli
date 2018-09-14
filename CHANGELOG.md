@@ -1,5 +1,8 @@
 # nio-cli Changelog
 
+## [1.1.0](https://github.com/niolabs/nio-cli/tree/1.1.0) (2018-09-14)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/1.0.0...1.1.0)
+
 ## [1.0.0](https://github.com/niolabs/nio-cli/tree/1.0.0) (2018-09-10)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/0.7.3...1.0.0)
 

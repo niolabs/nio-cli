@@ -1,5 +1,16 @@
 # nio-cli Changelog
 
+## [1.2.0](https://github.com/niolabs/nio-cli/tree/1.2.0) (2018-09-24)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/1.1.0...1.2.0)
+
+**Added:**
+
+- Create custom CA for local certificates [\#123](https://github.com/niolabs/nio-cli/pull/123) ([mattdodge](https://github.com/mattdodge))
+
+**Merged pull requests:**
+
+- Split out utils and use cryptography library [\#121](https://github.com/niolabs/nio-cli/pull/121) ([mattdodge](https://github.com/mattdodge))
+
 ## [1.1.0](https://github.com/niolabs/nio-cli/tree/1.1.0) (2018-09-14)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/1.0.0...1.1.0)
 

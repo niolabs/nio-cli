@@ -1,5 +1,12 @@
 # nio-cli Changelog
 
+## [1.2.1](https://github.com/niolabs/nio-cli/tree/1.2.1) (2018-09-25)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/1.2.0...1.2.1)
+
+**Merged pull requests:**
+
+- Allow users to provide full instance host for access [\#124](https://github.com/niolabs/nio-cli/pull/124) ([mattdodge](https://github.com/mattdodge))
+
 ## [1.2.0](https://github.com/niolabs/nio-cli/tree/1.2.0) (2018-09-24)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/1.1.0...1.2.0)
 

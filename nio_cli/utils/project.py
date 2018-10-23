@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+from shutil import move
 
 from .ssl import config_ssl
 
@@ -40,4 +41,5 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
             else:
                 tmp.write(line)
     os.remove(conf_location)
-    os.rename(tmp.name, conf_location)
+    # move file using full-path so that it overrides if needed
+    move(os.path.abspath(tmp.name), os.path.abspath(conf_location))

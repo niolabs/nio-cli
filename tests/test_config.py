@@ -30,6 +30,7 @@ class TestConfigProject(unittest.TestCase):
         with patch('builtins.open', mock_open()) as self.mock_open, \
                 patch('builtins.print') as self.mock_print, \
                 patch(config_project.__module__ + '.os') as self.mock_os, \
+                patch(config_project.__module__ + '.move') as self.mock_move, \
                 patch(config_project.__module__ + '.config_ssl') as self.mock_ssl:
             self.mock_ssl.return_value = ('path/to/cert', 'path/to/key')
             self.mock_os.path.isfile.return_value = isfile
@@ -42,7 +43,7 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_open.call_args_list[0],
             call('./nio.conf', 'r'))
         self.mock_os.remove.assert_called_once_with('./nio.conf')
-        self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
+        self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 0)
 
     def test_config_with_pubkeeper_port_ip_flags(self):
@@ -56,7 +57,7 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_open.call_args_list[0],
             call('./nio.conf', 'r'))
         self.mock_os.remove.assert_called_once_with('./nio.conf')
-        self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
+        self.mock_move.assert_called_once_with(ANY, ANY)
 
     def test_config_with_specified_project_location(self):
         pk_host = '123.pubkeeper.nio.works'
@@ -71,7 +72,7 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_open.call_args_list[0],
             call(conf_location, 'r'))
         self.mock_os.remove.assert_called_once_with(conf_location)
-        self.mock_os.rename.assert_called_once_with(ANY, conf_location)
+        self.mock_move.assert_called_once_with(ANY, ANY)
 
     def test_config_with_no_nioconf(self):
         self._run_config_project(isfile=False)
@@ -88,7 +89,7 @@ class TestConfigProject(unittest.TestCase):
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
-        self.mock_os.rename.assert_called_once_with(ANY, './nio.conf')
+        self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 1)
 
     def _test_open_call_order(self, call_args_list, path='.'):

@@ -1,4 +1,5 @@
 import subprocess, re
+from shutil import move
 
 from .base import Base
 import os
@@ -17,24 +18,27 @@ class NewBlock(Base):
         subprocess.call(clone, shell=True)
 
         # rename block file
+
+        # ensure working with absolute path, safer for 'move' operations since
+        # it will override if needed
         block_parent_path = os.path.abspath(".")
         block_root_path = os.path.join(block_parent_path, self._block)
         os.chdir(block_root_path)
-        os.rename(os.path.join(block_root_path, "example_block.py"),
-                  os.path.join(block_root_path,
-                               "{0}_block.py".format(self._block)))
+        move(os.path.join(block_root_path, "example_block.py"),
+             os.path.join(block_root_path,
+                          "{0}_block.py".format(self._block)))
 
         # rename readme
         os.remove(os.path.join(block_root_path, "README.md"))
-        os.rename(os.path.join(block_root_path, "BLOCK_README.md"),
-                  os.path.join(block_root_path, "README.md"))
+        move(os.path.join(block_root_path, "BLOCK_README.md"),
+             os.path.join(block_root_path, "README.md"))
 
         # rename test file
         block_tests_path = os.path.join(block_root_path, "tests")
         os.chdir(block_tests_path)
-        os.rename(os.path.join(block_tests_path, "test_example_block.py"),
-                  os.path.join(block_tests_path,
-                               "test_{0}_block.py".format(self._block)))
+        move(os.path.join(block_tests_path, "test_example_block.py"),
+             os.path.join(block_tests_path,
+                          "test_{0}_block.py".format(self._block)))
 
         # subsequent calls assume being on block's parent folder
         os.chdir(block_parent_path)

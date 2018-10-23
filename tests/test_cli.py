@@ -536,7 +536,8 @@ class TestCLI(unittest.TestCase):
                    mock_open(
                        read_data='Example ..example_block TestExample')
                    ) as mock_file, \
-                patch("nio_cli.commands.newblock.os") as os_mock:
+                patch("nio_cli.commands.newblock.os") as os_mock, \
+                patch("nio_cli.commands.newblock.move") as move_mock:
 
             self._main('newblock', **{'<block-name>': 'yaba_daba'})
             self.assertEqual(call.call_args_list[0][0][0], (
@@ -550,7 +551,7 @@ class TestCLI(unittest.TestCase):
                 'YabaDaba ..example_block TestYabaDaba')
             # assert calls to rename block files
             self.assertEqual(os_mock.remove.call_count, 1)
-            self.assertEqual(os_mock.rename.call_count, 3)
+            self.assertEqual(move_mock.call_count, 3)
 
     def test_blockcheck_command(self):
         self.maxDiff = None

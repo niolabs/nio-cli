@@ -9,6 +9,7 @@ from .config import *
 from .cfg import *
 from .shutdown import *
 from .clone import *
+from .blockpublish import *
 from .buildspec import *
 from .buildreadme import *
 from .buildrelease import *

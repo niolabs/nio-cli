@@ -28,6 +28,7 @@ class BlockPublish(Base):
         output_spec = {}
         with open('spec.json', 'r') as f:
             spec = json.load(f)
+        print(spec)
         for block_name, block_spec in spec.items():
             from_python = block_spec.pop('from_python', None)
             from_readme = block_spec.pop('from_readme', None)

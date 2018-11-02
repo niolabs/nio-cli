@@ -260,8 +260,7 @@ class TestCLI(unittest.TestCase):
         })
         self.assertEqual(len(responses.calls), 1)
 
-    @skipIf(not niocore_installed, 'niocore required for buildspec')
-    def test_buildspec_command(self):
+    def test_blockpublish_command(self):
         """Create spec.json file from block class"""
 
         from nio.block.base import Block
@@ -269,6 +268,8 @@ class TestCLI(unittest.TestCase):
         from nio.command import command
         @command('commandit')
         @command('commander')
+        @input("testInput")
+        @input("testInput2")
         class SampleBlock1(Block):
             version = VersionProperty('0.1.0')
             str_prop = StringProperty(
@@ -279,100 +280,56 @@ class TestCLI(unittest.TestCase):
                 title='Another Prop',
             )
 
-        @input("testInput")
-        @input("testInput2")
-        class SampleBlock2(Block):
-            pass
-
-        discover_path = 'nio_cli.commands.buildspec.Discover.discover_classes'
-        json_dump_path = 'nio_cli.commands.buildspec.json.dump'
-        json_load_path = 'nio_cli.commands.buildspec.json.load'
-        file_exists_path = 'nio_cli.commands.buildspec.os.path.exists'
-        with patch(discover_path) as discover_classes, \
-                patch('builtins.open', mock_open()) as mock_file, \
-                patch(file_exists_path) as mock_file_exists, \
-                patch(json_dump_path) as mock_json_dump, \
-                patch(json_load_path) as mock_json_load:
-            # mocks to load existing spec.json and to discover blocks
-            mock_file_exists.return_value = True
-            mock_json_load.return_value = {
-                'nio/SampleBlock1': {
-                    'Description': 'This is the description',
-                    'Output': 'The output',
-                    'Input': 'The input',
-                    'Properties': {
-                        'String Prop': {
-                            'default': 'this will be overridden',
-                            'description': 'this description will stay',
-                            'additional thing': 'this will remain',
-                        },
-                    },
-                    'Commands': {
-                        'commandit': {
-                            'description': 'loaded from previous',
-                            'additional thing': 'this will remain',
-                        },
-                    },
-                },
+        get_block_class_path = 'nio_cli.utils.spec._get_block_class'
+        requests_path = 'nio_cli.commands.blockpublish.requests'
+        sample_spec = """
+            {
+                "nio/SampleBlock1": {
+                    "description": "This is the description",
+                    "outputs": "The original output",
+                    "from_python": "myfile.SampleBlock1"
+                }
             }
-            discover_classes.return_value = [SampleBlock1, SampleBlock2]
+        """
+        with patch('builtins.open', mock_open(read_data=sample_spec)), \
+                patch(get_block_class_path) as mock_get_class, \
+                patch(requests_path) as mock_requests:
+            # mocks to load existing spec.json and to discover blocks
+            mock_get_class.return_value = SampleBlock1
             # Exectute on repo 'myblocks'
-            self._main('buildspec', **{'<repo-name>': 'myblocks'})
-            discover_classes.assert_called_once_with(
-                'blocks.myblocks', ANY, ANY)
-            # File is opened for reading and then for writting
-            self.assertEqual(mock_file.call_args_list[0][0],
-                             ('blocks/myblocks/spec.json',))
-            self.assertEqual(mock_file.call_args_list[1][0],
-                             ('blocks/myblocks/spec.json', 'w'))
-            # json dump to file with formatting
-            mock_json_dump.assert_called_once_with(
-                ANY, mock_file(), indent=2)
-
+            self._main('blockpublish', **{
+                '--api-url': 'http://fake',
+                '--api-token': 'token'})
+            mock_get_class.assert_called_once_with('myfile.SampleBlock1')
             self.maxDiff = None
-            ordered_dict = OrderedDict([
-                ('nio/SampleBlock1', OrderedDict([
-                    ('version', '0.1.0'),
-                    ('description', ''),
-                    ('categories', []),
-                    ('properties', OrderedDict([
-                        ('another', OrderedDict([
-                            ('title', 'Another Prop'),
-                            ('type', 'StringType'),
-                            ('description', ''),
-                            ('default', None)])),
-                        ('str_prop', OrderedDict([
-                            ('title', 'String Prop'),
-                            ('type', 'StringType'),
-                            ('description', ''),
-                            ('default', 'default string')]))
-                    ])),
-                    ('inputs', OrderedDict([
-                        ('default', {'description': ''})
-                    ])),
-                    ('outputs', OrderedDict([
-                        ('default', {'description': ''})
-                    ])),
-                    ('commands', OrderedDict([
-                        ('commander', {'params': {}, 'description': ''}),
-                        ('commandit', {'params': {}, 'description': ''})]))
-                ])),
-                ('nio/SampleBlock2', OrderedDict([
-                    ('version', '0.0.0'),
-                    ('description', ''),
-                    ('categories', []),
-                    ('properties', OrderedDict()),
-                    ('inputs', OrderedDict([
-                        ('testInput', {'description': ''}),
-                        ('testInput2', {'description': ''})
-                    ])),
-                    ('outputs', OrderedDict([
-                        ('default', {'description': ''})
-                    ])),
-                    ('commands', OrderedDict())
-                ]))
-            ])
-            self.assertDictEqual(mock_json_dump.call_args[0][0], ordered_dict)
+            self.assertDictEqual(mock_requests.post.call_args[1]['json'], {
+                'nio/SampleBlock1': {
+                    'description': 'This is the description',
+                    'commands': {
+                        'commander': {'params': {}},
+                        'commandit': {'params': {}}
+                    },
+                    'inputs': {
+                        'testInput': {'description': ''},
+                        'testInput2': {'description': ''}
+                    },
+                    'outputs': 'The original output',  # orig output preserved
+                    'properties': {
+                        'another': {
+                            'default': None,
+                            'title': 'Another Prop',
+                            'type': 'StringType'
+                        },
+                        'str_prop': {
+                            'default': 'default string',
+                            'title': 'String Prop',
+                            'type': 'StringType'
+                        }
+                    },
+                    'version': '0.1.0'
+                }
+            }
+                                 )
 
     @skipIf(not niocore_installed, 'niocore required for buildrelease')
     def test_buildrelease_command(self):
@@ -433,101 +390,6 @@ class TestCLI(unittest.TestCase):
                 mock_file(),
                 indent=2,
                 sort_keys=True)
-
-    def test_readme_command(self):
-        """Create README.md from json.spec"""
-
-        json_load_path = 'nio_cli.commands.buildspec.json.load'
-        with patch('builtins.open', mock_open()) as mock_file, \
-                patch(json_load_path) as mock_json_load:
-            # mocks to load existing spec.json and to discover blocks
-            mock_json_load.return_value = {
-                'nio/SampleBlock1': {
-                    'description': 'This is the description',
-                    'properties': {
-                        'String Prop': {
-                            'default': '',
-                            'description': 'this description',
-                        },
-                    },
-                    'outputs': {'default': {}},
-                    'inputs': {
-                        'default': {
-                            'description': 'The input',
-                        },
-                    },
-                    'commands': {
-                        'commandit': {
-                            'description': 'a command',
-                        },
-                    },
-                },
-                'nio/SampleBlock2': {
-                    'version': '0.0.0',
-                    'description': '',
-                    'inputs': {},
-                    'outputs': {},
-                    'properties': {},
-                    'commands': {},
-                },
-            }
-            self._main('buildreadme')
-            # README and spec are opened
-            self.assertEqual(mock_file.call_args_list[0][0],
-                             ('README.md',))
-            self.assertEqual(mock_file.call_args_list[1][0],
-                             ('spec.json',))
-            self.assertEqual(mock_file.call_args_list[2][0],
-                             ('README.md', 'w'))
-            written = ''
-            for call in mock_file.return_value.write.call_args_list:
-                written += call[0][0]
-            self.maxDiff = None
-            self.assertEqual(
-                written,
-                'SampleBlock1\n'
-                '============\n'
-                'This is the description\n'
-                '\n'
-                'Properties\n'
-                '----------\n'
-                '- **String Prop**: this description\n'
-                '\n'
-                'Inputs\n'
-                '------\n'
-                '- **default**: The input\n'
-                '\n'
-                'Outputs\n'
-                '-------\n'
-                '- **default**: \n'
-                '\n'
-                'Commands\n'
-                '--------\n'
-                '- **commandit**: a command\n'
-                '\n'
-                '***\n'
-                '\n'
-                'SampleBlock2\n'
-                '============\n'
-                '\n'
-                '\n'
-                'Properties\n'
-                '----------\n'
-                'None\n'
-                '\n'
-                'Inputs\n'
-                '------\n'
-                'None\n'
-                '\n'
-                'Outputs\n'
-                '-------\n'
-                'None\n'
-                '\n'
-                'Commands\n'
-                '--------\n'
-                'None\n'
-                '\n'
-            )
 
     def test_newblock_command(self):
         """Clone the block template from GitHub"""

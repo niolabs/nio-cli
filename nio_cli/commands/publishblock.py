@@ -7,7 +7,7 @@ from .base import Base
 from ..utils.spec import build_spec_for_block
 
 
-class BlockPublish(Base):
+class PublishBlock(Base):
 
     def run(self):
         spec = self._fetch_spec()

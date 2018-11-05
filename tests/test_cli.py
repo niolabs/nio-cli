@@ -260,7 +260,7 @@ class TestCLI(unittest.TestCase):
         })
         self.assertEqual(len(responses.calls), 1)
 
-    def test_blockpublish_command(self):
+    def test_publishblock_command(self):
         """Create spec.json file from block class"""
 
         from nio.block.base import Block
@@ -281,7 +281,7 @@ class TestCLI(unittest.TestCase):
             )
 
         get_block_class_path = 'nio_cli.utils.spec._get_block_class'
-        requests_path = 'nio_cli.commands.blockpublish.requests'
+        requests_path = 'nio_cli.commands.publishblock.requests'
         sample_spec = """
             {
                 "nio/SampleBlock1": {
@@ -310,7 +310,7 @@ class TestCLI(unittest.TestCase):
             # mocks to load existing spec.json and to discover blocks
             mock_get_class.return_value = SampleBlock1
             # Exectute on repo 'myblocks'
-            self._main('blockpublish', **{
+            self._main('publishblock', **{
                 '--api-url': 'http://fake',
                 '--api-token': 'token'})
             mock_get_class.assert_called_once_with('myfile.SampleBlock1')

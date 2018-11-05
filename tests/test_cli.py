@@ -291,9 +291,22 @@ class TestCLI(unittest.TestCase):
                 }
             }
         """
-        with patch('builtins.open', mock_open(read_data=sample_spec)), \
+        sample_release = """
+            {
+                "nio/SampleBlock1": {
+                    "language": "Python",
+                    "version": "3.0.0",
+                    "url": "git://myblock"
+                }
+            }
+        """
+        with patch('builtins.open', new_callable=mock_open) as open_calls, \
                 patch(get_block_class_path) as mock_get_class, \
                 patch(requests_path) as mock_requests:
+            open_calls.side_effect = [
+                mock_open(read_data=sample_spec).return_value,
+                mock_open(read_data=sample_release).return_value
+            ]
             # mocks to load existing spec.json and to discover blocks
             mock_get_class.return_value = SampleBlock1
             # Exectute on repo 'myblocks'
@@ -302,7 +315,11 @@ class TestCLI(unittest.TestCase):
                 '--api-token': 'token'})
             mock_get_class.assert_called_once_with('myfile.SampleBlock1')
             self.maxDiff = None
-            self.assertDictEqual(mock_requests.post.call_args[1]['json'], {
+            # One POST for spec and one for release
+            self.assertEqual(mock_requests.post.call_count, 2)
+            spec_call_args = mock_requests.post.call_args_list[0][1]['json']
+            release_call_args = mock_requests.post.call_args_list[1][1]['json']
+            self.assertDictEqual(spec_call_args, {
                 'nio/SampleBlock1': {
                     'description': 'This is the description',
                     'commands': {
@@ -328,8 +345,14 @@ class TestCLI(unittest.TestCase):
                     },
                     'version': '0.1.0'
                 }
-            }
-                                 )
+            })
+            self.assertDictEqual(release_call_args, {
+                'nio/SampleBlock1': {
+                    "language": "Python",
+                    "version": "3.0.0",
+                    "url": "git://myblock"
+                }
+            })
 
     @skipIf(not niocore_installed, 'niocore required for buildrelease')
     def test_buildrelease_command(self):

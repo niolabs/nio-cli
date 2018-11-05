@@ -13,7 +13,10 @@ class BlockPublish(Base):
         spec = self._fetch_spec()
         release = self._fetch_release()
         if self.options.get('--dry-run'):
+            pprint("Specification that will be published:")
             pprint(spec)
+            pprint("Release data that will be published:")
+            pprint(release)
             return
         self._publish_spec(spec)
         self._publish_release(release)

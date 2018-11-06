@@ -12,6 +12,7 @@ Usage:
   nio [options] (config | cfg) services <service-name>
   nio [options] (config | cfg) blocks <block-name>
   nio [options] clone services <service-name> <new-name>
+  nio [options] publishblock [--dry-run --api-token=<token> --api-url=<api_url>]
   nio [options] buildspec <repo-name>
   nio [options] buildreadme
   nio [options] buildrelease <repo-name>

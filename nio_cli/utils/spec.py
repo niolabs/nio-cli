@@ -10,12 +10,26 @@ def build_spec_for_block(block_path):
     block = _get_block_class(block_path)
     block_spec = {}
     properties = block.get_description()["properties"]
-    block_spec["version"] = properties["version"]["default"]
+    block_version = properties["version"]["default"]
+    try:
+        major, minor, build = block_version.split(".")
+    except ValueError:
+        raise ValueError("{} is an invalid version".format(block_version))
+    # We only use the major and minor version of a block for the spec
+    block_spec["version"] = "{}.{}.0".format(major, minor)
     block_spec["properties"] = _build_properties_spec(block)
     block_spec["commands"] = _build_commands_spec(block)
     block_spec["inputs"] = _build_inputs_spec(block)
     block_spec["outputs"] = _build_outputs_spec(block)
     return block_spec
+
+
+def build_release_for_block(block_path):
+    block = _get_block_class(block_path)
+    block_release = {}
+    properties = block.get_description()["properties"]
+    block_release["version"] = properties["version"]["default"]
+    return block_release
 
 
 def _build_properties_spec(block):

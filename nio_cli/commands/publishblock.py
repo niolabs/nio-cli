@@ -4,7 +4,7 @@ import json
 import requests
 
 from .base import Base
-from ..utils.spec import build_spec_for_block
+from ..utils.spec import build_spec_for_block, build_release_for_block
 
 
 class PublishBlock(Base):
@@ -50,9 +50,20 @@ class PublishBlock(Base):
         return output_spec
 
     def _fetch_release(self):
+        output_release = {}
         with open('release.json', 'r') as f:
             release = json.load(f)
-        return release
+        for block_name, release_info in release.items():
+            from_python = release_info.pop('from_python', None)
+            if from_python:
+                # We will load the block release data from the block file
+                # itself but anything provided in release.json should
+                # take precedence though
+                release_data_from_block = build_release_for_block(from_python)
+                release_data_from_block.update(release_info)
+                release_info = release_data_from_block
+            output_release[block_name] = release_info
+        return output_release
 
     def _publish_spec(self, spec):
         # Loop through the specs, we can only publish one at a time

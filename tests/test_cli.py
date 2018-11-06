@@ -271,7 +271,7 @@ class TestCLI(unittest.TestCase):
         @input("testInput")
         @input("testInput2")
         class SampleBlock1(Block):
-            version = VersionProperty('0.1.0')
+            version = VersionProperty('1.2.3')
             str_prop = StringProperty(
                 title='String Prop',
                 default='default string',
@@ -295,7 +295,7 @@ class TestCLI(unittest.TestCase):
             {
                 "nio/SampleBlock1": {
                     "language": "Python",
-                    "version": "3.0.0",
+                    "from_python": "myfile.SampleBlock1",
                     "url": "git://myblock"
                 }
             }
@@ -313,7 +313,7 @@ class TestCLI(unittest.TestCase):
             self._main('publishblock', **{
                 '--api-url': 'http://fake',
                 '--api-token': 'token'})
-            mock_get_class.assert_called_once_with('myfile.SampleBlock1')
+            mock_get_class.assert_called_with('myfile.SampleBlock1')
             self.maxDiff = None
             # One POST for spec and one for release
             self.assertEqual(mock_requests.post.call_count, 2)
@@ -343,13 +343,13 @@ class TestCLI(unittest.TestCase):
                             'type': 'StringType'
                         }
                     },
-                    'version': '0.1.0'
+                    'version': '1.2.0'  # Make sure only major.minor
                 }
             })
             self.assertDictEqual(release_call_args, {
                 'nio/SampleBlock1': {
                     "language": "Python",
-                    "version": "3.0.0",
+                    "version": "1.2.3",
                     "url": "git://myblock"
                 }
             })

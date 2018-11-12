@@ -1,7 +1,18 @@
 # nio-cli Changelog
 
+## [1.3.0](https://github.com/niolabs/nio-cli/tree/1.3.0) (2018-11-12)
+[Full Changelog](https://github.com/niolabs/nio-cli/compare/1.2.2...1.3.0)
+
+**Added:**
+
+- Add blockpublish command to publish block specs API-461 BLK-360 [\#126](https://github.com/niolabs/nio-cli/pull/126) ([mattdodge](https://github.com/mattdodge))
+
 ## [1.2.2](https://github.com/niolabs/nio-cli/tree/1.2.2) (2018-10-24)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/1.2.1...1.2.2)
+
+**Fixed bugs:**
+
+- NIO-1202, replacing `os.rename` calls with `shutil.move` [\#125](https://github.com/niolabs/nio-cli/pull/125) ([f1401martin](https://github.com/f1401martin))
 
 ## [1.2.1](https://github.com/niolabs/nio-cli/tree/1.2.1) (2018-09-25)
 [Full Changelog](https://github.com/niolabs/nio-cli/compare/1.2.0...1.2.1)

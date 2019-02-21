@@ -34,10 +34,10 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
                 tmp.write('NIOHOST={}\n'.format(niohost))
             elif re.search('^NIOPORT=', line) and nioport:
                 tmp.write('NIOPORT={}\n'.format(nioport))
-            elif re.search('^ssl_certificate=', line) and ssl_cert_path:
-                tmp.write('ssl_certificate={}\n'.format(ssl_cert_path))
-            elif re.search('^ssl_private_key=', line) and ssl_key_path:
-                tmp.write('ssl_private_key={}\n'.format(ssl_key_path))
+            elif re.search('^SSL_CERTIFICATE=', line) and ssl_cert_path:
+                tmp.write('SSL_CERTIFICATE={}\n'.format(ssl_cert_path))
+            elif re.search('^SSL_PRIVATE_KEY=', line) and ssl_key_path:
+                tmp.write('SSL_PRIVATE_KEY={}\n'.format(ssl_key_path))
             else:
                 tmp.write(line)
     os.remove(conf_location)

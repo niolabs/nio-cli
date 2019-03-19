@@ -67,16 +67,16 @@ class TestConfigProject(unittest.TestCase):
         self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 0)
 
-    def test_config_with_pubkeeper_port_ip_flags(self):
-        pk_host = 'hostname.pubkeeper.whatever'
-        ws_host = pk_host.replace('pubkeeper', 'websocket')
-        pk_token = 'token'
-        nio_host = '1.2.3.4'
-        nio_port = 5678
-        self._run_config_project(kwargs={'pubkeeper_hostname': pk_host,
-                                         'pubkeeper_token': pk_token,
-                                         'niohost': nio_host,
-                                         'nioport': nio_port})
+    def test_config_with_optional_flags(self):
+        config = {
+            'pubkeeper_hostname': 'hostname.pubkeeper.whatever',
+            'pubkeeper_token': 'token',
+            'niohost': '1.2.3.4',
+            'nioport': 5678,
+        }
+        ws_host = config['pubkeeper_hostname'].replace(
+            'pubkeeper', 'websocket')
+        self._run_config_project(kwargs=config)
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
             self.mock_open.call_args_list[0],
@@ -86,19 +86,19 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_tempfile.write.call_count, 8)
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[0],
-            call('PK_HOST={}\n'.format(pk_host)))
+            call('PK_HOST={}\n'.format(config['pubkeeper_hostname'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[1],
             call('WS_HOST={}\n'.format(ws_host)))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[2],
-            call('PK_TOKEN={}\n'.format(pk_token)))
+            call('PK_TOKEN={}\n'.format(config['pubkeeper_token'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[3],
-            call('NIOHOST={}\n'.format(nio_host)))
+            call('NIOHOST={}\n'.format(config['niohost'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[4],
-            call('NIOPORT={}\n'.format(nio_port)))
+            call('NIOPORT={}\n'.format(config['nioport'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[5],
             call('et cetera\n'))

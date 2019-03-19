@@ -138,6 +138,11 @@ class TestConfigProject(unittest.TestCase):
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 1)
+        # default cert locations
+        self.mock_tempfile.write.assert_any_call(
+            'SSL_CERTIFICATE=path/to/cert\n')
+        self.mock_tempfile.write.assert_any_call(
+            'SSL_PRIVATE_KEY=path/to/key\n')
 
     def _test_open_call_order(self, call_args_list, path='.'):
         self.assertEqual(

@@ -36,6 +36,7 @@ class TestConfigProject(unittest.TestCase):
             'PK_TOKEN=',
             'NIOHOST=',
             'NIOPORT=',
+            'INSTANCE_ID=',
             'et cetera',
             'SSL_CERTIFICATE=',
             'SSL_PRIVATE_KEY=',

@@ -13,7 +13,7 @@ class TestConfig(unittest.TestCase):
             '--port': None,
             '--username': 'Admin',
             '--password': 'Admin',
-            '--project': '.'
+            '--project': '.',
         }
         with patch('builtins.print') as self.mock_print, \
                 patch(Config.__module__ + '.config_project') as self.mock_conf:
@@ -77,6 +77,7 @@ class TestConfigProject(unittest.TestCase):
         ws_host = config['pubkeeper_hostname'].replace(
             'pubkeeper', 'websocket')
         self._run_config_project(kwargs=config)
+
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
             self.mock_open.call_args_list[0],
@@ -112,7 +113,8 @@ class TestConfigProject(unittest.TestCase):
     def test_config_with_specified_project_location(self):
         path = '/path/to/project'
         conf_location = '{}/nio.conf'.format(path)
-        self._run_config_project(kwargs={'name': path})
+        config = {'name': path}
+        self._run_config_project(kwargs=config)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
@@ -123,12 +125,14 @@ class TestConfigProject(unittest.TestCase):
 
     def test_config_with_no_nioconf(self):
         self._run_config_project(isfile=False)
+
         self.mock_print.assert_called_once_with(
             'Command must be run from project root.')
         self.assertEqual(self.mock_open.call_count, 0)
 
     def test_config_with_ssl(self):
-        self._run_config_project(kwargs={'ssl': True})
+        config = {'ssl': True}
+        self._run_config_project(kwargs=config)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
@@ -136,18 +140,18 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_ssl.call_count, 1)
 
     def _test_open_call_order(self, call_args_list, path='.'):
-        open1_call_args = self.mock_open.call_args_list[0]
-        self.assertEqual(open1_call_args, call('{}/nio.conf'\
-            .format(path), 'r'))
-        open2_call_args = self.mock_open.call_args_list[1]
-        self.assertEqual(open2_call_args, call('{}/etc/users.json'\
-            .format(path), 'r'))
-        open3_call_args = self.mock_open.call_args_list[2]
-        self.assertEqual(open3_call_args, call('{}/etc/users.json'\
-            .format(path), 'w+'))
-        open4_call_args = self.mock_open.call_args_list[3]
-        self.assertEqual(open4_call_args, call('{}/etc/permissions.json'\
-            .format(path), 'r'))
-        open5_call_args = self.mock_open.call_args_list[4]
-        self.assertEqual(open5_call_args, call('{}/etc/permissions.json'\
-            .format(path), 'w+'))
+        self.assertEqual(
+            self.mock_open.call_args_list[0],
+            call('{}/nio.conf'.format(path), 'r'))
+        self.assertEqual(
+            self.mock_open.call_args_list[1],
+            call('{}/etc/users.json'.format(path), 'r'))
+        self.assertEqual(
+            self.mock_open.call_args_list[2],
+            call('{}/etc/users.json'.format(path), 'w+'))
+        self.assertEqual(
+            self.mock_open.call_args_list[3],
+            call('{}/etc/permissions.json'.format(path), 'r'))
+        self.assertEqual(
+            self.mock_open.call_args_list[4],
+            call('{}/etc/permissions.json'.format(path), 'w+'))

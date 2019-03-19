@@ -68,15 +68,15 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_ssl.call_count, 0)
 
     def test_config_with_optional_flags(self):
-        config = {
+        cfg = {
             'pubkeeper_hostname': 'hostname.pubkeeper.whatever',
             'pubkeeper_token': 'token',
             'niohost': '1.2.3.4',
             'nioport': 5678,
         }
-        ws_host = config['pubkeeper_hostname'].replace(
+        ws_host = cfg['pubkeeper_hostname'].replace(
             'pubkeeper', 'websocket')
-        self._run_config_project(kwargs=config)
+        self._run_config_project(kwargs=cfg)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
@@ -87,19 +87,19 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_tempfile.write.call_count, 8)
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[0],
-            call('PK_HOST={}\n'.format(config['pubkeeper_hostname'])))
+            call('PK_HOST={}\n'.format(cfg['pubkeeper_hostname'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[1],
             call('WS_HOST={}\n'.format(ws_host)))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[2],
-            call('PK_TOKEN={}\n'.format(config['pubkeeper_token'])))
+            call('PK_TOKEN={}\n'.format(cfg['pubkeeper_token'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[3],
-            call('NIOHOST={}\n'.format(config['niohost'])))
+            call('NIOHOST={}\n'.format(cfg['niohost'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[4],
-            call('NIOPORT={}\n'.format(config['nioport'])))
+            call('NIOPORT={}\n'.format(cfg['nioport'])))
         self.assertEqual(
             self.mock_tempfile.write.call_args_list[5],
             call('et cetera\n'))
@@ -113,8 +113,10 @@ class TestConfigProject(unittest.TestCase):
     def test_config_with_specified_project_location(self):
         path = '/path/to/project'
         conf_location = '{}/nio.conf'.format(path)
-        config = {'name': path}
-        self._run_config_project(kwargs=config)
+        cfg = {
+            'name': path,
+        }
+        self._run_config_project(kwargs=cfg)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
@@ -131,8 +133,10 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_open.call_count, 0)
 
     def test_config_with_ssl(self):
-        config = {'ssl': True}
-        self._run_config_project(kwargs=config)
+        cfg = {
+            'ssl': True,
+        }
+        self._run_config_project(kwargs=cfg)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')

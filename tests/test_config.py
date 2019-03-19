@@ -112,7 +112,7 @@ class TestConfigProject(unittest.TestCase):
     def test_config_with_specified_project_location(self):
         path = '/path/to/project'
         conf_location = '{}/nio.conf'.format(path)
-        self._run_config_project(kwargs={"name": path})
+        self._run_config_project(kwargs={'name': path})
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.assertEqual(
@@ -128,7 +128,7 @@ class TestConfigProject(unittest.TestCase):
         self.assertEqual(self.mock_open.call_count, 0)
 
     def test_config_with_ssl(self):
-        self._run_config_project(kwargs={"ssl": True})
+        self._run_config_project(kwargs={'ssl': True})
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')

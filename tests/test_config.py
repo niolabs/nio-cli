@@ -30,18 +30,18 @@ class TestConfigProject(unittest.TestCase):
         # Thank you, Martijn Pieters
         #https://stackoverflow.com/questions/24779893/customizing-unittest-mock-mock-open-for-iteration
         # define contents of a fresh nio.conf
-        read_data = '\n'.join([
-            'PK_HOST=',
-            'WS_HOST=',
-            'PK_TOKEN=',
-            'NIOHOST=',
-            'NIOPORT=',
-            'INSTANCE_ID=',
-            'et cetera',
-            'SSL_CERTIFICATE=',
-            'SSL_PRIVATE_KEY=',
-            '',  # end with a newline
-        ])
+        self.test_file = [
+            'PK_HOST=\n',
+            'WS_HOST=\n',
+            'PK_TOKEN=\n',
+            'NIOHOST=\n',
+            'NIOPORT=\n',
+            'INSTANCE_ID=\n',
+            'et cetera\n',
+            'SSL_CERTIFICATE=\n',
+            'SSL_PRIVATE_KEY=\n',
+        ]
+        read_data = ''.join(self.test_file)
         m = mock_open(read_data=read_data)
         m.return_value.__iter__ = lambda self: self
         m.return_value.__next__ = lambda self: next(iter(self.readline, ''))
@@ -86,7 +86,10 @@ class TestConfigProject(unittest.TestCase):
             call('./nio.conf', 'r'))
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_move.assert_called_once_with(ANY, ANY)
-        self.assertEqual(self.mock_tempfile.write.call_count, 8)
+        # each line in the file is re-written, with params as applicable
+        self.assertEqual(
+            self.mock_tempfile.write.call_count,
+            len(self.test_file))
         self.mock_tempfile.write.assert_any_call(
             'PK_HOST={}\n'.format(cfg['pubkeeper_hostname']))
         self.mock_tempfile.write.assert_any_call(
@@ -99,12 +102,9 @@ class TestConfigProject(unittest.TestCase):
             'NIOPORT={}\n'.format(cfg['nioport']))
         self.mock_tempfile.write.assert_any_call(
             'INSTANCE_ID={}\n'.format(cfg['instance_id']))
-        self.mock_tempfile.write.assert_any_call(
-            'et cetera\n')
-        self.mock_tempfile.write.assert_any_call(
-            'SSL_CERTIFICATE=\n')
-        self.mock_tempfile.write.assert_any_call(
-            'SSL_PRIVATE_KEY=\n')
+        self.mock_tempfile.write.assert_any_call('et cetera\n')
+        self.mock_tempfile.write.assert_any_call('SSL_CERTIFICATE=\n')
+        self.mock_tempfile.write.assert_any_call('SSL_PRIVATE_KEY=\n')
 
     def test_config_with_specified_project_location(self):
         path = '/path/to/project'

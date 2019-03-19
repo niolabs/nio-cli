@@ -32,6 +32,7 @@ class Config(Base):
                            pubkeeper_token=self.options.get('--pubkeeper-token'),
                            ssl=self.options.get('--ssl'),
                            niohost=self.options['--ip'],
-                           nioport=self.options['--port'])
+                           nioport=self.options['--port'],
+                           instance_id=self.options.get('--instance-id'))
         else:
             self.config_block_or_service()

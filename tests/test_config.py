@@ -147,20 +147,3 @@ class TestConfigProject(unittest.TestCase):
             'SSL_CERTIFICATE=path/to/cert\n')
         self.mock_tempfile.write.assert_any_call(
             'SSL_PRIVATE_KEY=path/to/key\n')
-
-    def _test_open_call_order(self, call_args_list, path='.'):
-        self.assertEqual(
-            self.mock_open.call_args_list[0],
-            call('{}/nio.conf'.format(path), 'r'))
-        self.assertEqual(
-            self.mock_open.call_args_list[1],
-            call('{}/etc/users.json'.format(path), 'r'))
-        self.assertEqual(
-            self.mock_open.call_args_list[2],
-            call('{}/etc/users.json'.format(path), 'w+'))
-        self.assertEqual(
-            self.mock_open.call_args_list[3],
-            call('{}/etc/permissions.json'.format(path), 'r'))
-        self.assertEqual(
-            self.mock_open.call_args_list[4],
-            call('{}/etc/permissions.json'.format(path), 'w+'))

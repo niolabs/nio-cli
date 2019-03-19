@@ -51,8 +51,9 @@ class TestConfigProject(unittest.TestCase):
                 patch(config_project.__module__ + '.config_ssl') as \
                     self.mock_ssl, \
                 patch(config_project.__module__ + '.tempfile') as \
-                    self.mock_tempfile:
+                    mock_tempfile:
             self.mock_ssl.return_value = ('path/to/cert', 'path/to/key')
+            self.mock_tempfile = mock_tempfile.NamedTemporaryFile().__enter__()
             self.mock_os.path.isfile.return_value = isfile
             config_project(**kwargs)
 
@@ -82,32 +83,30 @@ class TestConfigProject(unittest.TestCase):
             call('./nio.conf', 'r'))
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_move.assert_called_once_with(ANY, ANY)
-        tempfile = self.mock_tempfile.NamedTemporaryFile.return_value\
-            .__enter__.return_value
-        self.assertEqual(tempfile.write.call_count, 8)
+        self.assertEqual(self.mock_tempfile.write.call_count, 8)
         self.assertEqual(
-            tempfile.write.call_args_list[0],
+            self.mock_tempfile.write.call_args_list[0],
             call('PK_HOST={}\n'.format(pk_host)))
         self.assertEqual(
-            tempfile.write.call_args_list[1],
+            self.mock_tempfile.write.call_args_list[1],
             call('WS_HOST={}\n'.format(ws_host)))
         self.assertEqual(
-            tempfile.write.call_args_list[2],
+            self.mock_tempfile.write.call_args_list[2],
             call('PK_TOKEN={}\n'.format(pk_token)))
         self.assertEqual(
-            tempfile.write.call_args_list[3],
+            self.mock_tempfile.write.call_args_list[3],
             call('NIOHOST={}\n'.format(nio_host)))
         self.assertEqual(
-            tempfile.write.call_args_list[4],
+            self.mock_tempfile.write.call_args_list[4],
             call('NIOPORT={}\n'.format(nio_port)))
         self.assertEqual(
-            tempfile.write.call_args_list[5],
+            self.mock_tempfile.write.call_args_list[5],
             call('et cetera\n'))
         self.assertEqual(
-            tempfile.write.call_args_list[6],
+            self.mock_tempfile.write.call_args_list[6],
             call('SSL_CERTIFICATE=\n'))
         self.assertEqual(
-            tempfile.write.call_args_list[7],
+            self.mock_tempfile.write.call_args_list[7],
             call('SSL_PRIVATE_KEY=\n'))
 
     def test_config_with_specified_project_location(self):

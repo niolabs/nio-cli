@@ -40,6 +40,8 @@ def config_project(
                 tmp.write('NIOHOST={}\n'.format(niohost))
             elif re.search('^NIOPORT=', line) and nioport:
                 tmp.write('NIOPORT={}\n'.format(nioport))
+            elif re.search('^INSTANCE_ID=', line) and instance_id:
+                tmp.write('INSTANCE_ID={}\n'.format(instance_id))
             elif re.search('^SSL_CERTIFICATE=', line) and ssl_cert_path:
                 tmp.write('SSL_CERTIFICATE={}\n'.format(ssl_cert_path))
             elif re.search('^SSL_PRIVATE_KEY=', line) and ssl_key_path:

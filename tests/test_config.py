@@ -73,6 +73,7 @@ class TestConfigProject(unittest.TestCase):
             'pubkeeper_token': 'token',
             'niohost': '1.2.3.4',
             'nioport': 5678,
+            'instance_id': 'abc123',
         }
         ws_host = cfg['pubkeeper_hostname'].replace(
             'pubkeeper', 'websocket')
@@ -95,6 +96,8 @@ class TestConfigProject(unittest.TestCase):
             'NIOHOST={}\n'.format(cfg['niohost']))
         self.mock_tempfile.write.assert_any_call(
             'NIOPORT={}\n'.format(cfg['nioport']))
+        self.mock_tempfile.write.assert_any_call(
+            'INSTANCE_ID={}\n'.format(cfg['instance_id']))
         self.mock_tempfile.write.assert_any_call(
             'et cetera\n')
         self.mock_tempfile.write.assert_any_call(

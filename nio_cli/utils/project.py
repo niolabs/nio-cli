@@ -12,7 +12,8 @@ def config_project(
         pubkeeper_token=None,
         ssl=False,
         niohost=None,
-        nioport=None):
+        nioport=None,
+        instance_id=None):
     conf_location = '{}/nio.conf'.format(name)
     if not os.path.isfile(conf_location):
         print('Command must be run from project root.')

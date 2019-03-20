@@ -15,6 +15,7 @@ class New(Base):
         self._pubkeeper_token = self.options.get('--pubkeeper-token')
         self._username = self.options.get('--username')
         self._password = self.options.get('--password')
+        self._instance_id = self.options.get('--instance-id')
         self._ssl = self.options.get('--ssl')
         self._no_ssl = self.options.get('--no-ssl')
         self._niohost = self.options.get('--ip')
@@ -63,6 +64,6 @@ class New(Base):
                        pubkeeper_token=self._pubkeeper_token,
                        ssl=not self._no_ssl,
                        niohost=self._niohost,
-                       nioport=self._nioport
-        )
+                       nioport=self._nioport,
+                       instance_id=self._instance_id)
         subprocess.call(reinit_repo, shell=True)

@@ -6,16 +6,22 @@ from shutil import move
 from .ssl import config_ssl
 
 
-def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
-                   ssl=False, niohost=None, nioport=None):
+def config_project(
+        name='.',
+        pubkeeper_hostname=None,
+        pubkeeper_token=None,
+        ssl=False,
+        niohost=None,
+        nioport=None,
+        instance_id=None):
     conf_location = '{}/nio.conf'.format(name)
     if not os.path.isfile(conf_location):
-        print("Command must be run from project root.")
+        print('Command must be run from project root.')
         return
 
     if pubkeeper_hostname:
-        websocket_hostname = pubkeeper_hostname.replace('pubkeeper',
-                                                        'websocket')
+        websocket_hostname = pubkeeper_hostname.replace(
+            'pubkeeper', 'websocket')
 
     ssl_cert_path = ssl_key_path = None
     if ssl:
@@ -34,11 +40,14 @@ def config_project(name='.', pubkeeper_hostname=None, pubkeeper_token=None,
                 tmp.write('NIOHOST={}\n'.format(niohost))
             elif re.search('^NIOPORT=', line) and nioport:
                 tmp.write('NIOPORT={}\n'.format(nioport))
+            elif re.search('^INSTANCE_ID=', line) and instance_id:
+                tmp.write('INSTANCE_ID={}\n'.format(instance_id))
             elif re.search('^SSL_CERTIFICATE=', line) and ssl_cert_path:
                 tmp.write('SSL_CERTIFICATE={}\n'.format(ssl_cert_path))
             elif re.search('^SSL_PRIVATE_KEY=', line) and ssl_key_path:
                 tmp.write('SSL_PRIVATE_KEY={}\n'.format(ssl_key_path))
             else:
+                # no change
                 tmp.write(line)
     os.remove(conf_location)
     # move file using full-path so that it overrides if needed

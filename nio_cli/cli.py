@@ -3,12 +3,12 @@ nio
 
 Usage:
   nio newblock <block-name>
-  nio [options] new <project-name> [(--template <template> | -t <template>) --ip --port --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN --ssl --no-ssl]
+  nio [options] new <project-name> [(--template <template> | -t <template>) --ip --port --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN --instance-id=ID --ssl --no-ssl]
   nio [options] add <block-repo>... [(--upgrade | -u)]
   nio [options] (list | ls) services
   nio [options] (list | ls) blocks
   nio [options] (command | co) <command-name> [--args=<args> (<service-name> | <block-name>)]
-  nio [options] (config | cfg) [--ip --port --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN --ssl]
+  nio [options] (config | cfg) [--ip --port --pubkeeper-hostname=HOST --pubkeeper-token=TOKEN --instance-id=ID --ssl]
   nio [options] (config | cfg) services <service-name>
   nio [options] (config | cfg) blocks <block-name>
   nio [options] clone services <service-name> <new-name>

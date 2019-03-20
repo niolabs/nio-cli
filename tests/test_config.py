@@ -13,7 +13,7 @@ class TestConfig(unittest.TestCase):
             '--port': None,
             '--username': 'Admin',
             '--password': 'Admin',
-            '--project': '.'
+            '--project': '.',
         }
         with patch('builtins.print') as self.mock_print, \
                 patch(Config.__module__ + '.config_project') as self.mock_conf:
@@ -27,12 +27,34 @@ class TestConfig(unittest.TestCase):
 class TestConfigProject(unittest.TestCase):
 
     def _run_config_project(self, isfile=True, kwargs={}):
-        with patch('builtins.open', mock_open()) as self.mock_open, \
+        # Thank you, Martijn Pieters
+        #https://stackoverflow.com/questions/24779893/customizing-unittest-mock-mock-open-for-iteration
+        # define contents of a fresh nio.conf
+        self.test_file = [
+            'PK_HOST=\n',
+            'WS_HOST=\n',
+            'PK_TOKEN=\n',
+            'NIOHOST=\n',
+            'NIOPORT=\n',
+            'INSTANCE_ID=\n',
+            'et cetera\n',
+            'SSL_CERTIFICATE=\n',
+            'SSL_PRIVATE_KEY=\n',
+        ]
+        read_data = ''.join(self.test_file)
+        m = mock_open(read_data=read_data)
+        m.return_value.__iter__ = lambda self: self
+        m.return_value.__next__ = lambda self: next(iter(self.readline, ''))
+        with patch('builtins.open', m) as self.mock_open, \
                 patch('builtins.print') as self.mock_print, \
                 patch(config_project.__module__ + '.os') as self.mock_os, \
                 patch(config_project.__module__ + '.move') as self.mock_move, \
-                patch(config_project.__module__ + '.config_ssl') as self.mock_ssl:
+                patch(config_project.__module__ + '.config_ssl') as \
+                    self.mock_ssl, \
+                patch(config_project.__module__ + '.tempfile') as \
+                    mock_tempfile:
             self.mock_ssl.return_value = ('path/to/cert', 'path/to/key')
+            self.mock_tempfile = mock_tempfile.NamedTemporaryFile().__enter__()
             self.mock_os.path.isfile.return_value = isfile
             config_project(**kwargs)
 
@@ -46,65 +68,78 @@ class TestConfigProject(unittest.TestCase):
         self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 0)
 
-    def test_config_with_pubkeeper_port_ip_flags(self):
-        pk_host = '123.pubkeeper.nio.works'
-        pk_token = '123123'
-        self._run_config_project(kwargs={'pubkeeper_hostname': pk_host,
-                                         'pubkeeper_token': pk_token,
-                                         'niohost': '127.0.0.1',
-                                         'nioport': '8182'})
+    def test_config_with_optional_flags(self):
+        cfg = {
+            'pubkeeper_hostname': 'hostname.pubkeeper.whatever',
+            'pubkeeper_token': 'token',
+            'niohost': '1.2.3.4',
+            'nioport': 5678,
+            'instance_id': 'abc123',
+        }
+        ws_host = cfg['pubkeeper_hostname'].replace(
+            'pubkeeper', 'websocket')
+        self._run_config_project(kwargs=cfg)
+
         self.assertEqual(self.mock_open.call_count, 1)
-        self.assertEqual(self.mock_open.call_args_list[0],
+        self.assertEqual(
+            self.mock_open.call_args_list[0],
             call('./nio.conf', 'r'))
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_move.assert_called_once_with(ANY, ANY)
+        # each line in the file is re-written, with params as applicable
+        self.assertEqual(
+            self.mock_tempfile.write.call_count,
+            len(self.test_file))
+        self.mock_tempfile.write.assert_any_call(
+            'PK_HOST={}\n'.format(cfg['pubkeeper_hostname']))
+        self.mock_tempfile.write.assert_any_call(
+            'WS_HOST={}\n'.format(ws_host))
+        self.mock_tempfile.write.assert_any_call(
+            'PK_TOKEN={}\n'.format(cfg['pubkeeper_token']))
+        self.mock_tempfile.write.assert_any_call(
+            'NIOHOST={}\n'.format(cfg['niohost']))
+        self.mock_tempfile.write.assert_any_call(
+            'NIOPORT={}\n'.format(cfg['nioport']))
+        self.mock_tempfile.write.assert_any_call(
+            'INSTANCE_ID={}\n'.format(cfg['instance_id']))
+        self.mock_tempfile.write.assert_any_call('et cetera\n')
+        self.mock_tempfile.write.assert_any_call('SSL_CERTIFICATE=\n')
+        self.mock_tempfile.write.assert_any_call('SSL_PRIVATE_KEY=\n')
 
     def test_config_with_specified_project_location(self):
-        pk_host = '123.pubkeeper.nio.works'
-        pk_token = '123123'
         path = '/path/to/project'
         conf_location = '{}/nio.conf'.format(path)
-        self._run_config_project(kwargs={"name": path,
-                                         "pubkeeper_hostname": pk_host,
-                                         "pubkeeper_token": pk_token})
+        cfg = {
+            'name': path,
+        }
+        self._run_config_project(kwargs=cfg)
 
         self.assertEqual(self.mock_open.call_count, 1)
-        self.assertEqual(self.mock_open.call_args_list[0],
+        self.assertEqual(
+            self.mock_open.call_args_list[0],
             call(conf_location, 'r'))
         self.mock_os.remove.assert_called_once_with(conf_location)
         self.mock_move.assert_called_once_with(ANY, ANY)
 
     def test_config_with_no_nioconf(self):
         self._run_config_project(isfile=False)
+
         self.mock_print.assert_called_once_with(
             'Command must be run from project root.')
         self.assertEqual(self.mock_open.call_count, 0)
 
     def test_config_with_ssl(self):
-        pk_host = '123.pubkeeper.nio.works'
-        pk_token = '123123'
-        self._run_config_project(kwargs={"pubkeeper_hostname": pk_host,
-                                         "pubkeeper_token": pk_token,
-                                         "ssl": True})
+        cfg = {
+            'ssl': True,
+        }
+        self._run_config_project(kwargs=cfg)
 
         self.assertEqual(self.mock_open.call_count, 1)
         self.mock_os.remove.assert_called_once_with('./nio.conf')
         self.mock_move.assert_called_once_with(ANY, ANY)
         self.assertEqual(self.mock_ssl.call_count, 1)
-
-    def _test_open_call_order(self, call_args_list, path='.'):
-        open1_call_args = self.mock_open.call_args_list[0]
-        self.assertEqual(open1_call_args, call('{}/nio.conf'\
-            .format(path), 'r'))
-        open2_call_args = self.mock_open.call_args_list[1]
-        self.assertEqual(open2_call_args, call('{}/etc/users.json'\
-            .format(path), 'r'))
-        open3_call_args = self.mock_open.call_args_list[2]
-        self.assertEqual(open3_call_args, call('{}/etc/users.json'\
-            .format(path), 'w+'))
-        open4_call_args = self.mock_open.call_args_list[3]
-        self.assertEqual(open4_call_args, call('{}/etc/permissions.json'\
-            .format(path), 'r'))
-        open5_call_args = self.mock_open.call_args_list[4]
-        self.assertEqual(open5_call_args, call('{}/etc/permissions.json'\
-            .format(path), 'w+'))
+        # default cert locations
+        self.mock_tempfile.write.assert_any_call(
+            'SSL_CERTIFICATE=path/to/cert\n')
+        self.mock_tempfile.write.assert_any_call(
+            'SSL_PRIVATE_KEY=path/to/key\n')
